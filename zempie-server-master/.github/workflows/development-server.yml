@@ -1,0 +1,95 @@
+name: 젬파이 개발 서버 배포
+on:
+    push:
+        branches:
+            - dev
+    workflow_dispatch:
+jobs:
+    build:
+        name: "빌드"
+        runs-on: ubuntu-latest
+        env:
+            IMAGE_NAME: zempie-server
+            PAT: ${{ secrets.PAT }}
+        outputs:
+            tag: ${{ steps.docker-image-tag-name.outputs.tag }}
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v1
+
+            - name: Get package.json version
+              id: package-version
+              run: |
+                  echo "::set-output name=version::$(node -p "require('./package.json').version")"
+
+            - name: Login to GitHub Container Registry
+              uses: docker/login-action@v1
+              with:
+                  registry: ghcr.io
+                  username: ParkHeeJin-Yumis
+                  password: ${{ secrets.PAT }}
+
+            - name: Docker 이미지 태그 결정
+              id: docker-image-tag-name
+              run: |
+                  echo "::set-output name=tag::${{ steps.package-version.outputs.current-version }}_build_${{ github.run_number }}"
+
+            - name: Build Dockerfile
+              id: docker-build
+              uses: docker/build-push-action@v2
+              with:
+                  context: ./
+                  push: true
+                  file: ./Dockerfile
+                  cache-from: type=local,src=/tmp/.buildx-cache
+                  cache-to: type=local,dest=/tmp/.buildx-cache-new
+                  tags: |
+                      ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+                      ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ steps.docker-image-tag-name.outputs.tag }}
+                  build-args: |
+                      NPM_TOKEN=${{ env.PAT }}
+                  secrets: |
+                      GIT_AUTH_TOKEN=${{ env.PAT }}
+
+            - name: Cache Docker layers
+              run: |
+                  rm -rf /tmp/.buildx-cache
+                  mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+    deploy:
+        name: "배포"
+        runs-on: [self-hosted, linux, X64]
+        needs: build
+        env:
+            SSH_HOSTNAME: ${{ secrets.SSH_HOSTNAME }}
+            USER_NAME: ${{ secrets.USER_NAME }}
+            SSH_KEY: ${{ secrets.KEY }}
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: docker-compose.yml 업로드
+              uses: appleboy/scp-action@master
+              with:
+                  host: ${{ secrets.SSH_HOSTNAME }}
+                  username: ${{ secrets.USER_NAME }}
+                  # password: ${{ secrets.PASSWORD }}
+                  key: ${{ secrets.KEY }}
+                  source: ./docker-compose.yml
+                  target: ~/zempie-community
+                  overwrite: true
+
+            - name: Docker 이미지 배포
+              uses: appleboy/ssh-action@master
+              with:
+                  host: ${{ secrets.SSH_HOSTNAME }}
+                  username: ${{ secrets.USER_NAME }}
+                  key: ${{ secrets.KEY }}
+                  script: |
+                      cd ~/zempie-community
+                      echo ${{ secrets.PAT }} | docker login ghcr.io --username ParkHeeJin-Yumis --password-stdin
+                      docker pull ghcr.io/${{ github.repository_owner }}/zempie-server:${{ needs.build.outputs.tag }}
+                      TAG=${{ needs.build.outputs.tag }} docker-compose up -d
+                      docker system prune --all --force
+                      docker tag ghcr.io/${{ github.repository_owner }}/zempie-server:${{ needs.build.outputs.tag }} ghcr.io/${{ github.repository_owner }}/zempie-server:latest
