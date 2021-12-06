@@ -16,7 +16,7 @@ export class PollDto {
     end_time: number;
 
     @ApiProperty()
-    createdAt: Date;
+    created_at: Date;
 
     constructor(partial: Partial<PollDto>) {
         Object.assign(this, partial);

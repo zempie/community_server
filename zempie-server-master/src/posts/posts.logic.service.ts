@@ -108,6 +108,7 @@ export class PostsLogicService {
                     })),
                     transaction
                 );
+                await this.communityService.setPostCnt(data.community.map(item => item.id), true, transaction)
             }
             if (data.portfolio_ids !== undefined && Array.isArray(data.portfolio_ids) === true && data.portfolio_ids.length > 0) {
                 await this.portfoliPostService.create(
@@ -180,6 +181,7 @@ export class PostsLogicService {
                         ChannelPostType.COMMUNITY,
                         transaction
                     );
+                    await this.communityService.setPostCnt(postedInfo.community.map(item => item.id), false, transaction)
                 }
                 await this.channelPostService.create(
                     data.community.map(item => ({
@@ -190,6 +192,7 @@ export class PostsLogicService {
                         visibility: post.visibility
                     }))
                 );
+                await this.communityService.setPostCnt(data.community.map(item => item.id), true, transaction)
             }
             if (data.game_id !== undefined) {
                 updatePostedData.game_id = data.game_id;
@@ -208,7 +211,7 @@ export class PostsLogicService {
                         transaction
                     );
                 }
-                if (data.portfolio_ids !== undefined && Array.isArray(data.portfolio_ids) && data.portfolio_ids.length > 0){
+                if (data.portfolio_ids !== undefined && Array.isArray(data.portfolio_ids) && data.portfolio_ids.length > 0) {
                     await this.portfoliPostService.create(
                         data.portfolio_ids.map(item => ({
                             channel_id: user.channel_id,
@@ -266,6 +269,7 @@ export class PostsLogicService {
                     ChannelPostType.COMMUNITY,
                     transaction
                 );
+                await this.communityService.setPostCnt(postedInfo.community.map(item => item.id), false, transaction)
             }
             if (postedInfo.portfolio_ids && postedInfo.portfolio_ids.length > 0) {
                 await this.portfoliPostService.delete(post.id, user.channel_id, postedInfo.portfolio_ids);
@@ -308,6 +312,7 @@ export class PostsLogicService {
                 ChannelPostType.COMMUNITY,
                 transaction
             );
+            await this.communityService.setPostCnt(data.community_id, true, transaction)
             transaction.commit();
             return {
                 ...data,

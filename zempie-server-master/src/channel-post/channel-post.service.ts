@@ -1,4 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
+import { QueryTypes } from "sequelize";
 import { FindOptions, Op, Transaction } from "sequelize";
 import { BaseService } from "src/abstract/base-service";
 import { Visibility } from "src/posts/enum/post-visibility.enum";
@@ -143,7 +144,7 @@ export class ChannelPostService extends BaseService<ChannelPost> {
         });
     }
 
-    async findOneBychannelIdPostId(channel_id: string, post_id: string, type?: ChannelPostType, transaction?:Transaction) {
+    async findOneBychannelIdPostId(channel_id: string, post_id: string, type?: ChannelPostType, transaction?: Transaction) {
         return await this.channelPostRepository.findOne({
             where: {
                 post_id: post_id,
@@ -188,5 +189,19 @@ export class ChannelPostService extends BaseService<ChannelPost> {
                 transaction
             });
         }
+    }
+
+    async cntUserPostCommunity(community_id: string, userIds: number[]): Promise<{ user_id: number, cnt: number }[]> {
+        return await this.channelPostRepository.sequelize.query(`
+            SELECT p.user_id as user_id, count(p.id) as cnt from channel_post cp 
+            left join posts p on cp.post_id = p.id where p.deletedAt is not null and p.user_id in(:userIds) and cp.community_id = :community_id and cp.deletedAt is not null
+        `, {
+            replacements: {
+                community_id: community_id,
+                userIds: userIds
+            },
+            type: QueryTypes.SELECT,
+            raw: true
+        })
     }
 }

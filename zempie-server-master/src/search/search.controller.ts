@@ -27,7 +27,7 @@ export class SearchController {
         private gameService: GameService,
         private userService: UserService,
         private searchKeywordLogService: SearchKeywordLogService
-    ) {}
+    ) { }
 
     @Get()
     @ApiOperation({ description: "검색" })
@@ -50,7 +50,7 @@ export class SearchController {
             });
         } else if (query.posting !== undefined) {
             await this.searchKeywordLogService.create(user ? user.id : null, query.posting);
-            return await this.postService.findAll({
+            const list = await this.postService.findAll({
                 community: query.community,
                 gametitle: query.gametitle,
                 hashtag: query.hashtag,
@@ -60,6 +60,14 @@ export class SearchController {
                 show: query.show,
                 sort: query.sort
             });
+            const users = await this.userService.findByIds(list.result.map(item => item.user_id));
+            return {
+                ...list,
+                result: list.result.map((item: any) => {
+                    const postUser = users.find(user => user.id === item.user_id);
+                    return { ...item, user: postUser }
+                })
+            }
         } else if (query.hashtag !== undefined) {
             await this.searchKeywordLogService.create(user ? user.id : null, query.hashtag);
             const result: SearchHashtagDto[] = [];
@@ -83,7 +91,12 @@ export class SearchController {
                 show: query.show,
                 sort: query.sort
             });
-            result.push({ game: gameInfo.result, posts: postsInfo.result });
+            const users = await this.userService.findByIds(postsInfo.result.map(item => item.user_id));
+            const list = postsInfo.result.map((item:any)=>{
+                const postUser = users.find(user => user.id === item.user_id);
+                return { ...item, user: postUser }
+            })
+            result.push({ game: gameInfo.result, posts: list });
             return result;
         } else if (query.gametitle !== undefined) {
             await this.searchKeywordLogService.create(user ? user.id : null, query.gametitle);
@@ -111,6 +124,11 @@ export class SearchController {
                 show: query.show,
                 sort: query.sort
             });
+            const postUsers = await this.userService.findByIds(posts.result.map(item => item.user_id));
+            const list = posts.result.map((item: any) => {
+                const postUser = postUsers.find(user => user.id === item.user_id);
+                return { ...item, user: postUser }
+            })
             const gameInfo = await this.gameService.findAll({
                 community: query.q,
                 gametitle: query.q,
@@ -133,7 +151,7 @@ export class SearchController {
             });
             const users = await this.userService.search({ username: query.q, limit: 3, offset: 0 });
             return new SearchAllDto({
-                posts: posts.result,
+                posts: list,
                 games: gameInfo.result,
                 community: communitys.result,
                 users: users.result.map(item => new UserDto({ ...item }))

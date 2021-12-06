@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { SequelizeModule } from "@nestjs/sequelize";
 import { ChannelPostModule } from "src/channel-post/channel-post.module";
+import { CommunityModule } from "src/community/community.module";
 import { PortfolioPostModule } from "src/portfolio/portfolio-post/portfolio-post.module";
 import { PostedAtModule } from "src/posted_at/posted_at.module";
 import { PostsModule } from "src/posts/posts.module";
@@ -15,7 +16,7 @@ import { PollService } from "./poll.service";
 @Module({
     imports: [SequelizeModule.forFeature([Poll, User]),
         UserModule, PostsModule, ChoiceModule,
-        PostedAtModule, ChannelPostModule, PortfolioPostModule,
+        PostedAtModule, ChannelPostModule, PortfolioPostModule, CommunityModule
     ],
     controllers: [PollController],
     providers: [PollService, PollLogicService],

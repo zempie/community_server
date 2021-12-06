@@ -62,7 +62,7 @@ export class FollowService extends BaseService<Follow> {
             } as user on follows.user_id = user.id left join ${User.tableName
             } as follower on follows.follow_id = follower.id
             where follows.${isFollow ? "user_id" : "follow_id"} = ? and ${isFollow ? "follower" : "user"
-            }.name like ? and follows.deletedAt IS NULL limit ?,?;
+            }.name like ? and follows.deleted_at IS NULL limit ?,?;
         `;
 
         const cntQuery = `
@@ -72,7 +72,7 @@ export class FollowService extends BaseService<Follow> {
             } as user on follows.user_id = user.id left join ${User.tableName
             } as follower on follows.follow_id = follower.id
             where follows.${isFollow ? "user_id" : "follow_id"} = ? and ${isFollow ? "follower" : "user"
-            }.name like ? and follows.deletedAt IS NULL limit 0,1;
+            }.name like ? and follows.deleted_at IS NULL limit 0,1;
         `;
 
         const list: FollowDto[] = await this.followRepository.sequelize.query(query, {

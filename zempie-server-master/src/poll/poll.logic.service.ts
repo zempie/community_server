@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { ChannelPostService } from "src/channel-post/channel-post.service";
 import { ChannelPostType } from "src/channel-post/enum/channelposttype.enum";
+import { CommunityService } from "src/community/community.service";
 import { PortfolioPostService } from "src/portfolio/portfolio-post/portfolio-post.service";
 import { PostedAtService } from "src/posted_at/posted_at.service";
 import { Posts } from "src/posts/posts.entity";
@@ -27,6 +28,7 @@ export class PollLogicService {
         private channelPostService: ChannelPostService,
         private portfoliPostService: PortfolioPostService,
         private userService: UserService,
+        private communityService: CommunityService
     ) {
     }
 
@@ -95,7 +97,7 @@ export class PollLogicService {
             throw new InternalServerErrorException("database error");
         }
     }
-    
+
 
     async delete(info: Posts, user: User) {
         const transaction = await this.postsService.sequelize().transaction();
@@ -112,6 +114,7 @@ export class PollLogicService {
                     ChannelPostType.COMMUNITY,
                     transaction
                 );
+                await this.communityService.setPostCnt(postedInfo.community.map(item => item.id), false, transaction)
             }
             if (postedInfo.portfolio_ids && postedInfo.portfolio_ids.length > 0) {
                 await this.portfoliPostService.delete(info.id, user.channel_id, postedInfo.portfolio_ids);

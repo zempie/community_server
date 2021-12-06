@@ -59,6 +59,16 @@ export class CommunityService extends BaseService<Community> {
         }
     }
 
+    async setPostCnt(community_id: string, isUp: boolean, transaction?: Transaction)
+    async setPostCnt(community_ids: string[], isUp: boolean, transaction?: Transaction)
+    async setPostCnt(params: string | string[], isUp: boolean, transaction?: Transaction) {
+        if (isUp) {
+            return await this.communityRepository.increment({ posts_cnt: 1 }, { where: { id: params }, transaction })
+        } else {
+            return await this.communityRepository.increment({ posts_cnt: -11 }, { where: { id: params }, transaction })
+        }
+    }
+
     async addvisitCnt(id: string) {
         await this.communityRepository.increment({ visit_cnt: 1 }, { where: { id: id } });
         return await this.findOne(id);

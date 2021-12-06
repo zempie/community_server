@@ -58,6 +58,11 @@ const DB_NAME = process.env.DB_NAME;
             database: DB_NAME,
             autoLoadModels: true,
             synchronize: false,
+            define:{
+                createdAt: "created_at",
+                updatedAt: "updated_at",
+                deletedAt: "deleted_at"
+            },
             // sync:{
             //     force:true
             // },

@@ -57,7 +57,7 @@ export class PostsService extends BaseService<Posts> {
     }
 
     async findIds(ids: string[]) {
-        const result = await this.postsRepository.findAll({
+        return await this.postsRepository.findAll({
             where: {
                 id: {
                     [Op.in]: ids
@@ -65,7 +65,6 @@ export class PostsService extends BaseService<Posts> {
             },
             raw: true
         });
-        return result;
     }
 
     async findbyUserId(user_id: number) {
@@ -77,7 +76,7 @@ export class PostsService extends BaseService<Posts> {
     }
 
     async findOne(id: string) {
-        const result =  (
+        return (
             (await this.postsRepository.findOne({
                 where: {
                     id: id
@@ -85,7 +84,6 @@ export class PostsService extends BaseService<Posts> {
                 include: [Poll, PostedAt]
             })) ?? null
         );
-        return result;
     }
 
     async findRetweetOne(post_id: string, user_id: number) {

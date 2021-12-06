@@ -364,6 +364,7 @@ export class PostsController {
                 ChannelPostType.COMMUNITY,
                 transaction
             );
+            await this.communityService.setPostCnt(data.community_id, false, transaction)
             transaction.commit();
             return {
                 ...data,

@@ -72,8 +72,8 @@ export class CommunityController {
         private followService: FollowService,
         private blockService: BlockService,
         private userService: UserService,
-        private postsService: PostsService,
-        private likeService: LikeService,
+        // private postsService: PostsService,
+        // private likeService: LikeService,
         private commonInfoService: CommonInfoService,
         private hashtagLogService: HashtagLogService,
         private channelPostService: ChannelPostService,
@@ -199,9 +199,13 @@ export class CommunityController {
             offset: query.offset ? query.offset : 0,
             raw: true
         });
+        const userIds = joinInfo.result.map(item => item.user_id);
         const users = await this.userService.findByIds(joinInfo.result.map(item => item.user_id));
+        const postCnts = userIds.length > 0 ? await this.channelPostService.cntUserPostCommunity(community_id, userIds) : []
+
         const result: ReturnCommunityJoinDto[] = joinInfo.result.map(item => {
             const userInfo = users.find(us => us.id === item.user_id);
+            const postCntInfo = postCnts.find(ps => ps.user_id === userInfo.id)
             return {
                 id: item.user_id,
                 uid: userInfo ? userInfo.uid : null,
@@ -213,10 +217,11 @@ export class CommunityController {
                 createdAt: item.createdAt,
                 community_id: item.community_id,
                 status: item.status,
-                state: item.state
+                state: item.state,
+                post_cnt: postCntInfo?.cnt ?? 0
             };
         });
-        
+
         return {
             ...joinInfo,
             result: await this.commonInfoService.setCommonInfo(result, user)

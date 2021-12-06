@@ -303,15 +303,15 @@ export class TimelineController {
             });
         })
 
-        const communities = await this.communityJoinService.findbyUserId(userInfo.id);
+        // const communities = await this.communityJoinService.findbyUserId(userInfo.id);
 
-        communities.forEach(item => {
-            orList.push({
-                community_id: item.community_id,
-                type: ChannelPostType.COMMUNITY,
-                visibility: Visibility.PUBLIC
-            });
-        })
+        // communities.forEach(item => {
+        //     orList.push({
+        //         community_id: item.community_id,
+        //         type: ChannelPostType.COMMUNITY,
+        //         visibility: Visibility.PUBLIC
+        //     });
+        // })
 
         const inputWhere: FindAndCountOptions = {
             where: whereIn,
@@ -691,8 +691,7 @@ export class TimelineController {
     ): Promise<CustomQueryResult<PostsDto>> {
         let whereIn: any = {
             game_id: game_id,
-
-            // like_cnt: { [Op.gte]: 30 }
+            like_cnt: { [Op.gte]: 30 }
         };
         const gameInfo = await this.gameService.findOne(game_id);
         if (gameInfo === null) {
