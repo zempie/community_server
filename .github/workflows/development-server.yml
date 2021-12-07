@@ -28,7 +28,7 @@ jobs:
               uses: docker/login-action@v1
               with:
                   registry: ghcr.io
-                  username: ParkHeeJin-Yumis
+                  username: zempie
                   password: ${{ secrets.PAT }}
 
             - name: Docker 이미지 태그 결정
