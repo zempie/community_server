@@ -71,8 +71,8 @@ jobs:
                   key: ${{ secrets.KEY }}
                   script: | 
                       source .bash_profile
-                      cd ./zempie-community
-                      rm -rf *
+                      rm -rf ./zempie-community
+                      mkdir zempie-community
                       mv ~/buildupload/* .
                       yarn install --production
                       echo "${{ secrets.ENVFILE }}" > ".env"
