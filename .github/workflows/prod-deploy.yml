@@ -7,7 +7,7 @@ on:
 jobs:
     build:
         name: "빌드"
-        runs-on: [self-hosted, linux, X64]  # github action을 개발용 서버에서 동작하도록 설정, github 서버에서 돌릴경우 -> runs-on: ubuntu-latest
+        runs-on: ubuntu-latest  # github action을 개발용 서버에서 동작하도록 설정, github 서버에서 돌릴경우 -> runs-on: ubuntu-latest
         outputs:                            # 젬파이 서버가 특정 ip로만 ssh 접속을 허용하기에 허용되는 서버에서 github action을 돌리기 위함이기도 합니다.
             tag: ${{ steps.docker-image-tag-name.outputs.tag }}
         steps:
