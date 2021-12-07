@@ -54,7 +54,7 @@ jobs:
 
     deploy:
         name: "배포"
-        runs-on: [self-hosted, linux, X64] # 젬파이 서버가 특정 ip로만 ssh 접속을 허용하기에 허용되는 서버에서 github action을 실행
+        runs-on: ubuntu-latest # 젬파이 서버가 특정 ip로만 ssh 접속을 허용하기에 허용되는 서버에서 github action을 실행
         needs: build
         env:
             SSH_HOSTNAME: ${{ secrets.SSH_HOSTNAME }}
