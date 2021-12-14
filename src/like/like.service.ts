@@ -160,7 +160,7 @@ export class LikeService {
 
     async cntLikeInCommunity(user_ids: number[]): Promise<LikeCntInterface[]> {
         const data: LikeCntInterface[] = await this.likeRepository.sequelize.query(
-            'SELECT l.user_id as user_id, count(*) as cnt from `like` l left join channel_post cp on l.post_id = cp.post_id WHERE l.user_id in (:user_ids) GROUP by l.user_id '
+            'SELECT l.user_id as user_id, count(*) as cnt from `like` l left join channel_post cp on l.post_id = cp.post_id WHERE l.user_id in (:user_ids) and l.deletedAt IS NULL GROUP by l.user_id '
         ,
             {
                 replacements: {

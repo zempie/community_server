@@ -5,6 +5,7 @@ import { BlockService } from "src/block/block.service";
 import { BlockType } from "src/block/enum/blocktype.enum";
 import { ChannelTimelineService } from "src/channel-post/channel-timeline.service";
 import { ChannelPostType } from "src/channel-post/enum/channelposttype.enum";
+import { Comment } from "src/comment/comment.entity";
 import { CommentDto } from "src/comment/dto/comment.dto";
 import { ReturnCommunityJoinDto } from "src/community/community-join/dto/return-community-join";
 import { Follow } from "src/follow/follow.entity";
@@ -38,10 +39,10 @@ export class CommonInfoService {
         const followCntData = await this.followService.rawsFollowFollowing(user_ids);
         const followList = user != null ? await this.followService.rawfollow(user_ids, user.id) : [];
         const followingList = user != null ? await this.followService.rawfollowing(user.id, user_ids) : [];
-        
+
         const blockYouData = user != null ? await this.blockService.rawBlockYou(user_ids, user.id) : [];
         const blockData = user != null ? await this.blockService.rawBlock(user_ids, user.id) : [];
-        
+
         let reEdges: any[] = edges.map(item => {
             const followCntInfo = followCntData.find(fItem => fItem.user_id === item.id);
             item.followers_cnt = followCntInfo.followerCnt;
@@ -84,7 +85,7 @@ export class CommonInfoService {
         const userInfo = await this.userService.findOne(target_id);
         const postCntData = await this.channelTimeLineService.cntCommunityPostCntByUser([target_id], ChannelPostType.COMMUNITY);
         const likeCntData = await this.likeService.cntLikeInCommunity([target_id]);
-        
+
         return {
             user: userInfo,
             follow_you: followList.length > 0 ? true : false,
@@ -101,13 +102,20 @@ export class CommonInfoService {
         };
     }
 
-    async setCommentInfo(edges: CommentDto[], user?: User): Promise<CommentDto[]> {
+    async setCommentInfo(edges: Comment[] | CommentDto[], user?: User): Promise<CommentDto[]> {
         const likeData = user !== undefined && user !== null ? await this.likeService.findByCommentIds(edges.map(item => item.id), user.id, true) : [];
+        const userInfos = await this.userService.findByIds(edges.map(item => item.user_id));
+
+        const userInfoDtos = await this.setCommonInfo(userInfos.map(item => new UserDto({ ...item.get({ plain: true }) })), user)
         return edges.map(item => {
             const check = likeData.find(li => li.comment_id === item.id);
+
+            const userI = userInfoDtos.find(uItem => uItem.id === item.user_id)
+
             return {
                 ...item,
-                is_liked: check !== undefined ? true : false
+                is_liked: check !== undefined ? true : false,
+                user: userI
             }
         })
     }

@@ -102,7 +102,7 @@ export class BlockService {
                 target_id: target_id,
                 type: type
             }
-        });
+        }) ?? null;
     }
 
     async rawBlockYou(user_ids: number[], myUserId: number): Promise<BlockCntAddUserIdInterface[]> {
@@ -115,7 +115,7 @@ export class BlockService {
                 case when count(case when b.type = :type_ub then 1 end) > 0 then true else false end as isBlock,
                 case when count(case when b.type = :type_mute then 1 end) > 0 then true else false end as isMute,
                 case when count(case when b.type = :type_bick then 1 end) > 0 then true else false end as isKick
-            from block b WHERE b.user_id in (:user_ids) and type in (:types) and target_id = :myUserId
+            from block b WHERE b.user_id in (:user_ids) and type in (:types) and target_id = :myUserId and b.deletedAt IS NULL
             GROUP by b.user_id
         `,
             {
@@ -148,7 +148,7 @@ export class BlockService {
                 case when count(case when b.type = :type_ub then 1 end) > 0 then true else false end as isBlock,
                 case when count(case when b.type = :type_mute then 1 end) > 0 then true else false end as isMute,
                 case when count(case when b.type = :type_bick then 1 end) > 0 then true else false end as isKick
-            from block b WHERE b.user_id = :myUserId and type in (:types) and target_id in (:user_ids)
+            from block b WHERE b.user_id = :myUserId and type in (:types) and target_id in (:user_ids) and b.deletedAt IS NULL
             GROUP by b.target_id
         `,
             {
@@ -175,6 +175,15 @@ export class BlockService {
                 isMute: findItem.isMute === 1 ? true : false,
             } : { user_id: null, target_id: user_id, isCommunityBlcok: false, isBlock: false, isMute: false, isKick: false };
         });
+    }
+
+    async muteListByUserId(user_id: number) {
+        return await this.blockRepository.findAll({
+            where: {
+                user_id: user_id,
+                type: BlockType.MUTE,
+            }
+        })
     }
 
 }

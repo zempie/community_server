@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { SequelizeModule } from "@nestjs/sequelize";
+import { BlockModule } from "src/block/block.module";
 import { ChannelPostModule } from "src/channel-post/channel-post.module";
 import { CommonInfoModule } from "src/commoninfo/commoninfo.module";
 import { CommunityJoinModule } from "src/community/community-join/community-join.module";
@@ -31,7 +32,8 @@ import { ChannelController, TimelineController } from "./timeline.controller";
         FollowModule,
         CommonInfoModule,
         PostedAtModule,
-        LikeModule
+        LikeModule,
+        BlockModule,
     ],
     controllers: [TimelineController, ChannelController],
     providers: [SearchKeywordLogService],

@@ -17,6 +17,7 @@ import { FindAndCountOptions } from "sequelize/types";
 import { SuccessReturnModel } from "src/abstract/base-model";
 import { CurrentUser } from "src/auth/user-auth-decorator";
 import { UserAuthGuard, UserTokenCheckGuard } from "src/auth/user-auth.guard";
+import { BlockService } from "src/block/block.service";
 import { ChannelPostService } from "src/channel-post/channel-post.service";
 import { ChannelTimelineService } from "src/channel-post/channel-timeline.service";
 import { ChannelPostType } from "src/channel-post/enum/channelposttype.enum";
@@ -65,7 +66,8 @@ export class TimelineController {
         private likeService: LikeService,
         private gamePostService: GamePostService,
         private portfolioPostService: PortfolioPostService,
-        private searchKeywordLogService: SearchKeywordLogService
+        private searchKeywordLogService: SearchKeywordLogService,
+        private blockService: BlockService
     ) { }
 
     @Get("posts")
@@ -76,7 +78,7 @@ export class TimelineController {
         @Query() query: TimelineHashTagQueryDto,
         @CurrentUser() user: User
     ): Promise<CustomQueryResult<PostsDto>> {
-        let whereIn: any = {
+        const whereIn: any = {
             visibility: Visibility.PUBLIC,
             // hashtags: { [Op.like]: `%${query.hashtag}%` },
             hashtags: { [Op.regexp]: Sequelize.literal(`'(${query.hashtag})'`) }
@@ -129,7 +131,7 @@ export class TimelineController {
             // visibility: Visibility.PUBLIC,
             // like_cnt: { [Op.gte]: 30 }
         };
-        let whereInclude: any = [];
+        const whereInclude: any = [];
         const inputWhere: FindAndCountOptions = {
             where: whereIn,
             limit: query.limit,
@@ -295,12 +297,16 @@ export class TimelineController {
         orList.push(userChannelWhere);
 
         const followers = await this.followService.followUserInfosByUser(userInfo.id);
+        const muteList = user !== undefined && user !== null ? await this.blockService.muteListByUserId(userInfo.id) : []
         followers.forEach(item => {
-            orList.push({
-                channel_id: item.channel_id,
-                type: ChannelPostType.USER,
-                visibility: Visibility.PUBLIC
-            });
+            const check = muteList.some(mute => mute.target_id === item.id)
+            if (check!){
+                orList.push({
+                    channel_id: item.channel_id,
+                    type: ChannelPostType.USER,
+                    visibility: Visibility.PUBLIC
+                });
+            }
         })
 
         // const communities = await this.communityJoinService.findbyUserId(userInfo.id);
@@ -955,7 +961,7 @@ export class ChannelController {
             like_cnt: { [Op.gte]: 30 }
         };
 
-        let whereInclude = [];
+        const whereInclude = [];
 
         const portfolioInfo = await this.portfolioService.findOne(portfolio_id);
         if (portfolioInfo === null) {

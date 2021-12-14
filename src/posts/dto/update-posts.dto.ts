@@ -80,7 +80,7 @@ export class UpdatePostsDto {
         required: false
     })
     @ValidateNested({ each: true })
-    @Type(() => PostAttatchmentFileDto)
+    @Type(() => PostedAtCommunityDto)
     @IsOptional()
     community?: PostedAtCommunityDto[]
     // @ApiProperty({

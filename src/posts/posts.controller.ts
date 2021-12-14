@@ -24,7 +24,7 @@ import { CreateCommentDto, UpdateReCommentDto } from "src/comment/dto/create-com
 import { CommentService } from "src/comment/comment.service";
 import { PostedAtService } from "src/posted_at/posted_at.service";
 import { CommunityChannelService } from "src/community/community-channel/community-channel.service";
-import { CommentDto } from "src/comment/dto/comment.dto";
+import { CommentDto, CommentReCommentDto } from "src/comment/dto/comment.dto";
 import { UpdateCommentDto } from "src/comment/dto/update-comment.dto";
 import { ReportService } from "src/report/report.service";
 import { User } from "src/user/user.entity";
@@ -729,13 +729,13 @@ export class PostsController {
 
     @Get(":post_id/comment/list")
     @ApiOperation({ description: "댓글 리스트" })
-    @ApiResponse({ status: 200, description: "정상", type: CustomQueryResultResponseType(CommentDto) })
+    @ApiResponse({ status: 200, description: "정상", type: CustomQueryResultResponseType(CommentReCommentDto) })
     @ZempieUseGuards(UserTokenCheckGuard)
     async CommentList(
         @CurrentUser() user: User,
         @Param("post_id") post_id: string,
         @Query() query: CommentListDto
-    ): Promise<CustomQueryResult<CommentDto>> {
+    ): Promise<CustomQueryResult<CommentReCommentDto>> {
         const postInfo = await this.postsService.findOne(post_id);
         if (postInfo === null) {
             throw new NotFoundException();
@@ -744,6 +744,48 @@ export class PostsController {
         result.result = result.result.map(item => {
             if (item.is_private === true) {
                 if (user !== null && postInfo.user_id === user.id) {
+                    return item;
+                } else {
+                    item.content = "비밀댓글입니다.";
+                    item.attatchment_files = null;
+                    return item;
+                }
+            }
+            return item;
+        });
+        const list = await this.commonInfoService.setCommentInfo(result.result, user);
+
+        const reList = list.map(item => new CommentReCommentDto({ ...item }));
+        const recommentsInfos = list.length > 0 ? await this.commentService.recommentListByParentIds(list.map(item => item.id)) : [];
+        const setInfoRecommentsInfos = list.length > 0 ? await this.commonInfoService.setCommentInfo(recommentsInfos, user) : [];
+        // const recommentUsers = await this.userService.findByIds(recommentsInfos.map(item => item.user_id));
+        reList.forEach(item => {
+            const recomments = setInfoRecommentsInfos.filter(reC => reC.parent_id === item.id);
+            item.children_comments = recomments
+        })
+        return {
+            ...result,
+            result: reList
+        };
+    }
+
+    @Get(":parent_id/recomment/list")
+    @ApiOperation({ description: "대댓글 리스트" })
+    @ApiResponse({ status: 200, description: "정상", type: CustomQueryResultResponseType(CommentDto) })
+    @ZempieUseGuards(UserTokenCheckGuard)
+    async RecommentList(
+        @CurrentUser() user: User,
+        @Param("parent_id") parent_id: string,
+        @Query() query: CommentListDto
+    ): Promise<CustomQueryResult<CommentDto>> {
+        const commentInfo = await this.commentService.findOne(parent_id);
+        if (commentInfo === null) {
+            throw new NotFoundException();
+        }
+        const result = await this.commentService.recommentList(query, parent_id, user?.id ?? undefined);
+        result.result = result.result.map(item => {
+            if (item.is_private === true) {
+                if (user !== null && commentInfo.user_id === user.id) {
                     return item;
                 } else {
                     item.content = "비밀댓글입니다.";

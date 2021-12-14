@@ -190,7 +190,8 @@ export class PostsLogicService {
                         channel_id: item.channel_id,
                         community_id: item.id,
                         visibility: post.visibility
-                    }))
+                    })),
+                    transaction
                 );
                 await this.communityService.setPostCnt(data.community.map(item => item.id), true, transaction)
             }
@@ -223,8 +224,9 @@ export class PostsLogicService {
                 }
             }
             await this.postedAtService.update(postedInfo.id, updatePostedData, transaction);
-            await this.postsService.update(post.id, data);
+            await this.postsService.update(post.id, data, transaction);
             await transaction.commit();
+            
             await this.hashTagLogService.create(user.id, data.hashtags);
 
             const newInfo = await this.postsService.findOne(post.id);
