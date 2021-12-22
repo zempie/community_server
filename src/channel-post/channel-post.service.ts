@@ -87,6 +87,15 @@ export class ChannelPostService extends BaseService<ChannelPost> {
         return postcnt.count;
     }
 
+    async cntCommunityPost(community_id: string) {
+        return await this.channelPostRepository.count({
+            where: {
+                community_id: community_id,
+                type: ChannelPostType.COMMUNITY
+            }
+        })
+    }
+
     async countUserChannelPin(channel_id: string, type: ChannelPostType) {
         const postcnt = await this.channelPostRepository.findAndCountAll({
             where: {

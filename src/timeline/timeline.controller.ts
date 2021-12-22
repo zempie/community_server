@@ -78,7 +78,7 @@ export class TimelineController {
         @Query() query: TimelineHashTagQueryDto,
         @CurrentUser() user: User
     ): Promise<CustomQueryResult<PostsDto>> {
-        const whereIn: any = {
+        let whereIn: any = {
             visibility: Visibility.PUBLIC,
             // hashtags: { [Op.like]: `%${query.hashtag}%` },
             hashtags: { [Op.regexp]: Sequelize.literal(`'(${query.hashtag})'`) }
@@ -131,7 +131,7 @@ export class TimelineController {
             // visibility: Visibility.PUBLIC,
             // like_cnt: { [Op.gte]: 30 }
         };
-        const whereInclude: any = [];
+        let whereInclude: any = [];
         const inputWhere: FindAndCountOptions = {
             where: whereIn,
             limit: query.limit,
@@ -309,15 +309,18 @@ export class TimelineController {
             }
         })
 
-        // const communities = await this.communityJoinService.findbyUserId(userInfo.id);
+        const communities = await this.communityJoinService.findbyUserId(userInfo.id);
 
-        // communities.forEach(item => {
-        //     orList.push({
-        //         community_id: item.community_id,
-        //         type: ChannelPostType.COMMUNITY,
-        //         visibility: Visibility.PUBLIC
-        //     });
-        // })
+        communities.forEach(item => {
+            orList.push({
+                community_id: item.community_id,
+                type: ChannelPostType.COMMUNITY,
+                visibility: Visibility.PUBLIC,
+                user_id:{
+                    [Op.not]: userInfo.id
+                }
+            });
+        })
 
         const inputWhere: FindAndCountOptions = {
             where: whereIn,
@@ -961,7 +964,7 @@ export class ChannelController {
             like_cnt: { [Op.gte]: 30 }
         };
 
-        const whereInclude = [];
+        let whereInclude = [];
 
         const portfolioInfo = await this.portfolioService.findOne(portfolio_id);
         if (portfolioInfo === null) {

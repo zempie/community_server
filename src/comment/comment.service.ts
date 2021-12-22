@@ -167,7 +167,7 @@ export class CommentService extends BaseService<Comment> {
         return true;
     }
 
-    async recommentListByParentIds(parentIds: string[], limit = 3): Promise<Comment[]> {
+    async recommentListByParentIds(parentIds: string[], limit: number = 3): Promise<Comment[]> {
         return await this.commentRepository.sequelize.query(`
         SELECT c.* from (SELECT f.id
             , f.parent_id

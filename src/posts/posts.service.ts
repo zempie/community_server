@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { Posts } from "./posts.entity";
-import { CreatePosts } from "./dto/create-posts.dto";
+import { CreatePosts, UpdatePosts } from "./dto/create-posts.dto";
 // import { UpdatePostsDto } from "./dto/update-posts.dto";
 import { Poll } from "src/poll/poll.entity";
 import { PostedAt } from "src/posted_at/posted_at.entity";
@@ -28,14 +28,22 @@ export class PostsService extends BaseService<Posts> {
             offset: query.offset ? query.offset : 0,
             raw: true
         };
+        const orList = [];
         if (query.posting !== undefined) {
-            options.where = {
+            orList.push({
                 content: { [Op.like]: `%${query.posting}%` }
-            };
-        } else if (query.hashtag !== undefined || query.hashtag !== null) {
-            options.where = {
+            })
+        }
+        if (query.hashtag !== undefined || query.hashtag !== null) {
+            orList.push({
                 hashtags: { [Op.like]: `%${query.hashtag}%` }
-            };
+            })
+        }
+        if (orList.length > 0) {
+            options.where = {
+                ...options.where,
+                [Op.or]: orList
+            }
         }
         return await super.find({ ...options });
     }
@@ -157,7 +165,7 @@ export class PostsService extends BaseService<Posts> {
         );
     }
 
-    async update(id: string, data: Partial<CreatePosts>, transaction?: Transaction) {
+    async update(id: string, data: Partial<UpdatePosts>, transaction?: Transaction) {
         const Posts = await this.findOne(id);
         if (!Posts) {
             throw new Error("NOT EXIST");

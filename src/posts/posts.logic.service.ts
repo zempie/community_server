@@ -54,6 +54,9 @@ export class PostsLogicService {
         }
         if (data.community && data.visibility === Visibility.FOLLOWER) {
             for await (const co of data.community) {
+                if(co.id === undefined || co.channel_id === undefined){
+                    throw new BadRequestException();
+                }
                 const channelInfo = await this.channelService.findChannelWithCommu(co.id, co.channel_id);
                 if (!channelInfo) {
                     throw new HttpException("NOT_FOUND", HttpStatus.NOT_FOUND);

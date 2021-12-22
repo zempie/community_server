@@ -30,6 +30,40 @@ export class GameService extends BaseService<Game> {
                 title: { [Op.like]: `%${query.gametitle}%` }
             };
         }
-        return await super.find({ ...options})
+        return await super.find({ ...options })
+    }
+
+    async findAllActivated(query: CommunityListDto) {
+        const options: FindOptions = {
+            where: { activated: 1 },
+            limit: query.limit ? query.limit : 5,
+            offset: query.offset ? query.offset : 0,
+            raw: true
+        };
+        options.where = {
+            activated: 1
+        }
+        const orList = [];
+        
+        if (query.hashtag !== undefined) {
+            orList.push({
+                hashtags: { [Op.like]: `%${query.hashtag}%` }
+            })
+        }
+        if (query.gametitle !== undefined) {
+            orList.push({
+                title: { [Op.like]: `%${query.gametitle}%` },
+            })
+        }
+        
+        if(orList.length > 0){
+            options.where = {
+                ...options.where,
+                [Op.or] : orList
+            }
+        }
+        console.log("?!");
+        
+        return await super.find({ ...options })
     }
 }

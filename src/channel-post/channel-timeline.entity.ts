@@ -31,7 +31,7 @@ from
     (`zempie`.`channel_post` `cp`
 left join `zempie`.`posts` `p` on
     ((`cp`.`post_id` = `p`.`id`)))
-where `p`.`deletedAt` is null and `p`.`scheduled_for` is null or `p`.`scheduled_for` <= UNIX_TIMESTAMP()
+where `p`.`deletedAt` is null and (`p`.`scheduled_for` is null or `p`.`scheduled_for` <= UNIX_TIMESTAMP())
 */
 
 @Table({ tableName: "community_timeline", timestamps: true, paranoid: true })
@@ -48,7 +48,19 @@ export class ChannelTimeline extends ChannelPost {
     funtion_type: PostFunctionType;
 
     @Column({
-        type: DataType.JSON
+        type: DataType.JSON,
+        get(this: ChannelTimeline) {
+            const item = this.getDataValue("attatchment_files");
+            if (typeof item === "object") {
+                return item
+            } else {
+                try {
+                    return JSON.parse(item);
+                } catch (error) {
+                    return []
+                }
+            }
+        }
     })
     attatchment_files?: PostAttatchmentFileDto[];
 
@@ -59,7 +71,19 @@ export class ChannelTimeline extends ChannelPost {
     visibility: Visibility;
 
     @Column({
-        type: DataType.JSON
+        type: DataType.JSON,
+        get(this: ChannelTimeline) {
+            const item = this.getDataValue("hashtags");
+            if (typeof item === "object") {
+                return item
+            } else {
+                try {
+                    return JSON.parse(item);
+                } catch (error) {
+                    return []
+                }
+            }
+        }
     })
     hashtags: string[];
 

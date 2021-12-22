@@ -166,7 +166,7 @@ export class FollowService extends BaseService<Follow> {
             SELECT f.user_id as user_id ,
             (select count(*) from follow f2 where f2.user_id = f.user_id) as followerCnt,
             (select count(*) from follow f3 where f3.follow_id = f.user_id) as followingCnt
-            from follow f WHERE f.user_id in(:user_ids)
+            from follow f WHERE f.user_id in(:user_ids) and f.deleted_at IS NULL
         `,
             {
                 replacements: {

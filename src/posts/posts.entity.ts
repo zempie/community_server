@@ -25,7 +25,19 @@ export class Posts extends BaseEntity {
     funtion_type: PostFunctionType;
 
     @Column({
-        type: DataType.JSON
+        type: DataType.JSON,
+        get(this: Posts) {
+            const item = this.getDataValue("attatchment_files");
+            if (typeof item === "object") {
+                return item
+            } else {
+                try {
+                    return JSON.parse(item);
+                } catch (error) {
+                    return []
+                }
+            }
+        }
     })
     attatchment_files?: PostAttatchmentFileDto[];
 
@@ -35,16 +47,42 @@ export class Posts extends BaseEntity {
     })
     visibility: Visibility;
 
-    @Column
+    @Column({
+        type: new DataType.TEXT("long"),
+    })
     content: string;
 
     @Column({
-        type: DataType.JSON
+        type: DataType.JSON,
+        get(this: Posts) {
+            const hashtags = this.getDataValue("hashtags");
+            if (typeof hashtags === "object"){
+                return hashtags
+            }else{
+                try {
+                    return JSON.parse(hashtags);
+                } catch (error) {
+                    return []
+                }
+            }
+        }
     })
     hashtags: string[];
 
     @Column({
-        type: DataType.JSON
+        type: DataType.JSON,
+        get(this: Posts) {
+            const user_tag = this.getDataValue("user_tag");
+            if (typeof user_tag === "object") {
+                return user_tag
+            } else {
+                try {
+                    return JSON.parse(user_tag);
+                } catch (error) {
+                    return []
+                }
+            }
+        }
     })
     user_tag: UserDto[];
 

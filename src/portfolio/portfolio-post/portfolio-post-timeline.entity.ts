@@ -26,7 +26,7 @@ from
     (`zempie`.`portfolio_post` `cp`
 left join `zempie`.`posts` `p` on
     ((`cp`.`post_id` = `p`.`id`)))
-where `p`.`deletedAt` is null and `p`.`scheduled_for` is null or `p`.`scheduled_for` <= UNIX_TIMESTAMP()
+where `p`.`deletedAt` is null and (`p`.`scheduled_for` is null or `p`.`scheduled_for` <= UNIX_TIMESTAMP())
 */
 
 @Table({ tableName: "portfolio_timeline", timestamps: true, paranoid: true })
@@ -43,7 +43,19 @@ export class PortfolioPostTimeLine extends PortfolioPost {
     funtion_type: PostFunctionType;
 
     @Column({
-        type: DataType.JSON
+        type: DataType.JSON,
+        get(this: PortfolioPostTimeLine) {
+            const item = this.getDataValue("attatchment_files");
+            if (typeof item === "object") {
+                return item
+            } else {
+                try {
+                    return JSON.parse(item);
+                } catch (error) {
+                    return []
+                }
+            }
+        }
     })
     attatchment_files?: PostAttatchmentFileDto[];
 
@@ -54,7 +66,19 @@ export class PortfolioPostTimeLine extends PortfolioPost {
     visibility: Visibility;
 
     @Column({
-        type: DataType.JSON
+        type: DataType.JSON,
+        get(this: PortfolioPostTimeLine) {
+            const item = this.getDataValue("hashtags");
+            if (typeof item === "object") {
+                return item
+            } else {
+                try {
+                    return JSON.parse(item);
+                } catch (error) {
+                    return []
+                }
+            }
+        }
     })
     hashtags: string[];
 

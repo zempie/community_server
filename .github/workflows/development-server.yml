@@ -28,7 +28,7 @@ jobs:
               uses: docker/login-action@v1
               with:
                   registry: ghcr.io
-                  username: zempie
+                  username: ParkHeeJin-Yumis
                   password: ${{ secrets.PAT }}
 
             - name: Docker 이미지 태그 결정
@@ -60,7 +60,7 @@ jobs:
 
     deploy:
         name: "배포"
-        runs-on: ubuntu-latest
+        runs-on: [self-hosted, macos, X64]
         needs: build
         env:
             SSH_HOSTNAME: ${{ secrets.SSH_HOSTNAME }}

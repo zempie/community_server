@@ -8,6 +8,7 @@ import { UserModule } from "src/user/user.module";
 import { SearchKeywordLogService } from "./search_keyword_log/search_keyword_log.service";
 import { SearchKeywordLog } from "./search_keyword_log/search_keyword_log.entity";
 import { User } from "src/user/user.entity";
+import { LikeModule } from "src/like/like.module";
 
 @Module({
     imports: [
@@ -15,10 +16,11 @@ import { User } from "src/user/user.entity";
         CommunityModule,
         PostsModule,
         GameModule,
-        UserModule
+        UserModule,
+        LikeModule
     ],
     controllers: [SearchController],
     providers: [SearchKeywordLogService],
     exports: []
 })
-export class SearchModule {}
+export class SearchModule { }

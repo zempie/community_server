@@ -49,7 +49,19 @@ export class Comment extends BaseEntity {
     is_pinned: boolean;
 
     @Column({
-        type: DataType.JSON
+        type: DataType.JSON,
+        get(this: Comment) {
+            const item = this.getDataValue("attatchment_files");
+            if (typeof item === "object") {
+                return item
+            } else {
+                try {
+                    return JSON.parse(item);
+                } catch (error) {
+                    return []
+                }
+            }
+        }
     })
     attatchment_files?: File[];
 

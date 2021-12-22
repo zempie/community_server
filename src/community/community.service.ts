@@ -65,7 +65,7 @@ export class CommunityService extends BaseService<Community> {
         if (isUp) {
             return await this.communityRepository.increment({ posts_cnt: 1 }, { where: { id: params }, transaction })
         } else {
-            return await this.communityRepository.increment({ posts_cnt: -11 }, { where: { id: params }, transaction })
+            return await this.communityRepository.increment({ posts_cnt: -1 }, { where: { id: params }, transaction })
         }
     }
 
