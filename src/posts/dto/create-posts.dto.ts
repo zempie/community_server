@@ -159,3 +159,12 @@ export class CreatePosts {
 
     retweet_id?: string;
 }
+
+
+export class UpdatePosts extends CreatePosts {
+    like_cnt?: number;
+
+    comment_cnt?: number;
+
+    read_cnt?: number;
+}

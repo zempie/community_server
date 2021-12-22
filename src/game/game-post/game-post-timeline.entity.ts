@@ -26,7 +26,7 @@ from
     (`zempie`.`game_post` `cp`
 left join `zempie`.`posts` `p` on
     ((`cp`.`post_id` = `p`.`id`)))
-where `p`.`deletedAt` is null and `p`.`scheduled_for` is null or `p`.`scheduled_for` <= UNIX_TIMESTAMP()
+where `p`.`deletedAt` is null and (`p`.`scheduled_for` is null or `p`.`scheduled_for` <= UNIX_TIMESTAMP())
 */
 
 @Table({ tableName: "game_timeline", timestamps: true, paranoid: true })
@@ -54,7 +54,19 @@ export class GamePostTimeLine extends GamePost {
     visibility: Visibility;
 
     @Column({
-        type: DataType.JSON
+        type: DataType.JSON,
+        get(this: GamePostTimeLine) {
+            const item = this.getDataValue("hashtags");
+            if (typeof item === "object") {
+                return item
+            } else {
+                try {
+                    return JSON.parse(item);
+                } catch (error) {
+                    return []
+                }
+            }
+        }
     })
     hashtags: string[];
 

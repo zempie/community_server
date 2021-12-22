@@ -16,7 +16,7 @@ export class LikeService {
     constructor(
         @Inject("LikeRepository")
         private readonly likeRepository: typeof Like
-    ) {}
+    ) { }
 
     async findAll() {
         return await this.likeRepository.findAll();
@@ -31,14 +31,14 @@ export class LikeService {
         });
     }
 
-    async findByPostIds(post_ids:string[],user_id:number,state:boolean){
-        if (post_ids.length === 0){
+    async findByPostIds(post_ids: string[], user_id: number, state: boolean) {
+        if (post_ids.length === 0) {
             return []
         }
         return await this.likeRepository.findAll({
-            where:{
-                post_id:{
-                    [Op.in]:post_ids
+            where: {
+                post_id: {
+                    [Op.in]: post_ids
                 },
                 user_id: user_id,
                 state: state
@@ -80,17 +80,30 @@ export class LikeService {
         });
     }
 
-    async likePostByUserId(post_id: string, user_id: number) {
-        return (
-            (await this.likeRepository.findOne({
+    async likePostByUserId(post_id: string, user_id: number):Promise<Like>
+    async likePostByUserId(post_ids: string[], user_id: number): Promise<Like[]>
+    async likePostByUserId(param: string[] | string, user_id: number) {
+        if (Array.isArray(param)) {
+            return await this.likeRepository.findAll({
                 where: {
                     user_id: user_id,
-                    post_id: post_id,
+                    post_id: { [Op.in]: param },
                     state: true,
                     type: LikeType.POST
                 }
-            })) ?? null
-        );
+            })
+        } else {
+            return (
+                (await this.likeRepository.findOne({
+                    where: {
+                        user_id: user_id,
+                        post_id: param,
+                        state: true,
+                        type: LikeType.POST
+                    }
+                })) ?? null
+            );
+        }
     }
 
     async likeCommentByUserId(post_id: string, comment_id: string, user_id: number) {
@@ -140,20 +153,48 @@ export class LikeService {
         });
     }
 
-    async deletePostlike(post_id: string) {
+    async deletePostlike(id: string) {
         return await this.likeRepository.destroy({
             where: {
-                post_id: post_id
+                id: id
             }
         });
     }
 
-    async deleteCommentlike(comment_id: string, post_id: string, state: boolean) {
-        return await this.likeRepository.destroy({
+    async postLikeCnt(post_id: string, type: LikeType, state: boolean) {
+        return await this.likeRepository.count({
             where: {
                 post_id: post_id,
-                comment_id: comment_id,
+                type: type,
                 state: state
+            }
+        })
+    }
+
+    async commentLikeCnt(comment_id: string, type: LikeType, state: boolean) {
+        return await this.likeRepository.count({
+            where: {
+                comment_id: comment_id,
+                type: type,
+                state: state
+            }
+        })
+    }
+
+    // async deleteCommentlike(comment_id: string, post_id: string, state: boolean) {
+    //     return await this.likeRepository.destroy({
+    //         where: {
+    //             post_id: post_id,
+    //             comment_id: comment_id,
+    //             state: state
+    //         }
+    //     });
+    // }
+
+    async deleteCommentlike(id: string) {
+        return await this.likeRepository.destroy({
+            where: {
+                id: id
             }
         });
     }
@@ -161,7 +202,7 @@ export class LikeService {
     async cntLikeInCommunity(user_ids: number[]): Promise<LikeCntInterface[]> {
         const data: LikeCntInterface[] = await this.likeRepository.sequelize.query(
             'SELECT l.user_id as user_id, count(*) as cnt from `like` l left join channel_post cp on l.post_id = cp.post_id WHERE l.user_id in (:user_ids) and l.deletedAt IS NULL GROUP by l.user_id '
-        ,
+            ,
             {
                 replacements: {
                     user_ids: user_ids

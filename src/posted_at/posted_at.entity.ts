@@ -27,7 +27,19 @@ export class PostedAt extends BaseEntity {
     //커뮤니티페이지에 올린경우
     //    채널 선택
     @Column({
-        type: DataType.JSON
+        type: DataType.JSON,
+        get(this: PostedAt) {
+            const item = this.getDataValue("community");
+            if (typeof item === "object") {
+                return item
+            } else {
+                try {
+                    return JSON.parse(item);
+                } catch (error) {
+                    return []
+                }
+            }
+        }
     })
     community: PostedAtCommunityDto[]
     // @Column
@@ -38,7 +50,19 @@ export class PostedAt extends BaseEntity {
 
     //포트폴리오에 추가한경우
     @Column({
-        type: DataType.JSON
+        type: DataType.JSON,
+        get(this: PostedAt) {
+            const item = this.getDataValue("portfolio_ids");
+            if (typeof item === "object") {
+                return item
+            } else {
+                try {
+                    return JSON.parse(item);
+                } catch (error) {
+                    return []
+                }
+            }
+        }
     })
     portfolio_ids: string[];
 }

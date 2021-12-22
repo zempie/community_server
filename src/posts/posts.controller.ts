@@ -217,12 +217,15 @@ export class PostsController {
                 is_read: user.id === post.user_id ? true : false
             });
         }
-
-        post = await this.postsService.likeCnt(post_id, true);
+        
+        // post = await this.postsService.likeCnt(post_id, true);
         const like = await this.likeService.createPostLike(post_id, {
             user_id: user.id,
             type: LikeType.POST
         });
+
+        const likeCnt = await this.likeService.postLikeCnt(post_id, LikeType.POST, true)
+        post = await this.postsService.update(post.id, { like_cnt: likeCnt })
 
         const authorTokenInfo = await this.fcmService.getTokenByUserId(post.user_id);
         if (post.like_cnt === 1) {
@@ -262,17 +265,19 @@ export class PostsController {
         if (user.id !== existLike.user_id) {
             throw new HttpException("BAD_REQUEST", HttpStatus.BAD_REQUEST);
         }
-        const setcount = await this.postsService.likeCnt(post_id, false);
+        const likeCnt = await this.likeService.postLikeCnt(post_id, LikeType.POST, true)
+        const setcount = await this.postsService.update(post_id, { like_cnt: likeCnt })
+        // const setcount = await this.postsService.likeCnt(post_id, false);
         if (!setcount) {
             return { success: false };
         }
-        await this.likeService.deletePostlike(post_id);
+        await this.likeService.deletePostlike(existLike.id);
         return { success: true };
     }
 
     @Post()
     @ApiOperation({ description: "포스팅 작성" })
-    @ZempieUseGuards(UserAuthGuard)
+    // @ZempieUseGuards(UserAuthGuard)
     async create(@CurrentUser() user: User, @Body() data: CreatePostsDto): Promise<Posts> {
         return await this.postsLogicService.createPost(data);
     }
@@ -284,6 +289,9 @@ export class PostsController {
         const post = await this.postsService.findOne(post_id);
         if (data.community !== undefined) {
             for await (const co of data.community) {
+                if(co.id === undefined || co.channel_id === undefined){
+                    throw new BadRequestException("올바른 community 정보가 아닙니다.")
+                }
                 const channelInfo = await this.channelService.findChannelWithCommu(co.id, co.channel_id);
                 if (!channelInfo) {
                     throw new HttpException("NOT_FOUND", HttpStatus.NOT_FOUND);
@@ -406,7 +414,7 @@ export class PostsController {
         );
 
         if (checkLike === null) {
-            await this.commentService.setLikeCnt(comment_id, post_id, true);
+            // await this.commentService.setLikeCnt(comment_id, post_id, true);
             const like = this.likeService.createCommentLike({
                 user_id: user.id,
                 comment_id: comment_id,
@@ -414,6 +422,8 @@ export class PostsController {
                 type: LikeType.COMMENT,
                 state: true // true - 좋아요
             });
+            const likeCnt = await this.likeService.commentLikeCnt(comment_id, LikeType.COMMENT, true);
+            await this.commentService.update(comment_id, post_id, { like_cnt: likeCnt })
             return new LikeDto({
                 ...like,
                 is_read: user.id === existComment.user_id ? true : false,
@@ -443,11 +453,13 @@ export class PostsController {
         } else if (user.id !== existLike.user_id) {
             throw new HttpException("BAD_REQUEST", HttpStatus.BAD_REQUEST);
         }
-        await this.commentService.setLikeCnt(comment_id, post_id, false);
-        const deleteLike = await this.likeService.deleteCommentlike(comment_id, post_id, true);
+        // await this.commentService.setLikeCnt(comment_id, post_id, false);
+        const deleteLike = await this.likeService.deleteCommentlike(existLike.id);
         if (!deleteLike) {
             return { success: false };
         }
+        const likeCnt = await this.likeService.commentLikeCnt(comment_id, LikeType.COMMENT, true);
+        await this.commentService.update(comment_id, post_id, { like_cnt: likeCnt })
         return { success: true };
     }
 
@@ -462,7 +474,7 @@ export class PostsController {
     ): Promise<LikeDto> {
         const checkLike = await this.likeService.existCommentlike(user.id, comment_id, false);
         if (checkLike === null) {
-            await this.commentService.setdisLikeCnt(comment_id, post_id, true);
+            // await this.commentService.setdisLikeCnt(comment_id, post_id, true);
             const info = await this.likeService.createCommentdisLike({
                 user_id: user.id,
                 comment_id: comment_id,
@@ -470,6 +482,8 @@ export class PostsController {
                 type: LikeType.COMMENT,
                 state: false // false - 싫어요
             });
+            const dislike_cnt = await this.likeService.commentLikeCnt(comment_id, LikeType.COMMENT, false);
+            await this.commentService.update(comment_id, post_id, { dislike_cnt: dislike_cnt })
             return new LikeDto({
                 ...info,
                 is_liked: false,
@@ -495,11 +509,13 @@ export class PostsController {
     ): Promise<SuccessReturnModel> {
         const existLike = await this.likeService.existCommentlike(user.id, comment_id, false);
         if (existLike !== null) {
-            await this.commentService.setdisLikeCnt(comment_id, post_id, false);
-            const deleteLike = await this.likeService.deleteCommentlike(comment_id, post_id, false);
+            // await this.commentService.setdisLikeCnt(comment_id, post_id, false);
+            const deleteLike = await this.likeService.deleteCommentlike(existLike.id);
             if (!deleteLike) {
                 return { success: false };
             }
+            const dislike_cnt = await this.likeService.commentLikeCnt(comment_id, LikeType.COMMENT, false);
+            await this.commentService.update(comment_id, post_id, { dislike_cnt: dislike_cnt })
             return { success: true };
         } else {
             return { success: false };
@@ -605,7 +621,7 @@ export class PostsController {
         if (postInfo === null) {
             throw new NotFoundException();
         }
-        const check = await this.reportService.existPostreport(user.id, post_id);
+        const check = await this.reportService.existPostreport(data.user_id, post_id);
         if (check !== null) {
             throw new BadRequestException("이미 신고한적이 있습니다.");
         }
@@ -615,12 +631,14 @@ export class PostsController {
             targetType: targetType.POST
         });
         const writerInfo = await this.userService.findOne(postInfo.user_id);
-        await this.adminFcmService.sendFCM(
-            "Report",
-            `${writerInfo.name} reported for this ${data.report_reason}`,
-            FcmEnumType.ADMIN,
-            result.id
-        )
+        if (writerInfo !== null) {
+            await this.adminFcmService.sendFCM(
+                "Report",
+                `${writerInfo.name} reported for this ${data.report_reason}`,
+                FcmEnumType.ADMIN,
+                result.id
+            )
+        }
         return result
     }
 

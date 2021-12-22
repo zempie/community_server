@@ -92,6 +92,7 @@ export class CommunityController {
         @CurrentUser() user: User,
         @Query() query: CommunityListDto
     ): Promise<ReturnCommunityUidDto[]> {
+        
         const communityInfos = await this.communityService.findAll(query);
         const joinInfos = user !== null ? await this.communityjoinService.findbyUserId(user.id) : [];
         const result: ReturnCommunityUidDto[] = [];
@@ -205,7 +206,7 @@ export class CommunityController {
 
         const result: ReturnCommunityJoinDto[] = joinInfo.result.map(item => {
             const userInfo = users.find(us => us.id === item.user_id);
-            const postCntInfo = postCnts.find(ps => ps.user_id === userInfo.id)
+            const postCntInfo = userInfo !== undefined ? postCnts.find(ps => ps.user_id === userInfo.id) : { cnt: 0 }
             return {
                 id: item.user_id,
                 uid: userInfo ? userInfo.uid : null,

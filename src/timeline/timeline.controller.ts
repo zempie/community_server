@@ -309,15 +309,18 @@ export class TimelineController {
             }
         })
 
-        // const communities = await this.communityJoinService.findbyUserId(userInfo.id);
+        const communities = await this.communityJoinService.findbyUserId(userInfo.id);
 
-        // communities.forEach(item => {
-        //     orList.push({
-        //         community_id: item.community_id,
-        //         type: ChannelPostType.COMMUNITY,
-        //         visibility: Visibility.PUBLIC
-        //     });
-        // })
+        communities.forEach(item => {
+            orList.push({
+                community_id: item.community_id,
+                type: ChannelPostType.COMMUNITY,
+                visibility: Visibility.PUBLIC,
+                user_id:{
+                    [Op.not]: userInfo.id
+                }
+            });
+        })
 
         const inputWhere: FindAndCountOptions = {
             where: whereIn,
