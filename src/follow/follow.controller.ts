@@ -25,7 +25,7 @@ export class FollowController {
         private communityJoinService: CommunityJoinService,
         private userService: UserService,
         private searchKeywordLogService: SearchKeywordLogService
-    ) {}
+    ) { }
 
     @UseInterceptors(ClassSerializerInterceptor)
     @Get("/:user_id/list/following")
@@ -58,7 +58,7 @@ export class FollowController {
             joinInfo = await this.communityJoinService.findbyUserId(item.id);
             const users = await this.userService.findByIds(joinInfo.map(item => item.user_id));
             const communityInfo: ReturnCommunityJoinDto[] = joinInfo.map(item => {
-                const userInfo = users.find(us => us.id === item.user_id);
+                const userInfo = users.find(us => us.id === item.user_id) ?? { uid: null, email: null, name: null, channel_id: null, picture: null };
                 return {
                     id: item.user_id,
                     uid: userInfo.uid,
@@ -101,7 +101,7 @@ export class FollowController {
         let joinInfo: CommunityJoin[] = [];
         const { limit, offset, search } = query;
         const list = await this.followService.findQuery(limit, offset, false, user_id, search);
-        
+
         if (list.totalCount === 0) {
             return list;
         }
@@ -110,7 +110,7 @@ export class FollowController {
             joinInfo = await this.communityJoinService.findbyUserId(item.id);
             const users = await this.userService.findByIds(joinInfo.map(item => item.user_id));
             const communityInfo: ReturnCommunityJoinDto[] = joinInfo.map(item => {
-                const userInfo = users.find(us => us.id === item.user_id);
+                const userInfo = users.find(us => us.id === item.user_id) ?? { uid: null, email: null, name: null, channel_id: null, picture: null };
                 return {
                     id: item.user_id,
                     uid: userInfo.uid,

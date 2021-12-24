@@ -298,9 +298,10 @@ export class TimelineController {
 
         const followers = await this.followService.followUserInfosByUser(userInfo.id);
         const muteList = user !== undefined && user !== null ? await this.blockService.muteListByUserId(userInfo.id) : []
+        
         followers.forEach(item => {
             const check = muteList.some(mute => mute.target_id === item.id)
-            if (check!){
+            if (!check){
                 orList.push({
                     channel_id: item.channel_id,
                     type: ChannelPostType.USER,
@@ -308,7 +309,7 @@ export class TimelineController {
                 });
             }
         })
-
+        
         const communities = await this.communityJoinService.findbyUserId(userInfo.id);
 
         communities.forEach(item => {

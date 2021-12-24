@@ -39,7 +39,7 @@ export class CommonInfoService {
         const followCntData = await this.followService.rawsFollowFollowing(user_ids);
         const followList = user != null ? await this.followService.rawfollow(user_ids, user.id) : [];
         const followingList = user != null ? await this.followService.rawfollowing(user.id, user_ids) : [];
-
+        
         const blockYouData = user != null ? await this.blockService.rawBlockYou(user_ids, user.id) : [];
         const blockData = user != null ? await this.blockService.rawBlock(user_ids, user.id) : [];
 
@@ -47,8 +47,8 @@ export class CommonInfoService {
             const followCntInfo = followCntData.find(fItem => fItem.user_id === item.id);
             item.followers_cnt = followCntInfo.followerCnt;
             item.followings_cnt = followCntInfo.followingCnt;
-            const followInfo = user != null ? followList.find(fItem => fItem.follow_id === user.id) : undefined
-            const followingInfo = user != null ? followingList.find(fItem => fItem.user_id === user.id) : undefined
+            const followInfo = user != null ? followList.find(fItem => fItem.follow_id === user.id && fItem.user_id === item.id) : undefined
+            const followingInfo = user != null ? followingList.find(fItem => fItem.user_id === user.id && fItem.follow_id === item.id) : undefined
             item.follow_you = followInfo !== undefined ? true : false;
             item.is_following = followingInfo !== undefined ? true : false;
 

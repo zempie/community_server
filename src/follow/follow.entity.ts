@@ -1,4 +1,5 @@
-import { Column, CreatedAt, DataType, DeletedAt, Model, Table, UpdatedAt } from "sequelize-typescript";
+import { BelongsTo, Column, CreatedAt, DataType, DeletedAt, ForeignKey, Model, Table, UpdatedAt } from "sequelize-typescript";
+import { User } from "src/user/user.entity";
 
 @Table({ tableName: "follow", timestamps: true, paranoid: true })
 export class Follow extends Model{
@@ -45,10 +46,14 @@ export class Follow extends Model{
     })
     deletedAt: Date;
 
+    @ForeignKey(() => User)
     @Column({
         allowNull: false
     })
     user_id: number;
+
+    @BelongsTo(() => User)
+    user: User
 
     @Column({
         allowNull: false

@@ -1,7 +1,8 @@
-import { Column, DataType, Table } from "sequelize-typescript";
+import { BelongsTo, Column, DataType, ForeignKey, Table } from "sequelize-typescript";
 import { JoinState } from "./enum/joinstate.enum";
 import { JoinStatus } from "./enum/joinststus.enum";
 import { BaseEntity } from "src/abstract/base-entity";
+import { User } from "src/user/user.entity";
 
 @Table({ tableName: "community_join", timestamps: true, paranoid: true })
 export class CommunityJoin extends BaseEntity {
@@ -10,10 +11,14 @@ export class CommunityJoin extends BaseEntity {
     })
     community_id: string;
 
+    @ForeignKey(() => User)
     @Column({
         allowNull: false
     })
     user_id: number;
+
+    @BelongsTo(() => User)
+    user: User
 
     @Column({
         type: DataType.ENUM(JoinStatus.MANAGER, JoinStatus.SUBMANAGER, JoinStatus.MEMBER, JoinStatus.OWNER),
