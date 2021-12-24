@@ -17,7 +17,7 @@ async function bootstrap() {
     const config = new DocumentBuilder()
         .setTitle("GEM DEV")
         .setDescription("gemdev")
-        .setVersion("1.2.28")
+        .setVersion("1.2.30")
         .addBearerAuth({
             type: "http",
             scheme: "bearer",

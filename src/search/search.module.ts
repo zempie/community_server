@@ -9,6 +9,7 @@ import { SearchKeywordLogService } from "./search_keyword_log/search_keyword_log
 import { SearchKeywordLog } from "./search_keyword_log/search_keyword_log.entity";
 import { User } from "src/user/user.entity";
 import { LikeModule } from "src/like/like.module";
+import { CommonInfoModule } from "src/commoninfo/commoninfo.module";
 
 @Module({
     imports: [
@@ -17,7 +18,8 @@ import { LikeModule } from "src/like/like.module";
         PostsModule,
         GameModule,
         UserModule,
-        LikeModule
+        LikeModule,
+        CommonInfoModule
     ],
     controllers: [SearchController],
     providers: [SearchKeywordLogService],

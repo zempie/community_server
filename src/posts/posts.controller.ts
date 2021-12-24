@@ -217,7 +217,7 @@ export class PostsController {
                 is_read: user.id === post.user_id ? true : false
             });
         }
-        
+
         // post = await this.postsService.likeCnt(post_id, true);
         const like = await this.likeService.createPostLike(post_id, {
             user_id: user.id,
@@ -265,13 +265,14 @@ export class PostsController {
         if (user.id !== existLike.user_id) {
             throw new HttpException("BAD_REQUEST", HttpStatus.BAD_REQUEST);
         }
+        
+        // const setcount = await this.postsService.likeCnt(post_id, false);
+        await this.likeService.deletePostlike(existLike.id);
         const likeCnt = await this.likeService.postLikeCnt(post_id, LikeType.POST, true)
         const setcount = await this.postsService.update(post_id, { like_cnt: likeCnt })
-        // const setcount = await this.postsService.likeCnt(post_id, false);
         if (!setcount) {
             return { success: false };
         }
-        await this.likeService.deletePostlike(existLike.id);
         return { success: true };
     }
 
@@ -289,7 +290,7 @@ export class PostsController {
         const post = await this.postsService.findOne(post_id);
         if (data.community !== undefined) {
             for await (const co of data.community) {
-                if(co.id === undefined || co.channel_id === undefined){
+                if (co.id === undefined || co.channel_id === undefined) {
                     throw new BadRequestException("올바른 community 정보가 아닙니다.")
                 }
                 const channelInfo = await this.channelService.findChannelWithCommu(co.id, co.channel_id);
@@ -415,7 +416,7 @@ export class PostsController {
 
         if (checkLike === null) {
             // await this.commentService.setLikeCnt(comment_id, post_id, true);
-            const like = this.likeService.createCommentLike({
+            const like = await this.likeService.createCommentLike({
                 user_id: user.id,
                 comment_id: comment_id,
                 post_id: post_id,
@@ -423,6 +424,7 @@ export class PostsController {
                 state: true // true - 좋아요
             });
             const likeCnt = await this.likeService.commentLikeCnt(comment_id, LikeType.COMMENT, true);
+
             await this.commentService.update(comment_id, post_id, { like_cnt: likeCnt })
             return new LikeDto({
                 ...like,

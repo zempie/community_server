@@ -9,9 +9,9 @@ import { GamePost } from "./game-post.entity";
 CREATE view game_timeline as
 select
     `cp`.`id` AS `id`,
-    `cp`.`createdAt` AS `createdAt`,
-    `cp`.`updatedAt` AS `updatedAt`,
-    `cp`.`deletedAt` AS `deletedAt`,
+    `p`.`createdAt` AS `createdAt`,
+    `p`.`updatedAt` AS `updatedAt`,
+    `p`.`deletedAt` AS `deletedAt`,
     `cp`.`game_id` as `game_id`,
     `cp`.`post_id` AS `post_id`,
     `p`.`post_type` AS `post_type`,

@@ -2,6 +2,7 @@ import { Controller, Get, Query } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { CurrentUser } from "src/auth/user-auth-decorator";
 import { UserTokenCheckGuard } from "src/auth/user-auth.guard";
+import { CommonInfoService } from "src/commoninfo/commoninfo.service";
 import { Community } from "src/community/community.entity";
 import { CommunityService } from "src/community/community.service";
 import { Game } from "src/game/game.entity";
@@ -30,6 +31,7 @@ export class SearchController {
         private userService: UserService,
         private searchKeywordLogService: SearchKeywordLogService,
         private likeService: LikeService,
+        private commonInfoservice: CommonInfoService,
     ) { }
 
     @Get()
@@ -64,12 +66,13 @@ export class SearchController {
                 sort: query.sort
             });
             const users = await this.userService.findByIds(list.result.map(item => item.user_id));
-            const likeInfos = user !== null ? await this.likeService.likePostByUserId(list.result.map(item=>item.id), user.id) : [];
+            const setInfoUsers = await this.commonInfoservice.setCommonInfo(users, user)
+            const likeInfos = user !== null ? await this.likeService.likePostByUserId(list.result.map(item => item.id), user.id) : [];
             return {
                 ...list,
                 result: list.result.map((item: any) => {
-                    const postUser = users.find(user => user.id === item.user_id);
-                    const like = likeInfos.find(lItem=>lItem.post_id === item.id);
+                    const postUser = setInfoUsers.find(user => user.id === item.user_id);
+                    const like = likeInfos.find(lItem => lItem.post_id === item.id);
                     return new PostsDto({
                         ...item, user: new UserDto({ ...postUser }),
                         liked: like != null ? true : false,
@@ -101,9 +104,10 @@ export class SearchController {
                 sort: query.sort
             });
             const users = await this.userService.findByIds(postsInfo.result.map(item => item.user_id));
+            const setInfoUsers = await this.commonInfoservice.setCommonInfo(users, user)
             const likeInfos = user !== null ? await this.likeService.likePostByUserId(postsInfo.result.map(item => item.id), user.id) : [];
             const list = postsInfo.result.map((item: any) => {
-                const postUser = users.find(user => user.id === item.user_id);
+                const postUser = setInfoUsers.find(user => user.id === item.user_id);
                 const like = likeInfos.find(lItem => lItem.post_id === item.id);
                 return new PostsDto({
                     ...item, user: new UserDto({ ...postUser }),
@@ -123,9 +127,10 @@ export class SearchController {
                 limit: query.limit,
                 offset: query.offset
             });
+            const setInfoUsers = await this.commonInfoservice.setCommonInfo(users.result, user)
             return {
                 ...users,
-                result: users.result.map(item => new UserDto({ ...item }))
+                result: setInfoUsers.map(item => new UserDto({ ...item }))
             };
         } else {
             await this.searchKeywordLogService.create(user ? user.id : null, decodeURI(query.q));
@@ -140,9 +145,10 @@ export class SearchController {
                 sort: query.sort
             });
             const postUsers = await this.userService.findByIds(posts.result.map(item => item.user_id));
+            const setInfoPostUsers = await this.commonInfoservice.setCommonInfo(postUsers, user)
             const likeInfos = user !== null ? await this.likeService.likePostByUserId(posts.result.map(item => item.id), user.id) : [];
             const list = posts.result.map((item: any) => {
-                const postUser = postUsers.find(user => user.id === item.user_id);
+                const postUser = setInfoPostUsers.find(user => user.id === item.user_id);
                 const like = likeInfos.find(lItem => lItem.post_id === item.id);
                 return new PostsDto({
                     ...item, user: new UserDto({ ...postUser }),
@@ -171,11 +177,12 @@ export class SearchController {
                 sort: query.sort
             });
             const users = await this.userService.search({ username: decodeURI(query.q), limit: 3, offset: 0 });
+            const setInfoUsers = await this.commonInfoservice.setCommonInfo(users.result, user)
             return new SearchAllDto({
                 posts: list,
                 games: gameInfo.result,
                 community: communitys.result,
-                users: users.result.map(item => new UserDto({ ...item }))
+                users: setInfoUsers.map(item => new UserDto({ ...item }))
             });
         }
     }

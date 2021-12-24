@@ -10,9 +10,9 @@ CREATE OR REPLACE
 ALGORITHM = UNDEFINED VIEW `zempie`.`community_timeline` AS
 select
     `cp`.`id` AS `id`,
-    `cp`.`createdAt` AS `createdAt`,
-    `cp`.`updatedAt` AS `updatedAt`,
-    `cp`.`deletedAt` AS `deletedAt`,
+    `p`.`createdAt` AS `createdAt`,
+    `p`.`updatedAt` AS `updatedAt`,
+    `p`.`deletedAt` AS `deletedAt`,
     `cp`.`community_id` AS `community_id`,
     `cp`.`channel_id` AS `channel_id`,
     `cp`.`post_id` AS `post_id`,

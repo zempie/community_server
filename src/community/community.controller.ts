@@ -198,7 +198,13 @@ export class CommunityController {
             order: [["createdAt", "DESC"]],
             limit: query.limit ? query.limit : 20,
             offset: query.offset ? query.offset : 0,
-            raw: true
+            raw: true,
+            include:[{
+                model:User,
+                where:{
+                    deleted_at : null
+                }
+            }]
         });
         const userIds = joinInfo.result.map(item => item.user_id);
         const users = await this.userService.findByIds(joinInfo.result.map(item => item.user_id));

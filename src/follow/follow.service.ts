@@ -59,8 +59,8 @@ export class FollowService extends BaseService<Follow> {
                 ${isFollow ? "follower" : "user"}.picture as profile_img,
                 ${isFollow ? "follower" : "user"}.is_developer as is_developer
             from ${this.followRepository.tableName} as follows left join ${User.tableName
-            } as user on follows.user_id = user.id left join ${User.tableName
-            } as follower on follows.follow_id = follower.id
+            } as user on follows.user_id = user.id and user.deleted_at is null left join ${User.tableName
+            } as follower on follows.follow_id = follower.id and follower.deleted_at is null
             where follows.${isFollow ? "user_id" : "follow_id"} = ? and ${isFollow ? "follower" : "user"
             }.name like ? and follows.deleted_at IS NULL limit ?,?;
         `;
@@ -69,8 +69,8 @@ export class FollowService extends BaseService<Follow> {
             select
                 count(*) as count
             from ${this.followRepository.tableName} as follows left join ${User.tableName
-            } as user on follows.user_id = user.id left join ${User.tableName
-            } as follower on follows.follow_id = follower.id
+            } as user on follows.user_id = user.id and user.deleted_at is null left join ${User.tableName
+            } as follower on follows.follow_id = follower.id and follower.deleted_at is null
             where follows.${isFollow ? "user_id" : "follow_id"} = ? and ${isFollow ? "follower" : "user"
             }.name like ? and follows.deleted_at IS NULL limit 0,1;
         `;
@@ -164,8 +164,8 @@ export class FollowService extends BaseService<Follow> {
         const data: FollowCntAddUserIdInterface[] = await this.followRepository.sequelize.query(
             `
             SELECT f.user_id as user_id ,
-            (select count(*) from follow f2 where f2.user_id = f.user_id) as followerCnt,
-            (select count(*) from follow f3 where f3.follow_id = f.user_id) as followingCnt
+            (select count(*) from follow f2 where f2.user_id = f.user_id and f2.deleted_at IS NULL) as followerCnt,
+            (select count(*) from follow f3 where f3.follow_id = f.user_id and f3.deleted_at IS NULL) as followingCnt
             from follow f WHERE f.user_id in(:user_ids) and f.deleted_at IS NULL
         `,
             {

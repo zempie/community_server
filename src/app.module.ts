@@ -39,6 +39,7 @@ import { Fcm } from "./fcm/fcm.entity";
 import { ShareLogModule } from "./share/share_log/share_log.module";
 import { AdminModule } from './admin/admin.module';
 import { Admins } from "./admin/admin.entity";
+import { User } from "./user/user.entity";
 
 dotenv.config();
 const DB_HOSTNAME = process.env.DB_HOSTNAME;
@@ -82,7 +83,8 @@ const DB_NAME = process.env.DB_NAME;
                 PortfolioPostTimeLine,
                 GamePost,
                 Fcm,
-                Admins
+                Admins,
+                User
             ]
         }),
         CommunityModule,

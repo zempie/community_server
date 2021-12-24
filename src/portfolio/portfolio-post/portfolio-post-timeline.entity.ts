@@ -8,9 +8,9 @@ import { PortfolioPost } from "./portfolio-post.entity";
 /*
 select
     `cp`.`id` AS `id`,
-    `cp`.`createdAt` AS `createdAt`,
-    `cp`.`updatedAt` AS `updatedAt`,
-    `cp`.`deletedAt` AS `deletedAt`,
+    `p`.`createdAt` AS `createdAt`,
+    `p`.`updatedAt` AS `updatedAt`,
+    `p`.`deletedAt` AS `deletedAt`,
     `cp`.`channel_id` AS `channel_id`,
     `cp`.`portfolio_id` as `portfolio_id`,
     `cp`.`post_id` AS `post_id`,
