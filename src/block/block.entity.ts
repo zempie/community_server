@@ -2,7 +2,7 @@ import { Column, CreatedAt, DataType, Model, Table, UpdatedAt } from "sequelize-
 import { BaseEntity } from "src/abstract/base-entity";
 import { BlockType } from "./enum/blocktype.enum";
 
-@Table({ tableName: "block", timestamps: true, paranoid: true })
+@Table({ tableName: "block", paranoid: true })
 export class Block extends BaseEntity {
     @Column
     community_id: string;

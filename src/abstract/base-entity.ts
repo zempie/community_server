@@ -11,22 +11,23 @@ export abstract class BaseEntity extends Model {
     @CreatedAt
     @Column({
         type: DataType.DATE,
+        field: 'created_at',
         // defaultValue: new Date().getTime()
         get(this: BaseEntity) {
-            return this.getDataValue("createdAt")?.getTime() ?? null;
+            return this.getDataValue("created_at") ?? null;
         }
     })
-    createdAt: Date;
+    created_at: Date;
 
     @UpdatedAt
     @Column({
         type: DataType.DATE,
         // defaultValue: new Date().getTime()
         get(this: BaseEntity) {
-            return this.getDataValue("updatedAt")?.getTime() ?? null;
+            return this.getDataValue("updated_at") ?? null;
         }
     })
-    updatedAt: Date;
+    updated_at: Date;
 
     @DeletedAt
     @Column({
@@ -34,9 +35,9 @@ export abstract class BaseEntity extends Model {
         allowNull: true,
         defaultValue: null,
         get(this: BaseEntity) {
-            const data = this.getDataValue("deletedAt");
+            const data = this.getDataValue("deleted_at");
             return data ? data.getTime() : null;
         }
     })
-    deletedAt: Date;
+    deleted_at: Date;
 }

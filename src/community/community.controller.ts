@@ -200,7 +200,7 @@ export class CommunityController {
                 community_id: community_id,
                 state: JoinState.ACTIVE  //2022-01-25 15:00:45 list api에 member_cnt와 맞춰달라는 요청에 추가함.
             },
-            order: [["createdAt", "DESC"]],
+            order: [["created_at", "DESC"]],
             limit: query.limit ? query.limit : 20,
             offset: query.offset ? query.offset : 0,
             raw: true,
@@ -226,7 +226,7 @@ export class CommunityController {
                 // nickName: userInfo.na
                 channel_id: userInfo ? userInfo.channel_id : null,
                 profile_img: userInfo ? userInfo.picture : null,
-                createdAt: item.createdAt,
+                created_at: item.created_at,
                 community_id: item.community_id,
                 status: item.status,
                 state: item.state,
@@ -437,7 +437,7 @@ export class CommunityController {
                     community_id: item.community_id,
                     status: item.status,
                     state: item.state,
-                    createdAt: item.createdAt as any
+                    created_at: item.created_at as any
                 })
             );
         }
@@ -555,14 +555,15 @@ export class CommunityController {
     @UsePipes(new ValidationPipe({ whitelist: false, transform: true }))
     async subscribe(
         @CurrentUser() user: User,
-        @Query("user_id") user_id: number,
+        // @Query("user_id") user_id: number,
         @Param("community_id") community_id: string
     ) {
-        const data = { user_id, community_id };
-        const exist = await this.communityjoinService.exist(user_id, community_id);
+
+        const data = { user_id: user.id, community_id };
+        const exist = await this.communityjoinService.exist(user.id, community_id);
         if (exist) {
             throw new BadRequestException("이미 구독중입니다.");
-        } else if (user.id !== Number(user_id)) {
+        } else if (user.id !== Number(user.id)) {
             throw new HttpException("BAD_REQUEST", HttpStatus.BAD_REQUEST);
         }
         await this.communityService.setSubscribeCnt(community_id, true);
@@ -584,11 +585,11 @@ export class CommunityController {
     @UsePipes(new ValidationPipe({ whitelist: false, transform: true }))
     async unsubscribe(
         @CurrentUser() user: User,
-        @Query("user_id") user_id: number,
+        // @Query("user_id") user_id: number,
         @Param("community_id") community_id: string
     ): Promise<SuccessReturnModel> {
-        const exist = await this.communityjoinService.exist(user_id, community_id);
-        if (user.id !== Number(user_id)) {
+        const exist = await this.communityjoinService.exist(user.id, community_id);
+        if (user.id !== Number(user.id)) {
             throw new HttpException("BAD_REQUEST", HttpStatus.BAD_REQUEST);
         }
         if (!exist) {
@@ -596,7 +597,7 @@ export class CommunityController {
         }
         await this.communityService.setSubscribeCnt(community_id, false);
         return {
-            success: await this.communityjoinService.deletejoin(user_id, community_id)
+            success: await this.communityjoinService.deletejoin(user.id, community_id)
         };
     }
 

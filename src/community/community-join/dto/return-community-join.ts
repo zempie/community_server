@@ -12,20 +12,20 @@ export class ReturnCommunityJoinDto extends CommunityUserModelAddCnt {
     id: number;
 
     @ApiProperty()
-    uid:string;
+    uid: string;
 
     @ApiProperty()
-    email:string;
+    email: string;
 
     @ApiProperty()
-    name:string;
+    name: string;
     // @ApiProperty()
     // nickName:string;
     @ApiProperty()
-    channel_id:string;
+    channel_id: string;
 
     @ApiProperty()
-    profile_img:string;
+    profile_img: string;
 
     @ApiProperty()
     community_id: string;
@@ -52,7 +52,7 @@ export class ReturnCommunityJoinDto extends CommunityUserModelAddCnt {
     liked_cnt?: number;
 
     @ApiProperty()
-    createdAt:Date
+    created_at: Date
 
     constructor(partial: Partial<ReturnCommunityJoinDto>) {
         super(partial);

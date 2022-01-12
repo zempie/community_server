@@ -23,11 +23,11 @@ export class PostAttatchmentFileDto extends File {
     type: PostFileType;
 }
 export class CreatePostsDto {
-    @ApiProperty({
-        description: "작성자 uid",
-        required: true
-    })
-    @IsNotEmpty()
+    // @ApiProperty({
+    //     description: "작성자 uid",
+    //     required: true
+    // })
+    // @IsNotEmpty()
     user_uid: string;
 
     @ApiProperty({

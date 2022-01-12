@@ -20,10 +20,30 @@ export class PostsService extends BaseService<Posts> {
         super(postsRepository);
     }
 
+    async findImgAll(query: { limit: number, offset?: number }) {
+        const post = await this.postsRepository.findAndCountAll(
+            {
+                where: {
+                    attatchment_files: {
+                        [Op.regexp]: 'image'
+                    }
+                },
+                order: [["created_at", "DESC"]],
+                limit: query.limit,
+                offset: query.offset
+            }
+        )
+        return {
+            result: post.rows,
+            count: post.count
+        }
+
+    }
+
     async findAll(query: CommunityListDto) {
         const options: FindOptions = {
             where: {},
-            order: [["createdAt", "ASC"]],
+            order: [["created_at", "ASC"]],
             limit: query.limit ? query.limit : 5,
             offset: query.offset ? query.offset : 0,
             raw: true
@@ -51,7 +71,7 @@ export class PostsService extends BaseService<Posts> {
     async findTimeline(query: TimelineListQueryDTO, ids: string[]) {
         const options: FindOptions = {
             where: { id: ids },
-            order: [["createdAt", "ASC"]],
+            order: [["created_at", "ASC"]],
             limit: query.limit ? query.limit : 5,
             offset: query.offset ? query.offset : 0,
             raw: true

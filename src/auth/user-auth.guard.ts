@@ -25,7 +25,7 @@ interface FirebaseAccountInterface {
   }[],
   validSince: string,
   lastLoginAt: string,
-  createdAt: string,
+  created_at: string,
   lastRefreshAt: Date
 }
 

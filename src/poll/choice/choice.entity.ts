@@ -2,7 +2,7 @@ import { BelongsTo, Column, CreatedAt, DataType, ForeignKey, Model, Table, Updat
 import { BaseEntity } from "src/abstract/base-entity";
 import { Poll } from "../poll.entity";
 
-@Table({ tableName: "choice", timestamps: true, paranoid: true })
+@Table({ tableName: "choice", paranoid: true })
 export class Choice extends BaseEntity {
     @ForeignKey(() => Poll)
     @Column({

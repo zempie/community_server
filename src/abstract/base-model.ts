@@ -5,11 +5,11 @@ import { JoinType } from "src/community/community-join/enum/jointype.enum";
 export abstract class BaseModel {
     id: string;
 
-    createdAt: number;
+    created_at: Date;
 
-    updatedAt: number;
+    updated_at: Date;
 
-    deletedAt: number;
+    deleted_at: Date;
 }
 
 export abstract class FollowInfoModel {

@@ -4,7 +4,7 @@ import { JoinStatus } from "./enum/joinststus.enum";
 import { BaseEntity } from "src/abstract/base-entity";
 import { User } from "src/user/user.entity";
 
-@Table({ tableName: "community_join", timestamps: true, paranoid: true })
+@Table({ tableName: "community_join", paranoid: true })
 export class CommunityJoin extends BaseEntity {
     @Column({
         allowNull: false

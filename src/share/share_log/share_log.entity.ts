@@ -2,7 +2,7 @@ import { BaseEntity } from "src/abstract/base-entity";
 import { Column, DataType, Table } from "sequelize-typescript";
 import { ShareType } from "./enum/sharetype.enum";
 
-@Table({ tableName: "share_log", timestamps: true, paranoid: true })
+@Table({ tableName: "share_log", paranoid: true })
 export class ShareLog extends BaseEntity {
     @Column({
         allowNull: false

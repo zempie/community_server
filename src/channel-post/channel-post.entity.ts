@@ -3,7 +3,7 @@ import { BaseEntity } from "src/abstract/base-entity";
 import { Visibility } from "src/posts/enum/post-visibility.enum";
 import { ChannelPostType } from "./enum/channelposttype.enum";
 
-@Table({ tableName: "channel_post", timestamps: true, paranoid: true })
+@Table({ tableName: "channel_post", paranoid: true, timestamps: true })
 export class ChannelPost extends BaseEntity {
     @Column
     community_id: string;

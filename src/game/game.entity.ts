@@ -29,7 +29,7 @@ select
 from
     `zempie`.`games`
 */
-@Table({ tableName: "gameview", timestamps: true, paranoid: true })
+@Table({ tableName: "gameview", paranoid: true })
 export class Game extends Model {
     @Column({
         type: DataType.INTEGER,

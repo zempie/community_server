@@ -265,7 +265,7 @@ export class PostsController {
         if (user.id !== existLike.user_id) {
             throw new HttpException("BAD_REQUEST", HttpStatus.BAD_REQUEST);
         }
-        
+
         // const setcount = await this.postsService.likeCnt(post_id, false);
         await this.likeService.deletePostlike(existLike.id);
         const likeCnt = await this.likeService.postLikeCnt(post_id, LikeType.POST, true)
@@ -280,6 +280,7 @@ export class PostsController {
     @ApiOperation({ description: "포스팅 작성" })
     @ZempieUseGuards(UserAuthGuard)
     async create(@CurrentUser() user: User, @Body() data: CreatePostsDto): Promise<Posts> {
+        data.user_uid = user.uid;
         return await this.postsLogicService.createPost(data);
     }
 
@@ -377,7 +378,7 @@ export class PostsController {
             transaction.commit();
             return {
                 ...data,
-                created_at: new Date().getTime()
+                created_at: new Date()
             };
         } catch (error) {
             console.error(error);

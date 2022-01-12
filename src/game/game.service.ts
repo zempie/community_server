@@ -14,6 +14,12 @@ export class GameService extends BaseService<Game> {
         super(gameRepository)
     }
 
+
+    async findOneByGamepath(pathname: string) {
+
+        return await this.gameRepository.findOne({ where: { pathname: pathname } });
+    }
+
     async findAll(query: CommunityListDto) {
         const options: FindOptions = {
             where: {},

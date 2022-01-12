@@ -52,7 +52,7 @@ export class ChannelPostService extends BaseService<ChannelPost> {
     async findAll(channel_id: string, query: TimelineListQueryDTO) {
         const options: FindOptions = {
             where: { channel_id: channel_id },
-            order: [["createdAt", "ASC"]],
+            order: [["created_at", "ASC"]],
             limit: query.limit ? query.limit : 5,
             offset: query.offset ? query.offset : 0,
             raw: true
@@ -203,7 +203,7 @@ export class ChannelPostService extends BaseService<ChannelPost> {
     async cntUserPostCommunity(community_id: string, userIds: number[]): Promise<{ user_id: number, cnt: number }[]> {
         return await this.channelPostRepository.sequelize.query(`
             SELECT p.user_id as user_id, count(p.id) as cnt from channel_post cp 
-            left join posts p on cp.post_id = p.id where p.deletedAt is not null and p.user_id in(:userIds) and cp.community_id = :community_id and cp.deletedAt is not null
+            left join posts p on cp.post_id = p.id where p.deleted_at is not null and p.user_id in(:userIds) and cp.community_id = :community_id and cp.deleted_at is not null
         `, {
             replacements: {
                 community_id: community_id,

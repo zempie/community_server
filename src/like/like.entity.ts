@@ -2,7 +2,7 @@ import { Column, DataType, Table } from "sequelize-typescript";
 import { BaseEntity } from "src/abstract/base-entity";
 import { LikeType } from "./enum/liketype.enum";
 
-@Table({ tableName: "like", timestamps: true, paranoid: true })
+@Table({ tableName: "like", paranoid: true })
 export class Like extends BaseEntity {
     @Column({
         allowNull: false

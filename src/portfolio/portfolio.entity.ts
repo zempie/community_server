@@ -1,7 +1,7 @@
 import { Column, Table } from "sequelize-typescript";
 import { BaseEntity } from "src/abstract/base-entity";
 
-@Table({ tableName: "portfolio", timestamps: true, paranoid: true })
+@Table({ tableName: "portfolio", paranoid: true })
 export class Portfolio extends BaseEntity {
     @Column
     title: string;

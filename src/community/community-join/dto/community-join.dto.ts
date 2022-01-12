@@ -53,7 +53,7 @@ export class CommunityJoinBlockUserDto extends CommunityUserModel {
     state: JoinState;
 
     @ApiProperty()
-    createdAt: number;
+    created_at: number;
 
     constructor(partial: Partial<CommunityJoinBlockUserDto>) {
         super(partial)

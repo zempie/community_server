@@ -3,7 +3,7 @@ import { BaseEntity } from "src/abstract/base-entity";
 import { CommunityState } from "src/community/enum/communitystate.enum";
 import { CommunityChannel } from "./community-channel/community-channel.entity";
 
-@Table({ tableName: "community", timestamps: true, paranoid: true })
+@Table({ tableName: "community", paranoid: true, timestamps: true })
 export class Community extends BaseEntity {
     //커뮤나티 생성자
     @Column({

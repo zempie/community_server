@@ -56,9 +56,9 @@ export class Posts extends BaseEntity {
         type: DataType.JSON,
         get(this: Posts) {
             const hashtags = this.getDataValue("hashtags");
-            if (typeof hashtags === "object"){
+            if (typeof hashtags === "object") {
                 return hashtags
-            }else{
+            } else {
                 try {
                     return JSON.parse(hashtags);
                 } catch (error) {

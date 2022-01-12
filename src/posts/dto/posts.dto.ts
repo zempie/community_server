@@ -75,7 +75,7 @@ export class PostsDto {
         this.is_pinned = partial.is_pinned ? partial.is_pinned : false;
         this.is_retweet = partial.is_retweet ? (typeof (partial.is_retweet) === "boolean" ? partial.is_retweet : (partial.is_retweet === 1 ? true : false)) : false;
         partial.is_retweet = this.is_retweet;
-        if(partial.is_retweet === true){
+        if (partial.is_retweet === true) {
             partial.content = null;
         }
         Object.assign(this, partial);
@@ -175,7 +175,7 @@ export class PostOutDto {
 
     @ApiPropertyOptional()
     @IsOptional()
-    created_at?: number;
+    created_at?: Date;
 
     @ApiProperty()
     @IsNumber()

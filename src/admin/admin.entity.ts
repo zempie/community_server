@@ -19,8 +19,8 @@ from
     `zempie`.`admins`
 */
 
-@Table({ tableName: "adminsview", timestamps: true, paranoid: true })
-export class Admins extends Model{
+@Table({ tableName: "adminsview", paranoid: true })
+export class Admins extends Model {
     @Column({
         type: DataType.INTEGER,
         autoIncrement: true,
@@ -29,10 +29,10 @@ export class Admins extends Model{
     id: number;
 
     @Column({})
-    uid:string;
+    uid: string;
 
     @Column({})
-    activated:number;
+    activated: number;
 
     @Column({})
     account: string;

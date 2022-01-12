@@ -100,6 +100,8 @@ export class FollowService extends BaseService<Follow> {
         });
     }
 
+    
+
     async findfollowersCnt(user_id: number, follow_id: number) {
         return await this.followRepository.findAll({
             where: {
@@ -207,7 +209,8 @@ export class FollowService extends BaseService<Follow> {
     }
 
     async create(data: CreateFollowDto) {
-        return await this.followRepository.create(data);
+        const result = await this.followRepository.create(data);
+        return result;
     }
 
     async update(id: string, data: UpdateFollowDto) {

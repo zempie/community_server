@@ -14,7 +14,7 @@ export class ChoiceService {
 
     async findAll() {
         return await this.choiceRepository.findAndCountAll({
-            order: [["createdAt", "DESC"]]
+            order: [["created_at", "DESC"]]
         });
     }
 
@@ -55,13 +55,13 @@ export class ChoiceService {
         return await this.findOne(id);
     }
 
-    async delete(choiceId: string,transaction?:Transaction)
+    async delete(choiceId: string, transaction?: Transaction)
     async delete(choiceIds: string[], transaction?: Transaction)
     async delete(params: string | string[], transaction?: Transaction) {
         if (Array.isArray(params)) {
             await this.choiceRepository.destroy({
                 where: {
-                    id:{
+                    id: {
                         [Op.in]: params
                     }
                 },

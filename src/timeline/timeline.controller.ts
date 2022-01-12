@@ -8,9 +8,11 @@ import {
     Param,
     Post,
     Query,
-    UseGuards
+    UseGuards,
+    Inject
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import sequelize from "sequelize";
 import { Sequelize } from "sequelize";
 import { Op } from "sequelize";
 import { FindAndCountOptions } from "sequelize/types";
@@ -51,6 +53,9 @@ import { CustomQueryResult, CustomQueryResultResponseType } from "src/util/pagin
 import { TimelineHashTagQueryDto } from "./dto/timeline-hashtag-query.dto";
 import { TimelineListQueryDTO } from "./dto/timeline-sort.dto";
 import { TimeLineMediaFilter, TimeLineSort } from "./enum/timeline-sort.enum";
+import { BaseQuery } from "src/abstract/base-query";
+
+
 
 @Controller("api/v1/timeline")
 @ApiTags("api/v1/timeline")
@@ -73,6 +78,7 @@ export class TimelineController {
         private blockService: BlockService,
         private communityService: CommunityService,
         private communityChannelService: CommunityChannelService
+
     ) {
     }
 
@@ -161,7 +167,7 @@ export class TimelineController {
             where: whereIn,
             limit: query.limit,
             offset: query.offset,
-            order: [["createdAt", "DESC"]]
+            order: [["created_at", "DESC"]]
         };
         await this.searchKeywordLogService.create(user ? user.id : null, query.hashtag);
         const list = await this.postService.find(inputWhere);
@@ -211,6 +217,21 @@ export class TimelineController {
         };
     }
 
+
+    @Get("/posts/img")
+    @ApiOperation({ description: "모든 이미지가 포함된 포스팅" })
+    @ApiResponse({ status: 200, schema: CustomQueryResultResponseType(PostsDto) })
+    @ZempieUseGuards(UserTokenCheckGuard)
+    async allPosting(
+        @Query() query: BaseQuery,
+        @CurrentUser() user: User
+    ) {
+
+        return await this.postService.findImgAll(query);
+
+
+    }
+
     @Get(":community_id/post")
     @ApiOperation({ description: "전체 커뮤니티 타임라인" })
     @ApiResponse({ status: 200, schema: CustomQueryResultResponseType(PostsDto) })
@@ -231,8 +252,9 @@ export class TimelineController {
             where: whereIn,
             limit: query.limit,
             offset: query.offset,
-            order: [["createdAt", "DESC"]],
-            include: whereInclude
+            order: [["created_at", "DESC"]],
+            include: whereInclude,
+
         };
 
         if (query.sort && query.sort === TimeLineSort.POPULAR) {
@@ -321,7 +343,7 @@ export class TimelineController {
             where: whereIn,
             limit: query.limit,
             offset: query.offset,
-            order: [["createdAt", "DESC"]],
+            order: [["created_at", "DESC"]],
             include: whereInclude
         };
 
@@ -464,8 +486,9 @@ export class TimelineController {
             where: whereIn,
             limit: query.limit,
             offset: query.offset,
-            order: [["createdAt", "DESC"]],
-            include: whereInclude
+            order: [["created_at", "DESC"]],
+            include: whereInclude,
+
         };
 
         if (query.media) {
@@ -475,7 +498,24 @@ export class TimelineController {
         }
 
         const list = await this.channelTimelineService.find(inputWhere);
+
+
+
+
+
         const postInfo = await this.postService.findIds(list.result.map(item => item.post_id));
+
+
+        // list.result = list.result.filter((item) => {
+        //     const findInfo = postInfo.find(po => po.id === item.post_id);
+        //     const findPostedAtInfo =
+        //         findInfo !== undefined && (postedAtInfos.find(pa => pa.posts_id === findInfo.id) ?? null);
+        //     if (findInfo === undefined || findInfo === null || findPostedAtInfo === undefined || findPostedAtInfo === null) {
+        //         return false;
+        //     } else {
+        //         return true;
+        //     }
+        // })
         const likeList =
             user !== null
                 ? await this.likeService.findByPostIds(
@@ -513,20 +553,29 @@ export class TimelineController {
         const communityInfos = await this.communityService.findByIds(postedCommunities.map(item => item.id));
         const communityChannelInfos = await this.communityChannelService.findIds(postedCommunities.map(item => item.channel_id));
 
+
+
+
+
+
+
         return {
             ...list,
             result: list.result.map(item => {
+
                 const findInfo = postInfo.find(po => po.id === item.post_id);
                 const userInfo = findInfo !== undefined && setUsers.find(us => us.id === findInfo.user_id);
                 const findPostedAtInfo =
                     findInfo !== undefined && (postedAtInfos.find(pa => pa.posts_id === findInfo.id) ?? null);
                 const likeData = likeList.find(li => li.post_id === item.post_id);
+
                 if (findInfo === undefined || findInfo === null || findPostedAtInfo === undefined || findPostedAtInfo === null) {
                     return new PostsDto({
                         content: "삭제된 포스팅입니다",
                         id: null
                     });
                 }
+
                 const targetCommunities: PoestedAtReturnDto[] = [];
                 findPostedAtInfo.community?.forEach(cItem => {
                     const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
@@ -609,7 +658,7 @@ export class TimelineController {
             where: whereIn,
             limit: 10,
             offset: 0,
-            order: [["createdAt", "DESC"]]
+            order: [["created_at", "DESC"]]
         };
         const list = await this.channelTimelineService.find(inputWhere);
         const postInfo = await this.postService.findIds(list.result.map(item => item.post_id));
@@ -709,7 +758,7 @@ export class TimelineController {
             where: whereIn,
             limit: 10,
             offset: 0,
-            order: [["createdAt", "DESC"]],
+            order: [["created_at", "DESC"]],
             include: whereInclude
         };
 
@@ -803,7 +852,7 @@ export class TimelineController {
             where: whereIn,
             limit: 10,
             offset: 0,
-            order: [["createdAt", "DESC"]],
+            order: [["created_at", "DESC"]],
             include: whereInclude
         };
 
@@ -848,20 +897,21 @@ export class TimelineController {
         };
     }
 
-    @Get("game/:game_id")
+    @Get("game/:pathname")
     @ApiOperation({ description: "특정 게임의 타임라인" })
     @ApiResponse({ status: 200, schema: CustomQueryResultResponseType(PostsDto) })
     @ZempieUseGuards(UserTokenCheckGuard)
     async gamePostTimelines(
-        @Param("game_id") game_id: string,
+        @Param("pathname") pathname: string,
         @Query() query: TimelineListQueryDTO,
         @CurrentUser() user: User
     ): Promise<CustomQueryResult<PostsDto>> {
+
+        const gameInfo = await this.gameService.findOneByGamepath(pathname);
         let whereIn: any = {
-            game_id: game_id
+            game_id: gameInfo.id
             // like_cnt: { [Op.gte]: 30 } //2022-01-25 15:26:33 요청에 따라 삭제
         };
-        const gameInfo = await this.gameService.findOne(game_id);
         if (gameInfo === null) {
             throw new NotFoundException();
         }
@@ -882,7 +932,7 @@ export class TimelineController {
             where: whereIn,
             limit: query.limit,
             offset: query.offset,
-            order: [["createdAt", "DESC"]],
+            order: [["created_at", "DESC"]],
             include: whereInclude
         };
 
@@ -1006,7 +1056,7 @@ export class TimelineController {
             where: whereIn,
             limit: 10,
             offset: 0,
-            order: [["createdAt", "DESC"]],
+            order: [["created_at", "DESC"]],
             include: whereInclude
         };
 
@@ -1169,7 +1219,7 @@ export class ChannelController {
             where: whereIn,
             limit: query.limit,
             offset: query.offset,
-            order: [["createdAt", "DESC"]],
+            order: [["created_at", "DESC"]],
             include: whereInclude
         };
 

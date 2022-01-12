@@ -3,7 +3,7 @@ import { BaseEntity } from "src/abstract/base-entity";
 import { User } from "src/user/user.entity";
 import { AlarmFormEnum } from "./alarm.enum";
 
-@Table({ tableName: "alarm_community", timestamps: true, paranoid: true })
+@Table({ tableName: "alarm_community", paranoid: true })
 export class Alarm extends BaseEntity {
 
     // @ForeignKey(() => User)

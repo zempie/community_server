@@ -24,7 +24,7 @@ export class ChannelTimelineService extends BaseService<ChannelTimeline> {
             SELECT
                 ct.user_id as user_id,
                 count(*) as cnt
-            from community_timeline ct where ct.user_id in (:user_ids) and ct.type = :type and ct.deletedAt IS NULL group by ct.user_id
+            from community_timeline ct where ct.user_id in (:user_ids) and ct.type = :type and ct.deleted_at IS NULL group by ct.user_id
         `,
             {
                 replacements: {

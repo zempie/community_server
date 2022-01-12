@@ -19,7 +19,7 @@ export class CommentService extends BaseService<Comment> {
 
     async findAll() {
         return await this.commentRepository.findAndCountAll({
-            order: [["createdAt", "DESC"]]
+            order: [["created_at", "DESC"]]
         });
     }
 
@@ -28,7 +28,7 @@ export class CommentService extends BaseService<Comment> {
             where: { post_id: post_id, parent_id: null },
             limit: query.limit ? query.limit : 5,
             offset: query.offset ? query.offset : 0,
-            order: [["createdAt", "DESC"]],
+            order: [["created_at", "DESC"]],
         };
 
         if (query.sort === CommentSort.POPULAR) {
@@ -44,7 +44,7 @@ export class CommentService extends BaseService<Comment> {
             where: { parent_id: parent_id },
             limit: query.limit ? query.limit : 5,
             offset: query.offset ? query.offset : 0,
-            order: [["createdAt", "DESC"]]
+            order: [["created_at", "DESC"]]
         };
 
         if (query.sort === CommentSort.POPULAR) {
@@ -178,7 +178,7 @@ export class CommentService extends BaseService<Comment> {
                                 , parent_id
                                 , @rn := CASE WHEN @cd = id THEN @rn + 1 ELSE 1 END rn
                                 , @cd := id
-                            FROM (SELECT * FROM comment c where c.parent_id in(:parentIds) and c.deletedAt is null ORDER BY c.parent_id) a
+                            FROM (SELECT * FROM comment c where c.parent_id in(:parentIds) and c.deleted_at is null ORDER BY c.parent_id) a
                                 , (SELECT @cd := '', @rn := 0) b
                             ) a
                     WHERE rn <= :limit  

@@ -23,7 +23,7 @@ export class CommunityService extends BaseService<Community> {
     async findAll(query: CommunityListDto) {
         const options: FindOptions = {
             where: {},
-            order: [["createdAt", "DESC"]],
+            order: [["created_at", "DESC"]],
             limit: query.limit ? query.limit : 5,
             offset: query.offset ? query.offset : 0
             // raw: true
