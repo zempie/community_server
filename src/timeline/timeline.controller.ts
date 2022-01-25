@@ -454,8 +454,7 @@ export class TimelineController {
         // }
 
         orList.push(userChannelWhere);
-
-        const followers = await this.followService.followUserInfosByUser(userInfo.id);
+        const followers = [];
         const muteList = user !== undefined && user !== null ? await this.blockService.muteListByUserId(userInfo.id) : [];
 
         followers.forEach(item => {
@@ -469,7 +468,7 @@ export class TimelineController {
             }
         });
 
-        const communities = await this.communityJoinService.findbyUserId(userInfo.id);
+        const communities = [];
 
         communities.forEach(item => {
             orList.push({
@@ -644,8 +643,10 @@ export class TimelineController {
 
         orList.push(userChannelWhere);
 
+        const followers = await this.followService.followUserInfosByUser(userInfo.id);
 
-        const followers = [];
+
+
         const muteList = user !== undefined && user !== null ? await this.blockService.muteListByUserId(userInfo.id) : [];
 
         followers.forEach(item => {
