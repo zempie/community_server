@@ -600,6 +600,197 @@ export class TimelineController {
         };
     }
 
+    @Get("/mine")
+    @ApiResponse({ status: 200, schema: CustomQueryResultResponseType(PostsDto) })
+    @ApiOperation({ description: "내 채널 타임라인 - following포함, Query 대문자 입력" })
+    @ZempieUseGuards(UserTokenCheckGuard)
+    async timelineAllUserChannel(
+        @CurrentUser() user: User,
+        // @Param("channel_id") channel_id: string,
+        @Query() query: TimelineListQueryDTO
+    ) {
+        const userInfo = await this.userService.findOneByUid(user.uid);
+        if (userInfo === null) {
+            throw new NotFoundException("일치하는 유저가 없습니다.");
+        }
+        let orList = [];
+        let whereIn: any = {
+            // channel_id: channel_id,
+            // type: ChannelPostType.USER,
+            // visibility: Visibility.PUBLIC
+            [Op.or]: orList
+        };
+        let whereInclude = [];
+        let userChannelWhere: any = {
+            channel_id: user.channel_id,
+            type: ChannelPostType.USER,
+            // visibility: Visibility.PUBLIC
+            visibility: {
+                [Op.not]: Visibility.PRIVATE
+            }
+        };
+        if (user !== null && user.id === userInfo.id) {
+            //본인 채널임.
+            delete userChannelWhere["visibility"];
+        }
+        // else {
+        //     const isFollow = user !== null ? await this.followService.findfollow(user.id, userInfo.id) : null;
+        //     if (isFollow !== null) {
+        //         userChannelWhere.visibility = {
+        //             [Op.not]: Visibility.PRIVATE
+        //         };
+        //     }
+        // }
+
+        orList.push(userChannelWhere);
+
+
+        const followers = await this.followService.followUserInfosByUser(userInfo.id);
+        const muteList = user !== undefined && user !== null ? await this.blockService.muteListByUserId(userInfo.id) : [];
+
+        followers.forEach(item => {
+            const check = muteList.some(mute => mute.target_id === item.id);
+            if (!check) {
+                orList.push({
+                    channel_id: item.channel_id,
+                    type: ChannelPostType.USER,
+                    visibility: Visibility.PUBLIC
+                });
+            }
+        });
+
+        const communities = await this.communityJoinService.findbyUserId(userInfo.id);
+
+        communities.forEach(item => {
+            orList.push({
+                community_id: item.community_id,
+                type: ChannelPostType.COMMUNITY,
+                visibility: Visibility.PUBLIC,
+                user_id: {
+                    [Op.not]: userInfo.id
+                }
+            });
+        });
+
+        const inputWhere: FindAndCountOptions = {
+            where: whereIn,
+            limit: query.limit,
+            offset: query.offset,
+            order: [["created_at", "DESC"]],
+            include: whereInclude,
+
+        };
+
+        if (query.media) {
+            const setInfo = _setMediaFilter(whereIn, whereInclude, query.media);
+            whereIn = setInfo.whereIn;
+            inputWhere.include = setInfo.whereInclude;
+        }
+
+        const list = await this.channelTimelineService.find(inputWhere);
+
+
+
+
+
+        const postInfo = await this.postService.findIds(list.result.map(item => item.post_id));
+
+        const postedAtInfos = await this.postedAtService.findByPostsId(postInfo.map(item => item.id));
+        list.result = list.result.filter((item) => {
+            const findInfo = postInfo.find(po => po.id === item.post_id);
+            const findPostedAtInfo =
+                findInfo !== undefined && (postedAtInfos.find(pa => pa.posts_id === findInfo.id) ?? null);
+            if (findInfo === undefined || findInfo === null || findPostedAtInfo === undefined || findPostedAtInfo === null) {
+                return false;
+            } else {
+                return true;
+            }
+        })
+        const likeList =
+            user !== null
+                ? await this.likeService.findByPostIds(
+                    list.result.map(item => item.post_id),
+                    user.id,
+                    true
+                )
+                : [];
+
+
+        if (query.sort && query.sort === TimeLineSort.POPULAR) {
+            return {
+                ...list,
+                result: list.result
+                    .map(item => {
+                        const likeData = likeList.find(li => li.post_id === item.post_id);
+                        return new PostsDto({
+                            ...postInfo.find(po => po.id === item.post_id),
+                            liked: likeData !== undefined ? true : false,
+                            posted_at: null
+                        });
+                    })
+                    .sort((a, b) => b.like_cnt - a.like_cnt)
+            };
+        }
+
+        const users = await this.userService.findByIds(postInfo.map(item => item.user_id));
+        const setUsers = await this.commoninfoService.setCommonInfo(
+            users.map(item => item.get({ plain: true }) as User),
+            user
+        );
+
+
+
+        const postedCommunities: PostedAtCommunityDto[] = [].concat(postedAtInfos.filter(item => item.community !== null).reduce((preV, item) => [...preV, ...item.community.reduce((cPreV, item2) => [...cPreV, item2], [])], []));
+        const communityInfos = await this.communityService.findByIds(postedCommunities.map(item => item.id));
+        const communityChannelInfos = await this.communityChannelService.findIds(postedCommunities.map(item => item.channel_id));
+
+
+
+
+
+
+
+        return {
+            ...list,
+            result: list.result.map(item => {
+
+                const findInfo = postInfo.find(po => po.id === item.post_id);
+                const userInfo = findInfo !== undefined && setUsers.find(us => us.id === findInfo.user_id);
+                const findPostedAtInfo =
+                    findInfo !== undefined && (postedAtInfos.find(pa => pa.posts_id === findInfo.id) ?? null);
+                const likeData = likeList.find(li => li.post_id === item.post_id);
+
+                if (findInfo === undefined || findInfo === null || findPostedAtInfo === undefined || findPostedAtInfo === null) {
+                    return new PostsDto({
+                        content: "삭제된 포스팅입니다",
+                        id: null
+                    });
+                }
+
+                const targetCommunities: PoestedAtReturnDto[] = [];
+                findPostedAtInfo.community?.forEach(cItem => {
+                    const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
+                    const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
+                    if (tCommunty !== undefined && tCommunityChannel !== undefined) {
+                        targetCommunities.push(new PoestedAtReturnDto({
+                            community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
+                            channel: tCommunityChannel
+                        }));
+                    }
+                });
+                return new PostsDto({
+                    ...findInfo,
+                    liked: likeData !== undefined ? true : false,
+                    user: new UserDto({ ...userInfo }),
+                    posted_at: new PostedAtDto({
+                        ...findPostedAtInfo.get({ plain: true }),
+                        community: targetCommunities
+                    })
+                });
+            })
+        };
+    }
+
     @Post(":community_id/pin/:post_id")
     @ApiOperation({ description: "커뮤니티 타임라인 포스팅 핀 하기" })
     @ZempieUseGuards(UserAuthGuard)
