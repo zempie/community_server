@@ -58,7 +58,7 @@ const DB_NAME = process.env.DB_NAME;
             password: DB_PASSWORD,
             database: DB_NAME,
             autoLoadModels: true,
-            synchronize: false,
+            synchronize: true,
             // sync:{
             //     force:true
             // },
