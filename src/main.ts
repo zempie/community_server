@@ -24,13 +24,13 @@ async function bootstrap() {
             bearerFormat: "JWT"
         })
         .build();
-    
+
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup("api", app, document);
 
     app.use("/upload", express.static(path.join(process.cwd(), "upload")));
     app.enableCors();
 
-    await app.listen(8500);
+    await app.listen(5000);
 }
 bootstrap();
