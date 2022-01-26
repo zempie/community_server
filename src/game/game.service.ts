@@ -41,10 +41,11 @@ export class GameService extends BaseService<Game> {
             raw: true
         };
         options.where = {
-            activated: 1
+            activated: 1,
+            category: { [Op.not]: 2 }
         }
         const orList = [];
-        
+
         if (query.hashtag !== undefined) {
             orList.push({
                 hashtags: { [Op.like]: `%${query.hashtag}%` }
@@ -55,15 +56,14 @@ export class GameService extends BaseService<Game> {
                 title: { [Op.like]: `%${query.gametitle}%` },
             })
         }
-        
-        if(orList.length > 0){
+
+        if (orList.length > 0) {
             options.where = {
                 ...options.where,
-                [Op.or] : orList
+                [Op.or]: orList
             }
         }
-        console.log("?!");
-        
+
         return await super.find({ ...options })
     }
 }

@@ -1,6 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
-import sequelize, { Transaction } from "sequelize";
+import sequelize, { QueryTypes, Transaction } from "sequelize";
 import { BaseService } from "src/abstract/base-service";
+import { User } from "src/user/user.entity";
 import { CommunityJoin } from "./community-join.entity";
 import { CreateCommunityJoinDto } from "./dto/create-community-join.dto";
 import { UpdateCommunityJoinDto } from "./dto/update-community-join.dto";
@@ -28,7 +29,7 @@ export class CommunityJoinService extends BaseService<CommunityJoin> {
         });
     }
 
-    async findwithCommunityId(user_id: number, communityId: string, transaction?:Transaction) {
+    async findwithCommunityId(user_id: number, communityId: string, transaction?: Transaction) {
         return await this.communityJoinRepository.findOne({
             where: {
                 user_id: user_id,
@@ -46,8 +47,8 @@ export class CommunityJoinService extends BaseService<CommunityJoin> {
         });
     }
 
-    async createJoin(data: CreateCommunityJoinDto, transaction?:Transaction) {
-        await this.communityJoinRepository.create(data,{transaction});
+    async createJoin(data: CreateCommunityJoinDto, transaction?: Transaction) {
+        await this.communityJoinRepository.create(data, { transaction });
         return true;
     }
 
@@ -111,7 +112,7 @@ export class CommunityJoinService extends BaseService<CommunityJoin> {
         });
     }
 
-    async update(id: string, data: UpdateCommunityJoinDto, transaction?:Transaction) {
+    async update(id: string, data: UpdateCommunityJoinDto, transaction?: Transaction) {
         const communityJoin = await this.findOne(id);
         if (!communityJoin) {
             throw new Error("NOT EXIST");
@@ -160,5 +161,36 @@ export class CommunityJoinService extends BaseService<CommunityJoin> {
             }
         });
         return true;
+    }
+
+    async cntByCommunityId(communityId: string): Promise<number>
+    async cntByCommunityId(communityIds: string[]): Promise<{ community_id: string, cnt: number }[]>
+    async cntByCommunityId(param: string | string[]) {
+        if (Array.isArray(param)) {
+            const data = param.length > 0 ? await this.communityJoinRepository.sequelize.query(`
+                select cj.community_id as community_id, count(cj.id) as cnt from community_join as cj left join usersview as uv on cj.user_id = uv.id where cj.community_id in(:ids) and cj.state = :state and cj.deletedAt is null and uv.deleted_at is null  group by cj.community_id 
+            `, {
+                replacements: {
+                    ids: param,
+                    state: JoinState.ACTIVE
+                },
+                type: QueryTypes.SELECT,
+                raw: true
+            }) : []
+            return data as { community_id: string, cnt: number }[]
+        } else {
+            return await this.communityJoinRepository.count({
+                where: {
+                    community_id: param,
+                    state: JoinState.ACTIVE
+                },
+                include: [{
+                    model: User,
+                    where: {
+                        deleted_at: null
+                    }
+                }]
+            })
+        }
     }
 }

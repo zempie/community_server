@@ -92,15 +92,17 @@ export class CommunityController {
         @CurrentUser() user: User,
         @Query() query: CommunityListDto
     ): Promise<ReturnCommunityUidDto[]> {
-        
+
         const communityInfos = await this.communityService.findAll(query);
         const joinInfos = user !== null ? await this.communityjoinService.findbyUserId(user.id) : [];
+        const memberCntInfos = await this.communityjoinService.cntByCommunityId(communityInfos.result.map(item => item.id));
         const result: ReturnCommunityUidDto[] = [];
         for await (const item of communityInfos.result) {
             const joinUser = joinInfos.find(commu => commu.community_id === item.id);
             const ownerInfo = await this.userService.findOne(item.owner_id);
             const managerInfo = await this.userService.findOne(item.manager_id);
             const submangerInfo = await this.userService.findOne(item.submanager_id);
+            const memberCnt = memberCntInfos.find(mct => mct.community_id === item.id);
             if (query.posting !== undefined) {
                 await this.searchKeywordLogService.create(user ? user.id : null, query.posting);
             } else if (query.hashtag !== undefined) {
@@ -117,7 +119,8 @@ export class CommunityController {
                     submanager_uid: submangerInfo ? submangerInfo.uid : null,
                     is_private: item.state === CommunityState.PRIVATE ? true : false,
                     is_subscribed: joinUser !== undefined ? true : false,
-                    is_certificated: item.is_certificated
+                    is_certificated: item.is_certificated,
+                    member_cnt: memberCnt !== undefined ? memberCnt.cnt : 0
                 })
             );
         }
@@ -140,11 +143,12 @@ export class CommunityController {
         }
 
         const joinInfo = user !== null ? await this.communityjoinService.exist(user.id, info.id) : null;
-
+        const memberCnt = await this.communityjoinService.cntByCommunityId(info.id);
         const re_info = new CommunityDto({
             ...info.get({ plain: true }),
             is_subscribed: joinInfo !== null ? (joinInfo.state === JoinState.ACTIVE ? true : false) : false,
             is_private: info.state === CommunityState.PRIVATE ? true : false,
+            member_cnt: memberCnt
         });
         if (user !== null) {
             const blockInfo = await this.blockService.findBlockedUser(user.id, community_id, BlockType.COMMUNITYBLOCK);
@@ -199,10 +203,10 @@ export class CommunityController {
             limit: query.limit ? query.limit : 20,
             offset: query.offset ? query.offset : 0,
             raw: true,
-            include:[{
-                model:User,
-                where:{
-                    deleted_at : null
+            include: [{
+                model: User,
+                where: {
+                    deleted_at: null
                 }
             }]
         });

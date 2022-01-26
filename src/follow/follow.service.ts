@@ -257,7 +257,7 @@ export class FollowService extends BaseService<Follow> {
         //     }
         // })
         const data: User[] = await this.followRepository.sequelize.query(`
-            SELECT u.* from follow f left join users u on f.follow_id = u.id where f.user_id =:user_id
+            SELECT u.* from follow f left join users u on f.follow_id = u.id where f.user_id =:user_id and f.deleted_at is null
         `,
             {
                 replacements: {

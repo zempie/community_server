@@ -6,6 +6,7 @@ import { CommonInfoService } from "src/commoninfo/commoninfo.service";
 import { Community } from "src/community/community.entity";
 import { CommunityService } from "src/community/community.service";
 import { Game } from "src/game/game.entity";
+import { GameDTO } from "src/game/game.model";
 import { GameService } from "src/game/game.service";
 import { LikeService } from "src/like/like.service";
 import { PostsDto } from "src/posts/dto/posts.dto";
@@ -40,7 +41,7 @@ export class SearchController {
     async searchCommunity(
         @CurrentUser() user: User,
         @Query() query: SearchQueryDto
-    ): Promise<CustomQueryResult<Community | PostsDto | Game | UserDto> | SearchHashtagDto[] | SearchAllDto> {
+    ): Promise<CustomQueryResult<Community | PostsDto | GameDTO | UserDto> | SearchHashtagDto[] | SearchAllDto> {
         if (query.community !== undefined) {
             await this.searchKeywordLogService.create(user ? user.id : null, decodeURI(query.community));
             return await this.communityService.findAll({
@@ -66,7 +67,7 @@ export class SearchController {
                 sort: query.sort
             });
             const users = await this.userService.findByIds(list.result.map(item => item.user_id));
-            const setInfoUsers = await this.commonInfoservice.setCommonInfo(users, user)
+            const setInfoUsers = await this.commonInfoservice.setCommonInfo(users.map(item => item.get({ plain: true }) as User), user)
             const likeInfos = user !== null ? await this.likeService.likePostByUserId(list.result.map(item => item.id), user.id) : [];
             return {
                 ...list,
@@ -93,6 +94,12 @@ export class SearchController {
                 show: query.show,
                 sort: query.sort
             });
+            const gameUserInfos = await this.userService.findByIds(gameInfo.result.map(item => item.user_id));
+            const setGameInfoUsers = await this.commonInfoservice.setCommonInfo(gameUserInfos.map(item => item.get({ plain: true }) as User), user);
+            const gameList = gameInfo.result.map(item => {
+                const gameUser = setGameInfoUsers.find(uItem => uItem.id === item.user_id);
+                return new GameDTO({ ...item, user: user !== undefined ? new UserDto({ ...gameUser }) : null })
+            })
             const postsInfo = await this.postService.findAll({
                 community: decodeURI(query.community),
                 gametitle: decodeURI(query.gametitle),
@@ -104,7 +111,7 @@ export class SearchController {
                 sort: query.sort
             });
             const users = await this.userService.findByIds(postsInfo.result.map(item => item.user_id));
-            const setInfoUsers = await this.commonInfoservice.setCommonInfo(users, user)
+            const setInfoUsers = await this.commonInfoservice.setCommonInfo(users.map(item => item.get({ plain: true }) as User), user)
             const likeInfos = user !== null ? await this.likeService.likePostByUserId(postsInfo.result.map(item => item.id), user.id) : [];
             const list = postsInfo.result.map((item: any) => {
                 const postUser = setInfoUsers.find(user => user.id === item.user_id);
@@ -115,11 +122,21 @@ export class SearchController {
                     is_pinned: null
                 })
             })
-            result.push({ game: gameInfo.result, posts: list });
+            result.push({ game: gameList, posts: list });
             return result;
         } else if (query.gametitle !== undefined) {
             await this.searchKeywordLogService.create(user ? user.id : null, decodeURI(query.gametitle));
-            return await this.gameService.findAllActivated(query);
+            const list = await this.gameService.findAllActivated(query);
+            const users = await this.userService.findByIds(list.result.map(item => item.user_id));
+            const setInfoUsers = await this.commonInfoservice.setCommonInfo(users.map(item => item.get({ plain: true }) as User), user)
+            return {
+                totalCount: list.totalCount,
+                pageInfo: list.pageInfo,
+                result: list.result.map(item => {
+                    const user = setInfoUsers.find(uItem => uItem.id === item.user_id)
+                    return new GameDTO({ ...item, user: user !== undefined ? new UserDto({ ...user }) : null })
+                })
+            };
         } else if (query.username !== undefined) {
             await this.searchKeywordLogService.create(user ? user.id : null, decodeURI(query.username));
             const users = await this.userService.search({
@@ -145,7 +162,7 @@ export class SearchController {
                 sort: query.sort
             });
             const postUsers = await this.userService.findByIds(posts.result.map(item => item.user_id));
-            const setInfoPostUsers = await this.commonInfoservice.setCommonInfo(postUsers, user)
+            const setInfoPostUsers = await this.commonInfoservice.setCommonInfo(postUsers.map(item => item.get({ plain: true }) as User), user)
             const likeInfos = user !== null ? await this.likeService.likePostByUserId(posts.result.map(item => item.id), user.id) : [];
             const list = posts.result.map((item: any) => {
                 const postUser = setInfoPostUsers.find(user => user.id === item.user_id);
@@ -166,6 +183,12 @@ export class SearchController {
                 show: query.show,
                 sort: query.sort
             });
+            const gameUserInfos = await this.userService.findByIds(gameInfo.result.map(item => item.user_id));
+            const setGameInfoUsers = await this.commonInfoservice.setCommonInfo(gameUserInfos.map(item => item.get({ plain: true }) as User), user);
+            const gameList = gameInfo.result.map(item => {
+                const gameUser = setGameInfoUsers.find(uItem => uItem.id === item.user_id);
+                return new GameDTO({ ...item, user: user !== undefined ? new UserDto({ ...gameUser }) : null })
+            })
             const communitys = await this.communityService.findAll({
                 community: decodeURI(query.q),
                 gametitle: decodeURI(query.q),
@@ -180,7 +203,7 @@ export class SearchController {
             const setInfoUsers = await this.commonInfoservice.setCommonInfo(users.result, user)
             return new SearchAllDto({
                 posts: list,
-                games: gameInfo.result,
+                games: gameList,
                 community: communitys.result,
                 users: setInfoUsers.map(item => new UserDto({ ...item }))
             });

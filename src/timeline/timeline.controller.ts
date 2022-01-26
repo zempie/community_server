@@ -265,6 +265,9 @@ export class TimelineController {
         @Query() query: TimelineListQueryDTO
     ) {
         const userInfo = await this.userService.findOneByChannelId(channel_id);
+        if (userInfo === null){
+            throw new NotFoundException("일치하는 유저가 없습니다.")
+        }
         let orList = [];
         let whereIn: any = {
             // channel_id: channel_id,
@@ -298,10 +301,10 @@ export class TimelineController {
 
         const followers = await this.followService.followUserInfosByUser(userInfo.id);
         const muteList = user !== undefined && user !== null ? await this.blockService.muteListByUserId(userInfo.id) : []
-        
+
         followers.forEach(item => {
             const check = muteList.some(mute => mute.target_id === item.id)
-            if (!check){
+            if (!check) {
                 orList.push({
                     channel_id: item.channel_id,
                     type: ChannelPostType.USER,
@@ -309,7 +312,7 @@ export class TimelineController {
                 });
             }
         })
-        
+
         const communities = await this.communityJoinService.findbyUserId(userInfo.id);
 
         communities.forEach(item => {
@@ -317,7 +320,7 @@ export class TimelineController {
                 community_id: item.community_id,
                 type: ChannelPostType.COMMUNITY,
                 visibility: Visibility.PUBLIC,
-                user_id:{
+                user_id: {
                     [Op.not]: userInfo.id
                 }
             });
@@ -376,9 +379,9 @@ export class TimelineController {
                 const findInfo = postInfo.find(po => po.id === item.post_id);
                 const userInfo = findInfo !== undefined && setUsers.find(us => us.id === findInfo.user_id);
                 const findPostedAtInfo =
-                    findInfo !== undefined && postedAtInfos.find(pa => pa.posts_id === findInfo.id);
+                    findInfo !== undefined && (postedAtInfos.find(pa => pa.posts_id === findInfo.id) ?? null);
                 const likeData = likeList.find(li => li.post_id === item.post_id);
-                if (findInfo === undefined || findInfo === null) {
+                if (findInfo === undefined || findInfo === null || findPostedAtInfo === undefined || findPostedAtInfo === null) {
                     return new PostsDto({
                         content: "삭제된 포스팅입니다",
                         id: null

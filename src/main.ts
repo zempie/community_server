@@ -17,7 +17,7 @@ async function bootstrap() {
     const config = new DocumentBuilder()
         .setTitle("GEM DEV")
         .setDescription("gemdev")
-        .setVersion("1.2.30")
+        .setVersion("1.2.31")
         .addBearerAuth({
             type: "http",
             scheme: "bearer",
@@ -31,6 +31,6 @@ async function bootstrap() {
     app.use("/upload", express.static(path.join(process.cwd(), "upload")));
     app.enableCors();
 
-    await app.listen(5000);
+    await app.listen(8500);
 }
 bootstrap();

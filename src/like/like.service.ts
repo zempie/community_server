@@ -41,7 +41,8 @@ export class LikeService {
                     [Op.in]: post_ids
                 },
                 user_id: user_id,
-                state: state
+                state: state,
+                type: LikeType.POST
             }
         })
     }
@@ -138,7 +139,8 @@ export class LikeService {
             where: {
                 user_id: userId,
                 post_id: postId,
-                state: true
+                state: true,
+                type: LikeType.POST
             }
         });
     }
@@ -148,7 +150,8 @@ export class LikeService {
             where: {
                 user_id: user_id,
                 comment_id: commentId,
-                state: state
+                state: state,
+                type: LikeType.COMMENT
             }
         });
     }

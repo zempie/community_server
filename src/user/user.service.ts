@@ -19,7 +19,7 @@ export class UserService extends BaseService<User> {
             where: {
                 id: id
             },
-            raw:true
+            raw: true
         });
     }
 
@@ -36,7 +36,7 @@ export class UserService extends BaseService<User> {
             where: {
                 channel_id: id
             }
-        });
+        }) ?? null;
     }
 
     async findUsers() {
