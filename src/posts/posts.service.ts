@@ -197,6 +197,10 @@ export class PostsService extends BaseService<Posts> {
         return true;
     }
 
+    async randomPost(order: any){
+        return await this.postsRepository.findAll( order )
+    }
+
     sequelize() {
         return this.postsRepository.sequelize;
     }

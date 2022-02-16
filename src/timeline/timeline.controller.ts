@@ -1,5 +1,5 @@
 import {
-    BadRequestException,
+    BadRequestException, Body,
     Controller,
     Get,
     HttpException,
@@ -253,6 +253,21 @@ export class TimelineController {
                 });
             })
         };
+    }
+
+    @Get("/randomPost")
+    @ZempieUseGuards(UserTokenCheckGuard)
+    async randomPost(
+        @CurrentUser() user: User,
+        @Query("limit") limit: number,
+    ){
+        const order = {
+            order : Sequelize.literal('rand()'), limit: limit
+        }
+        const posts = await this.postService.randomPost( order );
+
+        return { result: posts };
+
     }
 
     @Get("channel/:channel_id")
