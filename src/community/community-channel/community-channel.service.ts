@@ -1,4 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
+import { Op } from "sequelize";
 import { FindAndCountOptions, OrderItem } from "sequelize/types";
 import { BaseService } from "src/abstract/base-service";
 import { ChannelState } from "./channelstate.enum";
@@ -124,5 +125,16 @@ export class CommunityChannelService extends BaseService<CommunityChannel> {
             }
         });
         return true;
+    }
+
+    async findIds(ids: string[]) {
+        return this.communityChannelRepository.findAll({
+            where: {
+                id: {
+                    [Op.in]: ids
+                }
+            },
+            raw: true
+        })
     }
 }

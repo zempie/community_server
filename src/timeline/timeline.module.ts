@@ -3,7 +3,9 @@ import { SequelizeModule } from "@nestjs/sequelize";
 import { BlockModule } from "src/block/block.module";
 import { ChannelPostModule } from "src/channel-post/channel-post.module";
 import { CommonInfoModule } from "src/commoninfo/commoninfo.module";
+import { CommunityChannelModule } from "src/community/community-channel/community-channel.module";
 import { CommunityJoinModule } from "src/community/community-join/community-join.module";
+import { CommunityModule } from "src/community/community.module";
 import { FollowModule } from "src/follow/follow.module";
 import { GamePostModule } from "src/game/game-post/game-post.module";
 import { GameModule } from "src/game/game.module";
@@ -34,6 +36,8 @@ import { ChannelController, TimelineController } from "./timeline.controller";
         PostedAtModule,
         LikeModule,
         BlockModule,
+        CommunityModule,
+        CommunityChannelModule
     ],
     controllers: [TimelineController, ChannelController],
     providers: [SearchKeywordLogService],

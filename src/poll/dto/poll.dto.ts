@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { PostsDto } from "src/posts/dto/posts.dto";
+import { PostsDto, PostsSimpleDto } from "src/posts/dto/posts.dto";
 import { ChoiceDto } from "../choice/dto/choice.dto";
 
 export class PollDto {
@@ -23,7 +23,7 @@ export class PollDto {
     }
 }
 
-export class PostsPollDto extends PostsDto {
+export class PostsPollDto extends PostsSimpleDto {
     poll: PollDto
     user_uid:string;
     constructor(partial: Partial<PostsPollDto>) {

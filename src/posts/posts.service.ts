@@ -5,7 +5,7 @@ import { CreatePosts, UpdatePosts } from "./dto/create-posts.dto";
 import { Poll } from "src/poll/poll.entity";
 import { PostedAt } from "src/posted_at/posted_at.entity";
 import { Transaction } from "sequelize/types";
-import { FindOptions, Op } from "sequelize";
+import { FindOptions, Op, Sequelize } from "sequelize";
 import { CommunityListDto } from "src/community/dto/community-list.dto";
 import { TimeLineSort } from "src/timeline/enum/timeline-sort.enum";
 import { TimelineListQueryDTO } from "src/timeline/dto/timeline-sort.dto";
@@ -197,9 +197,18 @@ export class PostsService extends BaseService<Posts> {
         return true;
     }
 
-    async randomPost(order: any){
-        return await this.postsRepository.findAll( order )
+
+    async randomPost(order: any) {
+        const options = {
+            where: Sequelize.literal("user_id in (select id from usersView where deleted_at is null )"),
+            order: Sequelize.literal("rand()"),
+            limit: 5,
+        };
+
+        return await this.postsRepository.findAll({ ...options }
+        );
     }
+
 
     sequelize() {
         return this.postsRepository.sequelize;

@@ -83,7 +83,7 @@ export class CommunityService extends BaseService<Community> {
         });
     }
 
-    async findByIds(ids: string[], sort: CommunitySort) {
+    async findByIds(ids: string[], sort?: CommunitySort) {
         const options: FindOptions = {
             where: { id: ids },
             order: [],

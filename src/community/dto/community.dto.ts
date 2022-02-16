@@ -83,3 +83,30 @@ export class CommunityChannersQuery extends BaseQuery {
     @IsOptional()
     sort?: CommunityChannersSort
 }
+
+export class CommunityShortDto {
+    @ApiProperty()
+    id: string;
+
+    @ApiProperty()
+    name: string;
+
+    @ApiProperty()
+    url: string;
+
+    @ApiProperty()
+    profile_img: string;
+
+    @ApiProperty()
+    is_certificated?: boolean;
+
+
+    constructor(partial: Partial<CommunityShortDto>) {
+        this.id = partial.id;
+        this.is_certificated = partial.is_certificated;
+        this.name = partial.name;
+        this.profile_img = partial.profile_img;
+        this.url = partial.url
+        // Object.assign(this, partial);
+    }
+}

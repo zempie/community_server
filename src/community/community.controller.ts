@@ -197,7 +197,8 @@ export class CommunityController {
     ): Promise<CustomQueryResult<ReturnCommunityJoinDto>> {
         const joinInfo = await this.communityjoinService.find({
             where: {
-                community_id: community_id
+                community_id: community_id,
+                state: JoinState.ACTIVE  //2022-01-25 15:00:45 list api에 member_cnt와 맞춰달라는 요청에 추가함.
             },
             order: [["createdAt", "DESC"]],
             limit: query.limit ? query.limit : 20,

@@ -8,7 +8,7 @@ import { File } from "src/file/dto/file.dto";
 import { User } from "src/user/user.entity";
 import { UserDto } from "src/user/dto/user.dto";
 import { PostAttatchmentFileDto } from "./create-posts.dto";
-import { PostedAtDto } from "src/posted_at/dto/posted_at.dto";
+import { PostedAtDto, PostedAtSimpleDto } from "src/posted_at/dto/posted_at.dto";
 
 export class PostsDto {
     @ApiProperty()
@@ -76,6 +76,78 @@ export class PostsDto {
         this.is_retweet = partial.is_retweet ? (typeof (partial.is_retweet) === "boolean" ? partial.is_retweet : (partial.is_retweet === 1 ? true : false)) : false;
         partial.is_retweet = this.is_retweet;
         if(partial.is_retweet === true){
+            partial.content = null;
+        }
+        Object.assign(this, partial);
+    }
+}
+
+export class PostsSimpleDto {
+    @ApiProperty()
+    id: string;
+
+    @ApiProperty({ type: UserDto })
+    @IsEmpty({ always: true })
+    user: UserDto;
+
+    @ApiProperty()
+    @IsEnum(PostType)
+    post_type: PostType;
+
+    @ApiProperty({ type: PostAttatchmentFileDto, isArray: true })
+    @ValidateNested({ each: true })
+    @Type(() => PostAttatchmentFileDto)
+    attatchment_files?: PostAttatchmentFileDto[];
+
+    @ApiProperty()
+    content: string;
+
+    @ApiProperty({ enum: Visibility, enumName: "Visibility" })
+    visibility: Visibility;
+
+    @ApiProperty()
+    hashtags: string[];
+
+    @ApiProperty()
+    user_tag: UserDto[];
+
+    @ApiProperty()
+    liked: boolean;
+
+    @ApiProperty()
+    like_cnt: number;
+
+    @ApiProperty()
+    comment_cnt: number;
+
+    @ApiProperty()
+    read_cnt: number;
+
+    @ApiProperty()
+    shared_cnt: number;
+
+    @ApiProperty()
+    scheduled_for: string;
+
+    @ApiProperty({ enum: PostStatus, enumName: "PostStatus" })
+    status: PostStatus;
+
+    @ApiProperty()
+    is_retweet: boolean;
+
+    @ApiProperty()
+    is_pinned: boolean;
+
+    @ApiProperty({ type: PostedAtSimpleDto })
+    @IsEmpty({ always: true })
+    posted_at?: PostedAtSimpleDto;
+
+    constructor(partial: Partial<PostsSimpleDto>) {
+        this.liked = partial.liked ? partial.liked : false;
+        this.is_pinned = partial.is_pinned ? partial.is_pinned : false;
+        this.is_retweet = partial.is_retweet ? (typeof (partial.is_retweet) === "boolean" ? partial.is_retweet : (partial.is_retweet === 1 ? true : false)) : false;
+        partial.is_retweet = this.is_retweet;
+        if (partial.is_retweet === true) {
             partial.content = null;
         }
         Object.assign(this, partial);
