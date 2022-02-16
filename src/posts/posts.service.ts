@@ -200,7 +200,7 @@ export class PostsService extends BaseService<Posts> {
 
     async randomPost(order: any) {
         const options = {
-            where: Sequelize.literal("user_id in (select id from usersView where deleted_at is null )"),
+            where: Sequelize.literal("user_id in (select id from users where deleted_at is null )"),
             order: Sequelize.literal("rand()"),
             limit: 5,
         };
