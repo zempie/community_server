@@ -73,23 +73,73 @@ export class TimelineController {
         private blockService: BlockService,
         private communityService: CommunityService,
         private communityChannelService: CommunityChannelService
-    ) { }
+    ) {
+    }
 
     @Get("/randomPost")
     @ZempieUseGuards(UserTokenCheckGuard)
     async randomPost(
         @CurrentUser() user: User,
-        @Query("limit") limit: number,
-    ){
+        @Query("limit") limit: number
+    ) {
 
         const order = {
-            order : Sequelize.literal('rand()'), limit: limit
-        }
+            order: Sequelize.literal("rand()"), limit: limit
+        };
 
-        const posts = await this.postService.randomPost( order );
+        const list = await this.postService.randomPost(order);
+        const postInfo = await this.postService.findIds(list.map(item => item.id));
+        const users = await this.userService.findByIds(postInfo.map(item => item.user_id));
+        const setUsers = await this.commoninfoService.setCommonInfo(
+            users.map(item => item.get({ plain: true }) as User),
+            user
+        );
+        const postedAtInfos = await this.postedAtService.findByPostsId(postInfo.map(item => item.id));
 
-        return { result: posts };
+        const postedCommunities: PostedAtCommunityDto[] = [].concat(postedAtInfos.filter(item => item.community !== null).reduce((preV, item) => [...preV, ...item.community.reduce((cPreV, item2) => [...cPreV, item2], [])], []));
+        const communityInfos = await this.communityService.findByIds(postedCommunities.map(item => item.id));
+        const communityChannelInfos = await this.communityChannelService.findIds(postedCommunities.map(item => item.channel_id));
 
+        const likeList =
+            user !== null
+                ? await this.likeService.findByPostIds(
+                    list.map(item => item.id),
+                    user.id,
+                    true
+                )
+                : [];
+        return {
+            ...list,
+            result: list.map(item => {
+                const findInfo = postInfo.find(po => po.id === item.id);
+                const userInfo = setUsers.find(us => us.id === findInfo.user_id);
+                const findPostedAtInfo = postedAtInfos.find(pa => pa.posts_id === findInfo.id);
+                const likeData = likeList.find(li => li.post_id === item.id);
+
+                const targetCommunities: PoestedAtReturnDto[] = [];
+                findPostedAtInfo.community?.forEach(cItem => {
+                    const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
+                    const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
+                    if (tCommunty !== undefined && tCommunityChannel !== undefined) {
+                        targetCommunities.push(new PoestedAtReturnDto({
+                            community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
+                            channel: tCommunityChannel
+                        }));
+                    }
+                });
+
+                return new PostsDto({
+                    ...findInfo,
+                    liked: likeData !== undefined ? true : false,
+                    user: new UserDto({ ...userInfo }),
+                    posted_at: new PostedAtDto({
+                        ...findPostedAtInfo.get({ plain: true }),
+                        community: targetCommunities
+                    }),
+                    is_pinned: null
+                });
+            })
+        };
     }
 
 
@@ -119,7 +169,7 @@ export class TimelineController {
 
         const postedCommunities: PostedAtCommunityDto[] = [].concat(postedAtInfos.filter(item => item.community !== null).reduce((preV, item) => [...preV, ...item.community.reduce((cPreV, item2) => [...cPreV, item2], [])], []));
         const communityInfos = await this.communityService.findByIds(postedCommunities.map(item => item.id));
-        const communityChannelInfos = await this.communityChannelService.findIds(postedCommunities.map(item => item.channel_id))
+        const communityChannelInfos = await this.communityChannelService.findIds(postedCommunities.map(item => item.channel_id));
 
         const likeList =
             user !== null
@@ -135,7 +185,7 @@ export class TimelineController {
                 const findPostedAtInfo = postedAtInfos.find(pa => pa.posts_id === item.id);
                 const likeData = likeList.find(li => li.post_id === item.id);
 
-                const targetCommunities: PoestedAtReturnDto[] = []
+                const targetCommunities: PoestedAtReturnDto[] = [];
                 findPostedAtInfo.community?.forEach(cItem => {
                     const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
                     const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
@@ -143,9 +193,9 @@ export class TimelineController {
                         targetCommunities.push(new PoestedAtReturnDto({
                             community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
                             channel: tCommunityChannel
-                        }))
+                        }));
                     }
-                })
+                });
 
 
                 return new PostsDto({
@@ -206,7 +256,7 @@ export class TimelineController {
 
         const postedCommunities: PostedAtCommunityDto[] = [].concat(postedAtInfos.filter(item => item.community !== null).reduce((preV, item) => [...preV, ...item.community.reduce((cPreV, item2) => [...cPreV, item2], [])], []));
         const communityInfos = await this.communityService.findByIds(postedCommunities.map(item => item.id));
-        const communityChannelInfos = await this.communityChannelService.findIds(postedCommunities.map(item => item.channel_id))
+        const communityChannelInfos = await this.communityChannelService.findIds(postedCommunities.map(item => item.channel_id));
 
         const likeList =
             user !== null
@@ -224,7 +274,7 @@ export class TimelineController {
                 const findPostedAtInfo = postedAtInfos.find(pa => pa.posts_id === findInfo.id);
                 const likeData = likeList.find(li => li.post_id === item.post_id);
 
-                const targetCommunities: PoestedAtReturnDto[] = []
+                const targetCommunities: PoestedAtReturnDto[] = [];
                 findPostedAtInfo.community?.forEach(cItem => {
                     const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
                     const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
@@ -232,9 +282,9 @@ export class TimelineController {
                         targetCommunities.push(new PoestedAtReturnDto({
                             community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
                             channel: tCommunityChannel
-                        }))
+                        }));
                     }
-                })
+                });
 
                 return new PostsDto({
                     ...findInfo,
@@ -296,7 +346,7 @@ export class TimelineController {
 
         const postedCommunities: PostedAtCommunityDto[] = [].concat(postedAtInfos.filter(item => item.community !== null).reduce((preV, item) => [...preV, ...item.community.reduce((cPreV, item2) => [...cPreV, item2], [])], []));
         const communityInfos = await this.communityService.findByIds(postedCommunities.map(item => item.id));
-        const communityChannelInfos = await this.communityChannelService.findIds(postedCommunities.map(item => item.channel_id))
+        const communityChannelInfos = await this.communityChannelService.findIds(postedCommunities.map(item => item.channel_id));
 
         const likeList =
             user !== null
@@ -314,7 +364,7 @@ export class TimelineController {
                 const userInfo = setUsers.find(us => us.id === findInfo.user_id);
                 const findPostedAtInfo = postedAtInfos.find(pa => pa.posts_id === findInfo.id);
                 const likeData = likeList.find(li => li.post_id === item.post_id);
-                const targetCommunities: PoestedAtReturnDto[] = []
+                const targetCommunities: PoestedAtReturnDto[] = [];
                 findPostedAtInfo.community?.forEach(cItem => {
                     const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
                     const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
@@ -322,9 +372,9 @@ export class TimelineController {
                         targetCommunities.push(new PoestedAtReturnDto({
                             community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
                             channel: tCommunityChannel
-                        }))
+                        }));
                     }
-                })
+                });
                 return new PostsDto({
                     ...findInfo,
                     liked: likeData !== undefined ? true : false,
@@ -350,7 +400,7 @@ export class TimelineController {
     ) {
         const userInfo = await this.userService.findOneByChannelId(channel_id);
         if (userInfo === null) {
-            throw new NotFoundException("일치하는 유저가 없습니다.")
+            throw new NotFoundException("일치하는 유저가 없습니다.");
         }
         let orList = [];
         let whereIn: any = {
@@ -367,7 +417,7 @@ export class TimelineController {
             visibility: {
                 [Op.not]: Visibility.PRIVATE
             }
-        }
+        };
         if (user !== null && user.id === userInfo.id) {
             //본인 채널임.
             delete userChannelWhere["visibility"];
@@ -384,10 +434,10 @@ export class TimelineController {
         orList.push(userChannelWhere);
 
         const followers = await this.followService.followUserInfosByUser(userInfo.id);
-        const muteList = user !== undefined && user !== null ? await this.blockService.muteListByUserId(userInfo.id) : []
+        const muteList = user !== undefined && user !== null ? await this.blockService.muteListByUserId(userInfo.id) : [];
 
         followers.forEach(item => {
-            const check = muteList.some(mute => mute.target_id === item.id)
+            const check = muteList.some(mute => mute.target_id === item.id);
             if (!check) {
                 orList.push({
                     channel_id: item.channel_id,
@@ -395,7 +445,7 @@ export class TimelineController {
                     visibility: Visibility.PUBLIC
                 });
             }
-        })
+        });
 
         const communities = await this.communityJoinService.findbyUserId(userInfo.id);
 
@@ -408,7 +458,7 @@ export class TimelineController {
                     [Op.not]: userInfo.id
                 }
             });
-        })
+        });
 
         const inputWhere: FindAndCountOptions = {
             where: whereIn,
@@ -461,7 +511,7 @@ export class TimelineController {
 
         const postedCommunities: PostedAtCommunityDto[] = [].concat(postedAtInfos.filter(item => item.community !== null).reduce((preV, item) => [...preV, ...item.community.reduce((cPreV, item2) => [...cPreV, item2], [])], []));
         const communityInfos = await this.communityService.findByIds(postedCommunities.map(item => item.id));
-        const communityChannelInfos = await this.communityChannelService.findIds(postedCommunities.map(item => item.channel_id))
+        const communityChannelInfos = await this.communityChannelService.findIds(postedCommunities.map(item => item.channel_id));
 
         return {
             ...list,
@@ -477,7 +527,7 @@ export class TimelineController {
                         id: null
                     });
                 }
-                const targetCommunities: PoestedAtReturnDto[] = []
+                const targetCommunities: PoestedAtReturnDto[] = [];
                 findPostedAtInfo.community?.forEach(cItem => {
                     const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
                     const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
@@ -485,9 +535,9 @@ export class TimelineController {
                         targetCommunities.push(new PoestedAtReturnDto({
                             community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
                             channel: tCommunityChannel
-                        }))
+                        }));
                     }
-                })
+                });
                 return new PostsDto({
                     ...findInfo,
                     liked: likeData !== undefined ? true : false,
@@ -495,7 +545,7 @@ export class TimelineController {
                     posted_at: new PostedAtDto({
                         ...findPostedAtInfo.get({ plain: true }),
                         community: targetCommunities
-                    }),
+                    })
                 });
             })
         };
@@ -514,10 +564,11 @@ export class TimelineController {
 
         if (joinInfo === null || joinInfo.status !== (JoinStatus.MANAGER || JoinStatus.SUBMANAGER)) {
             throw new HttpException("BAD_REQUEST", HttpStatus.BAD_REQUEST);
-        } else if (pinPosts.count >= 3) {
+        }
+        else if (pinPosts.count >= 3) {
             throw new HttpException("BAD_REQUEST", HttpStatus.BAD_REQUEST);
         }
-        const postInfo = await this.channelPostService.findCommunityPost(community_id, post_id, ChannelPostType.COMMUNITY)
+        const postInfo = await this.channelPostService.findCommunityPost(community_id, post_id, ChannelPostType.COMMUNITY);
         await this.channelPostService.setPin(postInfo.id, true);
         return { success: true };
     }
@@ -536,7 +587,7 @@ export class TimelineController {
             throw new HttpException("BAD_REQUEST", HttpStatus.BAD_REQUEST);
         }
 
-        const postInfo = await this.channelPostService.findCommunityPost(community_id, post_id, ChannelPostType.COMMUNITY)
+        const postInfo = await this.channelPostService.findCommunityPost(community_id, post_id, ChannelPostType.COMMUNITY);
         await this.channelPostService.setPin(postInfo.id, false);
         return { success: false };
     }
@@ -612,7 +663,7 @@ export class TimelineController {
             throw new HttpException("BAD_REQUEST", HttpStatus.BAD_REQUEST);
         }
 
-        const postInfo = await this.channelPostService.findCommunityChannelPost(post_id, community_id, channel_id, ChannelPostType.COMMUNITY)
+        const postInfo = await this.channelPostService.findCommunityChannelPost(post_id, community_id, channel_id, ChannelPostType.COMMUNITY);
         await this.channelPostService.setPin(postInfo.id, true);
         return { success: true };
     }
@@ -632,7 +683,7 @@ export class TimelineController {
             throw new HttpException("BAD_REQUEST", HttpStatus.BAD_REQUEST);
         }
 
-        const postInfo = await this.channelPostService.findCommunityChannelPost(post_id, community_id, channel_id, ChannelPostType.COMMUNITY)
+        const postInfo = await this.channelPostService.findCommunityChannelPost(post_id, community_id, channel_id, ChannelPostType.COMMUNITY);
         await this.channelPostService.setPin(postInfo.id, true);
         return { success: false };
     }
@@ -711,7 +762,7 @@ export class TimelineController {
         if (pinPosts.count >= 3 || userInfo.id !== user.id) {
             throw new HttpException("BAD_REQUEST", HttpStatus.BAD_REQUEST);
         }
-        const postInfo = await this.channelPostService.findOneBychannelIdPostId(channel_id, post_id, ChannelPostType.USER)
+        const postInfo = await this.channelPostService.findOneBychannelIdPostId(channel_id, post_id, ChannelPostType.USER);
         await this.channelPostService.setPin(postInfo.id, true);
         return { success: true };
     }
@@ -729,7 +780,7 @@ export class TimelineController {
         if (userInfo.id !== user.id) {
             throw new HttpException("BAD_REQUEST", HttpStatus.BAD_REQUEST);
         }
-        const postInfo = await this.channelPostService.findOneBychannelIdPostId(channel_id, post_id, ChannelPostType.USER)
+        const postInfo = await this.channelPostService.findOneBychannelIdPostId(channel_id, post_id, ChannelPostType.USER);
         await this.channelPostService.setPin(postInfo.id, false);
         return { success: false };
     }
@@ -807,16 +858,18 @@ export class TimelineController {
         @CurrentUser() user: User
     ): Promise<CustomQueryResult<PostsDto>> {
         let whereIn: any = {
-            game_id: game_id,
+            game_id: game_id
             // like_cnt: { [Op.gte]: 30 } //2022-01-25 15:26:33 요청에 따라 삭제
         };
         const gameInfo = await this.gameService.findOne(game_id);
         if (gameInfo === null) {
             throw new NotFoundException();
-        } else if (user !== null && user.id === gameInfo.user_id) {
+        }
+        else if (user !== null && user.id === gameInfo.user_id) {
             //본인 채널임.
             delete whereIn["visibility"];
-        } else {
+        }
+        else {
             const isFollow = user !== null ? await this.followService.findfollow(user.id, gameInfo.user_id) : null;
             if (isFollow !== null) {
                 whereIn.visibility = {
@@ -854,7 +907,7 @@ export class TimelineController {
 
         const postedCommunities: PostedAtCommunityDto[] = [].concat(postedAtInfos.filter(item => item.community !== null).reduce((preV, item) => [...preV, ...item.community.reduce((cPreV, item2) => [...cPreV, item2], [])], []));
         const communityInfos = await this.communityService.findByIds(postedCommunities.map(item => item.id));
-        const communityChannelInfos = await this.communityChannelService.findIds(postedCommunities.map(item => item.channel_id))
+        const communityChannelInfos = await this.communityChannelService.findIds(postedCommunities.map(item => item.channel_id));
         const likeList =
             user !== null
                 ? await this.likeService.findByPostIds(
@@ -871,7 +924,7 @@ export class TimelineController {
                 const userInfo = setUsers.find(us => us.id === findInfo.user_id);
                 const findPostedAtInfo = postedAtInfos.find(pa => pa.posts_id === findInfo.id);
                 const likeData = likeList.find(li => li.post_id === item.post_id);
-                const targetCommunities: PoestedAtReturnDto[] = []
+                const targetCommunities: PoestedAtReturnDto[] = [];
                 findPostedAtInfo.community?.forEach(cItem => {
                     const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
                     const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
@@ -879,9 +932,9 @@ export class TimelineController {
                         targetCommunities.push(new PoestedAtReturnDto({
                             community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
                             channel: tCommunityChannel
-                        }))
+                        }));
                     }
-                })
+                });
                 // const targetCommunities = communityService.filter(cItem => cItem.id === findPostedAtInfo.)
                 return new PostsDto({
                     ...findInfo,
@@ -996,12 +1049,14 @@ export class TimelineController {
 function _setMediaFilter(whereIn, whereInclude, media: TimeLineMediaFilter, isReleation?: boolean) {
     if (media === TimeLineMediaFilter.SNS || media === TimeLineMediaFilter.BLOG) {
         whereIn.post_type = media === TimeLineMediaFilter.SNS ? PostType.SNS : PostType.BLOG;
-    } else {
+    }
+    else {
         if (isReleation !== true) {
             whereIn.attatchment_files = {
                 [Op.regexp]: Sequelize.literal(`'(${media})'`)
             };
-        } else {
+        }
+        else {
             whereInclude = [
                 {
                     model: Posts,
@@ -1034,7 +1089,8 @@ export class ChannelController {
         private likeService: LikeService,
         private portfolioPostService: PortfolioPostService,
         private channelPostService: ChannelPostService
-    ) { }
+    ) {
+    }
 
     @Post(":channel_id/portfolio/:portfolio_id/pin/:post_id")
     @ApiOperation({ description: "포트폴리오 타임라인 포스팅 핀 하기" })
@@ -1095,10 +1151,12 @@ export class ChannelController {
         const portfolioInfo = await this.portfolioService.findOne(portfolio_id);
         if (portfolioInfo === null) {
             throw new NotFoundException();
-        } else if (user !== null && user.id === portfolioInfo.user_id) {
+        }
+        else if (user !== null && user.id === portfolioInfo.user_id) {
             //본인 채널임.
             delete whereIn["visibility"];
-        } else {
+        }
+        else {
             const isFollow = user !== null ? await this.followService.findfollow(user.id, portfolioInfo.user_id) : null;
             if (isFollow !== null) {
                 whereIn.visibility = {
@@ -1173,7 +1231,8 @@ export class ChannelController {
         const cnt = await this.channelPostService.countUserChannelPin(user.channel_id, ChannelPostType.USER);
         if (info === null) {
             throw new NotFoundException();
-        } else if (cnt >= 3) {
+        }
+        else if (cnt >= 3) {
             throw new BadRequestException();
         }
         await this.channelPostService.setPin(post_id, true);
