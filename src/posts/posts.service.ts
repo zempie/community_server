@@ -226,6 +226,7 @@ export class PostsService extends BaseService<Posts> {
         };
 
         return await this.postsRepository.findAll({ ...options }
+
         );
     }
 

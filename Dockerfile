@@ -11,6 +11,6 @@ WORKDIR /app
 COPY --from=0 /app/zempie/dist ./dist
 COPY --from=0 /app/zempie/package.json .
 COPY --from=0 /app/zempie/node_modules ./node_modules
-COPY --from=0 /app/zempie/firebase-authentication-zempie_dev.json .
+COPY --from=0 /app/zempie/firebase-authentication-zempie.json .
 EXPOSE 5000
 CMD ["yarn", "start:prod"]
