@@ -48,7 +48,7 @@ jobs:
                   username: ${{ secrets.USER_NAME }}
                   # password: ${{ secrets.PASSWORD }}
                   key: ${{ secrets.KEY }}
-                  source: "package.json,yarn.lock,firebase-authentication-zempie_dev.json,dist/*"
+                  source: "package.json,yarn.lock,firebase-authentication-zempie.json,dist/*"
                   target: ~/buildupload  # 릴리즈 서버에 buildupload라는 디렉토리에 올라갑니다.
                   overwrite: true
 
