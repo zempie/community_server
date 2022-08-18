@@ -280,6 +280,7 @@ export class PostsController {
     @ApiOperation({ description: "포스팅 작성" })
     @ZempieUseGuards(UserAuthGuard)
     async create(@CurrentUser() user: User, @Body() data: CreatePostsDto): Promise<Posts> {
+        data.user_uid = user.uid;
         return await this.postsLogicService.createPost(data);
     }
 
