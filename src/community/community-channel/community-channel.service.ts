@@ -50,7 +50,7 @@ export class CommunityChannelService extends BaseService<CommunityChannel> {
             where: {
                 userId: userId
             },
-            order: [["createdAt", "DESC"]]
+            order: [["created_at", "DESC"]]
         });
 
         return find;

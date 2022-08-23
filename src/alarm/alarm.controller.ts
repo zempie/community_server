@@ -11,16 +11,16 @@ import { AlarmDTO, UpdateAlarmDto } from "./dto/alarm.dto";
 @Controller("api/v1/alarm")
 @ApiTags("api/v1/alarm")
 export class AlarmController {
-    constructor(private alarmService: AlarmService) {}
+    constructor(private alarmService: AlarmService) { }
 
-    @Get("mine")
-    @ApiResponse({ status: 200, description: "성공 반환", type: AlarmDTO })
-    @ApiOperation({ description: "내 커뮤니티 알림 설정 정보" })
-    @ZempieUseGuards(UserAuthGuard)
-    async findMine(@CurrentUser() user: User): Promise<AlarmDTO> {
-        const info = await this.alarmService.findOne(user.id);
-        return info;
-    }
+    // @Get("mine")
+    // @ApiResponse({ status: 200, description: "성공 반환", type: AlarmDTO })
+    // @ApiOperation({ description: "내 커뮤니티 알림 설정 정보" })
+    // @ZempieUseGuards(UserAuthGuard)
+    // async findMine(@CurrentUser() user: User): Promise<AlarmDTO> {
+    //     const info = await this.alarmService.findOne(user.id);
+    //     return info;
+    // }
 
     _checkAlarmEnum(value: string) {
         const check = Object.values(AlarmFormEnum).find(txt => txt === value);

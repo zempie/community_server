@@ -29,7 +29,7 @@ left join `zempie`.`posts` `p` on
 where `p`.`deletedAt` is null and (`p`.`scheduled_for` is null or `p`.`scheduled_for` <= UNIX_TIMESTAMP())
 */
 
-@Table({ tableName: "game_timeline", timestamps: true, paranoid: true })
+@Table({ tableName: "game_timeline", paranoid: true, timestamps: true })
 export class GamePostTimeLine extends GamePost {
     @Column({
         type: DataType.ENUM(PostType.BLOG, PostType.SNS)

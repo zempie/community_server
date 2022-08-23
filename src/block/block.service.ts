@@ -115,7 +115,7 @@ export class BlockService {
                 case when count(case when b.type = :type_ub then 1 end) > 0 then true else false end as isBlock,
                 case when count(case when b.type = :type_mute then 1 end) > 0 then true else false end as isMute,
                 case when count(case when b.type = :type_bick then 1 end) > 0 then true else false end as isKick
-            from block b WHERE b.user_id in (:user_ids) and type in (:types) and target_id = :myUserId and b.deletedAt IS NULL
+            from block b WHERE b.user_id in (:user_ids) and type in (:types) and target_id = :myUserId and b.deleted_at IS NULL
             GROUP by b.user_id
         `,
             {
@@ -148,7 +148,7 @@ export class BlockService {
                 case when count(case when b.type = :type_ub then 1 end) > 0 then true else false end as isBlock,
                 case when count(case when b.type = :type_mute then 1 end) > 0 then true else false end as isMute,
                 case when count(case when b.type = :type_bick then 1 end) > 0 then true else false end as isKick
-            from block b WHERE b.user_id = :myUserId and type in (:types) and target_id in (:user_ids) and b.deletedAt IS NULL
+            from block b WHERE b.user_id = :myUserId and type in (:types) and target_id in (:user_ids) and b.deleted_at IS NULL
             GROUP by b.target_id
         `,
             {

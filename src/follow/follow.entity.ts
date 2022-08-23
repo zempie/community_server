@@ -1,8 +1,8 @@
 import { BelongsTo, Column, CreatedAt, DataType, DeletedAt, ForeignKey, Model, Table, UpdatedAt } from "sequelize-typescript";
 import { User } from "src/user/user.entity";
 
-@Table({ tableName: "follow", timestamps: true, paranoid: true })
-export class Follow extends Model{
+@Table({ tableName: "follow", paranoid: true })
+export class Follow extends Model {
 
     @Column({
         type: DataType.UUID,
@@ -14,37 +14,35 @@ export class Follow extends Model{
     @CreatedAt
     @Column({
         type: DataType.DATE,
-        field:"created_at",
+        field: 'created_at',
         // defaultValue: new Date().getTime()
         get(this: Follow) {
-            return this.getDataValue("createdAt")?.getTime() ?? null;
+            return this.getDataValue("created_at")?.getTime() ?? null;
         },
     })
-    createdAt: Date;
+    created_at: Date;
 
     @UpdatedAt
     @Column({
         type: DataType.DATE,
-        field: "updated_at",
         // defaultValue: new Date().getTime()
         get(this: Follow) {
-            return this.getDataValue("updatedAt")?.getTime() ?? null;
+            return this.getDataValue("updated_at")?.getTime() ?? null;
         }
     })
-    updatedAt: Date;
+    updated_at: Date;
 
     @DeletedAt
     @Column({
         type: DataType.DATE,
         allowNull: true,
         defaultValue: null,
-        field: "deleted_at",
         get(this: Follow) {
-            const data = this.getDataValue("deletedAt");
+            const data = this.getDataValue("deleted_at");
             return data ? data.getTime() : null;
         }
     })
-    deletedAt: Date;
+    deleted_at: Date;
 
     @ForeignKey(() => User)
     @Column({

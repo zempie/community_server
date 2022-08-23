@@ -16,7 +16,7 @@ export class PortfolioPostService {
     async findAll(channel_id: string, portfolio_id: string, query: TimelineListQueryDTO) {
         const options: FindOptions = {
             where: { channel_id: channel_id, portfolio_id: portfolio_id },
-            order: [["createdAt", "ASC"]],
+            order: [["created_at", "ASC"]],
             limit: query.limit ? query.limit : 5,
             offset: query.offset ? query.offset : 0,
             raw: true
@@ -36,10 +36,10 @@ export class PortfolioPostService {
 
     async delete(postsId: string, channel_id: string, portfolio_ids: string[], transaction?: Transaction) {
         return await this.portfolioPostRepository.destroy({
-            where:{
-                post_id:postsId,
+            where: {
+                post_id: postsId,
                 channel_id: channel_id,
-                portfolio_id:{
+                portfolio_id: {
                     [Op.in]: portfolio_ids
                 }
             },

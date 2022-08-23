@@ -2,7 +2,7 @@ import { Column, CreatedAt, DataType, DeletedAt, Model, Table, UpdatedAt } from 
 
 //쿼리 : select * from users
 
-@Table({ tableName: "usersview", timestamps: true, paranoid: true })
+@Table({ tableName: "usersview", paranoid: true, timestamps: true })
 export class User extends Model {
     @Column({
         type: DataType.INTEGER,

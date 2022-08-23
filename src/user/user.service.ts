@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 import { BaseService } from "src/abstract/base-service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UserSearchQuery } from "./dto/user-search.dto";
@@ -31,12 +31,9 @@ export class UserService extends BaseService<User> {
         });
     }
 
-    async findOneByChannelId(id: any) {
-        return await this.userRepository.findOne({
-            where: {
-                channel_id: id
-            }
-        }) ?? null;
+    async findOneByChannelId(channel_id: any) {
+        return await this.userRepository.findOne(channel_id) ?? null
+
     }
 
     async findUsers() {

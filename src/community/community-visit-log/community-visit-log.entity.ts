@@ -1,7 +1,7 @@
 import { BaseEntity } from "src/abstract/base-entity";
 import { Column, Table } from "sequelize-typescript";
 
-@Table({ tableName: "community_visit_log", timestamps: true, paranoid: true })
+@Table({ tableName: "community_visit_log", paranoid: true })
 export class CommunityVisitLog extends BaseEntity {
     @Column({
         allowNull: false

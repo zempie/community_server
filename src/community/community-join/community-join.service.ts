@@ -29,6 +29,15 @@ export class CommunityJoinService extends BaseService<CommunityJoin> {
         });
     }
 
+    async findbyUserChannel(user_channel: string) {
+        return await this.communityJoinRepository.findAll({
+            where: {
+                user_channel: user_channel
+            },
+            raw: true
+        });
+    }
+
     async findwithCommunityId(user_id: number, communityId: string, transaction?: Transaction) {
         return await this.communityJoinRepository.findOne({
             where: {
@@ -168,7 +177,7 @@ export class CommunityJoinService extends BaseService<CommunityJoin> {
     async cntByCommunityId(param: string | string[]) {
         if (Array.isArray(param)) {
             const data = param.length > 0 ? await this.communityJoinRepository.sequelize.query(`
-                select cj.community_id as community_id, count(cj.id) as cnt from community_join as cj left join usersview as uv on cj.user_id = uv.id where cj.community_id in(:ids) and cj.state = :state and cj.deletedAt is null and uv.deleted_at is null  group by cj.community_id 
+                select cj.community_id as community_id, count(cj.id) as cnt from community_join as cj left join usersview as uv on cj.user_id = uv.id where cj.community_id in(:ids) and cj.state = :state and cj.deleted_at is null and uv.deleted_at is null  group by cj.community_id 
             `, {
                 replacements: {
                     ids: param,

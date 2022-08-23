@@ -265,7 +265,7 @@ export class PostsController {
         if (user.id !== existLike.user_id) {
             throw new HttpException("BAD_REQUEST", HttpStatus.BAD_REQUEST);
         }
-        
+
         // const setcount = await this.postsService.likeCnt(post_id, false);
         await this.likeService.deletePostlike(existLike.id);
         const likeCnt = await this.likeService.postLikeCnt(post_id, LikeType.POST, true)
@@ -378,7 +378,7 @@ export class PostsController {
             transaction.commit();
             return {
                 ...data,
-                created_at: new Date().getTime()
+                created_at: new Date()
             };
         } catch (error) {
             console.error(error);

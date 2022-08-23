@@ -161,7 +161,7 @@ export class TimelineController {
             where: whereIn,
             limit: query.limit,
             offset: query.offset,
-            order: [["createdAt", "DESC"]]
+            order: [["created_at", "DESC"]]
         };
         await this.searchKeywordLogService.create(user ? user.id : null, query.hashtag);
         const list = await this.postService.find(inputWhere);
@@ -231,7 +231,7 @@ export class TimelineController {
             where: whereIn,
             limit: query.limit,
             offset: query.offset,
-            order: [["createdAt", "DESC"]],
+            order: [["created_at", "DESC"]],
             include: whereInclude
         };
 
@@ -321,7 +321,7 @@ export class TimelineController {
             where: whereIn,
             limit: query.limit,
             offset: query.offset,
-            order: [["createdAt", "DESC"]],
+            order: [["created_at", "DESC"]],
             include: whereInclude
         };
 
@@ -464,8 +464,9 @@ export class TimelineController {
             where: whereIn,
             limit: query.limit,
             offset: query.offset,
-            order: [["createdAt", "DESC"]],
-            include: whereInclude
+            order: [["created_at", "DESC"]],
+            include: whereInclude,
+
         };
 
         if (query.media) {
@@ -475,7 +476,24 @@ export class TimelineController {
         }
 
         const list = await this.channelTimelineService.find(inputWhere);
+
+
+
+
+
         const postInfo = await this.postService.findIds(list.result.map(item => item.post_id));
+
+
+        // list.result = list.result.filter((item) => {
+        //     const findInfo = postInfo.find(po => po.id === item.post_id);
+        //     const findPostedAtInfo =
+        //         findInfo !== undefined && (postedAtInfos.find(pa => pa.posts_id === findInfo.id) ?? null);
+        //     if (findInfo === undefined || findInfo === null || findPostedAtInfo === undefined || findPostedAtInfo === null) {
+        //         return false;
+        //     } else {
+        //         return true;
+        //     }
+        // })
         const likeList =
             user !== null
                 ? await this.likeService.findByPostIds(
@@ -513,20 +531,29 @@ export class TimelineController {
         const communityInfos = await this.communityService.findByIds(postedCommunities.map(item => item.id));
         const communityChannelInfos = await this.communityChannelService.findIds(postedCommunities.map(item => item.channel_id));
 
+
+
+
+
+
+
         return {
             ...list,
             result: list.result.map(item => {
+
                 const findInfo = postInfo.find(po => po.id === item.post_id);
                 const userInfo = findInfo !== undefined && setUsers.find(us => us.id === findInfo.user_id);
                 const findPostedAtInfo =
                     findInfo !== undefined && (postedAtInfos.find(pa => pa.posts_id === findInfo.id) ?? null);
                 const likeData = likeList.find(li => li.post_id === item.post_id);
+
                 if (findInfo === undefined || findInfo === null || findPostedAtInfo === undefined || findPostedAtInfo === null) {
                     return new PostsDto({
                         content: "삭제된 포스팅입니다",
                         id: null
                     });
                 }
+
                 const targetCommunities: PoestedAtReturnDto[] = [];
                 findPostedAtInfo.community?.forEach(cItem => {
                     const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
@@ -609,7 +636,7 @@ export class TimelineController {
             where: whereIn,
             limit: 10,
             offset: 0,
-            order: [["createdAt", "DESC"]]
+            order: [["created_at", "DESC"]]
         };
         const list = await this.channelTimelineService.find(inputWhere);
         const postInfo = await this.postService.findIds(list.result.map(item => item.post_id));
@@ -709,7 +736,7 @@ export class TimelineController {
             where: whereIn,
             limit: 10,
             offset: 0,
-            order: [["createdAt", "DESC"]],
+            order: [["created_at", "DESC"]],
             include: whereInclude
         };
 
@@ -803,7 +830,7 @@ export class TimelineController {
             where: whereIn,
             limit: 10,
             offset: 0,
-            order: [["createdAt", "DESC"]],
+            order: [["created_at", "DESC"]],
             include: whereInclude
         };
 
@@ -882,7 +909,7 @@ export class TimelineController {
             where: whereIn,
             limit: query.limit,
             offset: query.offset,
-            order: [["createdAt", "DESC"]],
+            order: [["created_at", "DESC"]],
             include: whereInclude
         };
 
@@ -1006,7 +1033,7 @@ export class TimelineController {
             where: whereIn,
             limit: 10,
             offset: 0,
-            order: [["createdAt", "DESC"]],
+            order: [["created_at", "DESC"]],
             include: whereInclude
         };
 
@@ -1169,7 +1196,7 @@ export class ChannelController {
             where: whereIn,
             limit: query.limit,
             offset: query.offset,
-            order: [["createdAt", "DESC"]],
+            order: [["created_at", "DESC"]],
             include: whereInclude
         };
 

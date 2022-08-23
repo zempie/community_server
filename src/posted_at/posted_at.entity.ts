@@ -4,7 +4,7 @@ import { Community } from "src/community/community.entity";
 import { BaseEntity } from "src/abstract/base-entity";
 import { PostedAtCommunityDto } from "./dto/posted_at.dto";
 
-@Table({ tableName: "posted_at", timestamps: true, paranoid: true })
+@Table({ tableName: "posted_at", paranoid: true, timestamps: true })
 export class PostedAt extends BaseEntity {
     @ForeignKey(() => Posts)
     @Column({

@@ -67,7 +67,7 @@ export class FollowController {
                     // nickName: userInfo.na
                     channel_id: userInfo.channel_id,
                     profile_img: userInfo.picture,
-                    createdAt: item.createdAt,
+                    created_at: item.created_at,
                     community_id: item.community_id,
                     status: item.status,
                     state: item.state
@@ -119,7 +119,7 @@ export class FollowController {
                     // nickName: userInfo.na
                     channel_id: userInfo.channel_id,
                     profile_img: userInfo.picture,
-                    createdAt: item.createdAt,
+                    created_at: item.created_at,
                     community_id: item.community_id,
                     status: item.status,
                     state: item.state

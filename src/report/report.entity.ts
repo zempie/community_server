@@ -2,7 +2,7 @@ import { Column, DataType, Model, Table } from "sequelize-typescript";
 import { BaseEntity } from "src/abstract/base-entity";
 import { targetType } from "./enum/reporttargettype.enum";
 
-@Table({ tableName: "report", timestamps: true, paranoid: true })
+@Table({ tableName: "report", paranoid: true })
 export class Report extends BaseEntity {
     @Column
     reporter_user_id: number;

@@ -14,7 +14,7 @@ import { BaseEntity } from "src/abstract/base-entity";
 import { Posts } from "src/posts/posts.entity";
 import { Choice } from "./choice/choice.entity";
 
-@Table({ tableName: "poll", timestamps: true, paranoid: true })
+@Table({ tableName: "poll", paranoid: true })
 export class Poll extends BaseEntity {
     @ForeignKey(() => Posts)
     @Column({

@@ -14,7 +14,7 @@ export class PollService {
 
     async findAll() {
         return await this.pollRepository.findAndCountAll({
-            order: [["createdAt", "DESC"]],
+            order: [["created_at", "DESC"]],
             include: [Choice]
         });
     }
@@ -68,7 +68,7 @@ export class PollService {
         return await this.findOne(id)
     }
 
-    async delete(pollId: string, transaction:Transaction) {
+    async delete(pollId: string, transaction: Transaction) {
         const exist = await this.pollRepository.findOne({
             where: {
                 id: pollId

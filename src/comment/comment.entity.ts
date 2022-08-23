@@ -7,7 +7,7 @@ import {
     Table,
 } from "sequelize-typescript";
 
-@Table({ tableName: "comment", timestamps: true, paranoid: true })
+@Table({ tableName: "comment", paranoid: true, timestamps: true })
 export class Comment extends BaseEntity {
     @Column({
         allowNull: false

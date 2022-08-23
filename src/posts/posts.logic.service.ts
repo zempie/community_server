@@ -54,7 +54,7 @@ export class PostsLogicService {
         }
         if (data.community && data.visibility === Visibility.FOLLOWER) {
             for await (const co of data.community) {
-                if(co.id === undefined || co.channel_id === undefined){
+                if (co.id === undefined || co.channel_id === undefined) {
                     throw new BadRequestException();
                 }
                 const channelInfo = await this.channelService.findChannelWithCommu(co.id, co.channel_id);
@@ -229,7 +229,7 @@ export class PostsLogicService {
             await this.postedAtService.update(postedInfo.id, updatePostedData, transaction);
             await this.postsService.update(post.id, data, transaction);
             await transaction.commit();
-            
+
             await this.hashTagLogService.create(user.id, data.hashtags);
 
             const newInfo = await this.postsService.findOne(post.id);
@@ -321,7 +321,7 @@ export class PostsLogicService {
             transaction.commit();
             return {
                 ...data,
-                created_at: new Date().getTime()
+                created_at: new Date()
             };
         } catch (error) {
             console.error(error);
@@ -337,14 +337,14 @@ export class PostsLogicService {
         } else if (data.attatchment_files === undefined && data.content === undefined) {
             throw new BadRequestException();
         }
-        const writerInfo = await this.userService.findOne(data.user_id);
+        const writerInfo = await this.userService.findOne(user.id);
         if (writerInfo === null) {
             throw new NotFoundException();
         }
         const comment = await this.commentService.createWidhPostId(post_id, {
             ...data,
             content: data.content,
-            user_id: data.user_id,
+            user_id: writerInfo.id,
             user_uid: writerInfo.uid,
             type: CommentType.COMMENT
         });
@@ -385,7 +385,7 @@ export class PostsLogicService {
             ...data,
             content: data.content,
             parent_id: data.parent_id,
-            user_id: data.user_id,
+            user_id: user.id,
             type: CommentType.REPLY
         });
         const rData = new CommentDto({ ...comment.get({ plain: true }), is_read: true });
