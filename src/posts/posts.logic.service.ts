@@ -279,6 +279,11 @@ export class PostsLogicService {
             if (postedInfo.portfolio_ids && postedInfo.portfolio_ids.length > 0) {
                 await this.portfoliPostService.delete(post.id, user.channel_id, postedInfo.portfolio_ids);
             }
+
+            if (postedInfo.game_id) {
+                await this.gamePostService.delete(post.id, postedInfo.game_id)
+            }
+
             await transaction.commit();
             return { success: true };
         } catch (error) {

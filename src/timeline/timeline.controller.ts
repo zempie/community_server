@@ -8,9 +8,11 @@ import {
     Param,
     Post,
     Query,
-    UseGuards
+    UseGuards,
+    Inject
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import sequelize from "sequelize";
 import { Sequelize } from "sequelize";
 import { Op } from "sequelize";
 import { FindAndCountOptions } from "sequelize/types";
@@ -51,6 +53,9 @@ import { CustomQueryResult, CustomQueryResultResponseType } from "src/util/pagin
 import { TimelineHashTagQueryDto } from "./dto/timeline-hashtag-query.dto";
 import { TimelineListQueryDTO } from "./dto/timeline-sort.dto";
 import { TimeLineMediaFilter, TimeLineSort } from "./enum/timeline-sort.enum";
+import { BaseQuery } from "src/abstract/base-query";
+
+
 
 @Controller("api/v1/timeline")
 @ApiTags("api/v1/timeline")
@@ -73,6 +78,7 @@ export class TimelineController {
         private blockService: BlockService,
         private communityService: CommunityService,
         private communityChannelService: CommunityChannelService
+
     ) {
     }
 
@@ -211,6 +217,21 @@ export class TimelineController {
         };
     }
 
+
+    @Get("/posts/img")
+    @ApiOperation({ description: "모든 이미지가 포함된 포스팅" })
+    @ApiResponse({ status: 200, schema: CustomQueryResultResponseType(PostsDto) })
+    @ZempieUseGuards(UserTokenCheckGuard)
+    async allPosting(
+        @Query() query: BaseQuery,
+        @CurrentUser() user: User
+    ) {
+
+        return await this.postService.findImgAll(query);
+
+
+    }
+
     @Get(":community_id/post")
     @ApiOperation({ description: "전체 커뮤니티 타임라인" })
     @ApiResponse({ status: 200, schema: CustomQueryResultResponseType(PostsDto) })
@@ -232,7 +253,8 @@ export class TimelineController {
             limit: query.limit,
             offset: query.offset,
             order: [["created_at", "DESC"]],
-            include: whereInclude
+            include: whereInclude,
+
         };
 
         if (query.sort && query.sort === TimeLineSort.POPULAR) {
@@ -875,20 +897,21 @@ export class TimelineController {
         };
     }
 
-    @Get("game/:game_id")
+    @Get("game/:pathname")
     @ApiOperation({ description: "특정 게임의 타임라인" })
     @ApiResponse({ status: 200, schema: CustomQueryResultResponseType(PostsDto) })
     @ZempieUseGuards(UserTokenCheckGuard)
     async gamePostTimelines(
-        @Param("game_id") game_id: string,
+        @Param("pathname") pathname: string,
         @Query() query: TimelineListQueryDTO,
         @CurrentUser() user: User
     ): Promise<CustomQueryResult<PostsDto>> {
+
+        const gameInfo = await this.gameService.findOneByGamepath(pathname);
         let whereIn: any = {
-            game_id: game_id
+            game_id: gameInfo.id
             // like_cnt: { [Op.gte]: 30 } //2022-01-25 15:26:33 요청에 따라 삭제
         };
-        const gameInfo = await this.gameService.findOne(game_id);
         if (gameInfo === null) {
             throw new NotFoundException();
         }

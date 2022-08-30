@@ -4,9 +4,9 @@ export enum TimeLineSort {
 }
 
 export enum TimeLineMediaFilter {
-    IMAGE = "img",
+    IMAGE = "image",
     VIDEO = "video",
-    SOUND = "audio",
+    SOUND = "sound",
     SNS = "sns",
     BLOG = "blog"
 }
