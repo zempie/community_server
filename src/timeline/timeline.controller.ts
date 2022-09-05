@@ -645,7 +645,7 @@ export class TimelineController {
         orList.push(userChannelWhere);
 
 
-        const followers = await this.followService.followUserInfosByUser(userInfo.id);
+        const followers = [];
         const muteList = user !== undefined && user !== null ? await this.blockService.muteListByUserId(userInfo.id) : [];
 
         followers.forEach(item => {
