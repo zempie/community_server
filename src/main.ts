@@ -31,6 +31,7 @@ async function bootstrap() {
     app.use("/upload", express.static(path.join(process.cwd(), "upload")));
     app.enableCors();
 
+
     await app.listen(5000);
 }
 bootstrap();
