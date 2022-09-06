@@ -38,3 +38,5 @@ lerna-debug.log*
 /pdfs
 src/main.ts
 .gitignore
+.env
+.gitignore
