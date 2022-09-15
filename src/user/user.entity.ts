@@ -24,6 +24,9 @@ export class User extends Model {
     picture: string;
 
     @Column({})
+    url_banner: string;
+
+    @Column({})
     email: string;
 
     @Column({})

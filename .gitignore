@@ -36,7 +36,6 @@ lerna-debug.log*
 .env.development
 
 /pdfs
-src/main.ts
 .gitignore
 .env
 .gitignore
