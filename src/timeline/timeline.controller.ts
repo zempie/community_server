@@ -1183,7 +1183,7 @@ export class TimelineController {
                     liked: likeData !== undefined ? true : false,
                     user: new UserDto({ ...userInfo }),
                     posted_at: new PostedAtDto({
-                        ...findPostedAtInfo.get({ plain: true }),
+                        ...findPostedAtInfo?.get({ plain: true }),
                         community: targetCommunities
                     }),
                     is_pinned: item.is_pinned
