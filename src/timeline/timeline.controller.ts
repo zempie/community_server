@@ -1172,7 +1172,7 @@ export class TimelineController {
                     const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
                     if (tCommunty !== undefined && tCommunityChannel !== undefined) {
                         targetCommunities.push(new PoestedAtReturnDto({
-                            community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
+                            community: new CommunityShortDto({ ...tCommunty?.get({ plain: true }) }),
                             channel: tCommunityChannel
                         }));
                     }
