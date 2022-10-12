@@ -1167,7 +1167,7 @@ export class TimelineController {
                 const findPostedAtInfo = postedAtInfos.find(pa => pa.posts_id === findInfo.id);
                 const likeData = likeList.find(li => li.post_id === item.post_id);
                 const targetCommunities: PoestedAtReturnDto[] = [];
-                findPostedAtInfo.community?.forEach(cItem => {
+                findPostedAtInfo?.community?.forEach(cItem => {
                     const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
                     const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
                     if (tCommunty !== undefined && tCommunityChannel !== undefined) {
