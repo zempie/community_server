@@ -93,7 +93,8 @@ export class PostsController {
         private postsviewLogService: PostsViewLogService,
         private likeLogService: LikeLogService,
         private postsLogicService: PostsLogicService,
-        private adminFcmService: AdminFcmService
+        private adminFcmService: AdminFcmService,
+
     ) { }
 
     @Get(":post_id")
@@ -131,18 +132,26 @@ export class PostsController {
 
     @Get(":post_id/like/list")
     @ApiOperation({ description: "해당 포스팅 좋아요 리스트" })
-    async Likelist(@Query() query: BaseQuery, @Param("post_id") post_id: string): Promise<LikeListDto[]> {
+    @ZempieUseGuards(UserTokenCheckGuard)
+    async Likelist(@CurrentUser() user: User, @Query() query: BaseQuery, @Param("post_id") post_id: string): Promise<LikeListDto[]> {
         const likeInfo = await this.likeService.list(query, post_id);
         const userInfos = await this.userService.findByIds(likeInfo.map(item => item.user_id));
 
+        const setUsers = await this.commonInfoService.setCommonInfo(
+            userInfos.map(item => item.get({ plain: true }) as User), user)
+
         const result: LikeListDto[] = [];
         for await (const item of likeInfo) {
-            const userInfo = userInfos.find(us => us.id === item.user_id);
+            const userInfo = setUsers.find(us => us.id === item.user_id);
+            const isFollow = await this.followService.findfollow(user.id, item.user_id);
+            if (isFollow === null) {
+                throw new NotFoundException();
+            }
             if (userInfo !== undefined) {
                 result.push({
                     id: item.id,
                     post_id: item.post_id,
-                    user: userInfo
+                    user: new UserDto({ ...userInfo }),
                 } as LikeListDto);
             }
         }

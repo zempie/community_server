@@ -1167,12 +1167,12 @@ export class TimelineController {
                 const findPostedAtInfo = postedAtInfos.find(pa => pa.posts_id === findInfo.id);
                 const likeData = likeList.find(li => li.post_id === item.post_id);
                 const targetCommunities: PoestedAtReturnDto[] = [];
-                findPostedAtInfo.community?.forEach(cItem => {
+                findPostedAtInfo?.community?.forEach(cItem => {
                     const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
                     const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
                     if (tCommunty !== undefined && tCommunityChannel !== undefined) {
                         targetCommunities.push(new PoestedAtReturnDto({
-                            community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
+                            community: new CommunityShortDto({ ...tCommunty?.get({ plain: true }) }),
                             channel: tCommunityChannel
                         }));
                     }
@@ -1183,7 +1183,7 @@ export class TimelineController {
                     liked: likeData !== undefined ? true : false,
                     user: new UserDto({ ...userInfo }),
                     posted_at: new PostedAtDto({
-                        ...findPostedAtInfo.get({ plain: true }),
+                        ...findPostedAtInfo?.get({ plain: true }),
                         community: targetCommunities
                     }),
                     is_pinned: item.is_pinned

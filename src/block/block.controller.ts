@@ -36,7 +36,7 @@ export class BlockController {
                 type: BlockType.USERBLOCK
             });
         }
-        
+
         return new ReturnBlockDto({ ...(await this.commonInfoService.commonInfos(user_id, user.id)) });
     }
 
@@ -46,9 +46,8 @@ export class BlockController {
     @ZempieUseGuards(UserAuthGuard)
     async userUnblock(@CurrentUser() user: User, @Param("user_id") user_id: number): Promise<ReturnBlockDto> {
         const checkBlock = await this.blockService.findBlockedUserByMe(user.id, user_id, BlockType.USERBLOCK);
-        console.log("!?!?!?!?!");
-        console.log(checkBlock);
-        
+
+
         if (checkBlock !== null) {
             await this.blockService.delete(checkBlock.id)
         }
