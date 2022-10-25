@@ -143,15 +143,15 @@ export class PostsController {
         const result: LikeListDto[] = [];
         for await (const item of likeInfo) {
             const userInfo = setUsers.find(us => us.id === item.user_id);
-            const isFollow = await this.followService.findfollow(user.id, item.user_id);
-            if (isFollow === null) {
-                throw new NotFoundException();
-            }
+            //const isFollow = user && await this.followService.findfollow(user.id, item.user_id);
+            // if (isFollow === null) {
+            //     throw new NotFoundException();
+            // }
             if (userInfo !== undefined) {
                 result.push({
                     id: item.id,
                     post_id: item.post_id,
-                    user: new UserDto({ ...userInfo }),
+                    user: userInfo,
                 } as LikeListDto);
             }
         }
