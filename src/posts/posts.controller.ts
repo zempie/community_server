@@ -134,7 +134,7 @@ export class PostsController {
     @ApiOperation({ description: "해당 포스팅 좋아요 리스트" })
     @ZempieUseGuards(UserTokenCheckGuard)
     async Likelist(@CurrentUser() user: User, @Query() query: BaseQuery, @Param("post_id") post_id: string): Promise<LikeListDto[]> {
-        const likeInfo = await this.likeService.list(query, post_id);
+        const likeInfo = await this.likeService.postList(query, post_id);
         const userInfos = await this.userService.findByIds(likeInfo.map(item => item.user_id));
 
         const setUsers = await this.commonInfoService.setCommonInfo(
