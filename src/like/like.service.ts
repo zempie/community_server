@@ -73,6 +73,18 @@ export class LikeService {
         });
     }
 
+    async postList(query: BaseQuery, post_id: string) {
+        return await this.likeRepository.findAll({
+            where: {
+                post_id: post_id,
+                type: LikeType.POST
+            },
+            order: [["created_at", "DESC"]],
+            limit: query.limit ? query.limit : 5,
+            offset: query.offset ? query.offset : 0
+        });
+    }
+
     async findOne(id: string) {
         return await this.likeRepository.findOne({
             where: {
