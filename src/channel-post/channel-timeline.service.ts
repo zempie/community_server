@@ -1,6 +1,8 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { QueryTypes } from "sequelize";
+import { Model } from "sequelize-typescript";
 import { BaseService } from "src/abstract/base-service";
+import { CustomQueryGenerator } from "src/util/pagination-builder";
 import { ChannelTimeline } from "./channel-timeline.entity";
 import { ChannelPostType } from "./enum/channelposttype.enum";
 
@@ -49,5 +51,14 @@ export class ChannelTimelineService extends BaseService<ChannelTimeline> {
                 is_pinned: state
             }
         });
+    }
+
+    async findOne(id: string) {
+        return await this.channelPostRepository.findOne({
+            where:{
+                post_id:id
+            },
+            raw: true
+        })
     }
 }

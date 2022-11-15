@@ -645,7 +645,7 @@ export class TimelineController {
 
         const followers = await this.followService.followUserInfosByUser(userInfo.id);
 
-
+        
 
         const muteList = user !== undefined && user !== null ? await this.blockService.muteListByUserId(userInfo.id) : [];
 
@@ -690,11 +690,27 @@ export class TimelineController {
 
         const list = await this.channelTimelineService.find(inputWhere);
 
-
-
-
-
         const postInfo = await this.postService.findIds(list.result.map(item => item.post_id));
+
+        let date = new Date()
+        let end_date : Date | number=  new Date(2022, 10, 20, 23, 59, 59)
+        end_date = end_date.setTime(end_date.getTime())
+        const now = date.setTime(date.getTime())
+
+        if(now < end_date ){
+
+            const fixedPost = await this.channelTimelineService.findOne(process.env.FIXED_POST_ID)        
+            
+            if(fixedPost){
+                list.result.unshift(fixedPost)
+            }        
+            const fixedPostInfo = await this.postService.findIds([process.env.FIXED_POST_ID])
+            
+            if(fixedPostInfo.length){
+                postInfo.unshift(fixedPostInfo[0])
+            }
+        }
+
 
         const postedAtInfos = await this.postedAtService.findByPostsId(postInfo.map(item => item.id));
         list.result = list.result.filter((item) => {
@@ -746,15 +762,11 @@ export class TimelineController {
         const communityChannelInfos = await this.communityChannelService.findIds(postedCommunities.map(item => item.channel_id));
 
 
-
-
-
-
-
         return {
             ...list,
             result: list.result.map(item => {
 
+                
                 const findInfo = postInfo.find(po => po.id === item.post_id);
                 const userInfo = findInfo !== undefined && setUsers.find(us => us.id === findInfo.user_id);
                 const findPostedAtInfo =
