@@ -48,12 +48,7 @@ export class CustomQueryGenerator<T extends Model<T>> {
         const limit = options.limit ? options.limit : this.DEFAULT_LIMIT;
         const offset = options.offset ? options.offset : 0;
         const totalCont = data.count;
-
-        // console.log(data.rows.map(item => {
-        //     console.log(item.get({ plain: true }));
-        //     return item
-        // }));
-
+        
         // const totalPage = Math.floor(totalCont / limit) + ((totalCont % limit) > 0 ? 1 : 0);
 
 
