@@ -159,6 +159,7 @@ CREATE TABLE `posted_at` (
 `channel_id` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
 `game_id` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
 `community` json DEFAULT NULL,
+`game` json DEFAULT NULL,
 `portfolio_ids` json DEFAULT NULL,
 PRIMARY KEY (`id`),
 KEY `posts_id` (`posts_id`),
