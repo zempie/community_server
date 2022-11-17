@@ -4,12 +4,24 @@ import { ValidateNested } from "class-validator";
 // import { Community } from "src/community/community.entity";
 import { CommunityChannelBaseDto } from 'src/community/community-channel/dto/community-channel.dto'
 import { CommunityShortDto } from "src/community/dto/community.dto";
+import { GameDTO } from "src/game/game.model";
 
 export class PostedAtCommunityDto {
     @ApiProperty()
     id: string;
     @ApiProperty()
     channel_id: string;
+}
+
+export class PostedAtGameDto {
+    @ApiProperty()
+    id: string;
+}
+
+export class PostedAtGameReturnDto{
+    @Type(() => GameDTO)
+    game:GameDTO
+
 }
 
 export class PoestedAtReturnDto {
@@ -39,7 +51,8 @@ export class PostedAtDto {
 
     //게임페이지에 올린경우
     @ApiProperty()
-    game_id: string;
+    @Type(() => PostedAtGameReturnDto)
+    game: PostedAtGameReturnDto;
 
     @ApiProperty({ type: [PoestedAtReturnDto] })
     @ValidateNested({ each: true })
@@ -68,7 +81,8 @@ export class PostedAtSimpleDto {
 
     //게임페이지에 올린경우
     @ApiProperty()
-    game_id: string;
+    @Type(() => PostedAtGameDto)
+    game: PostedAtGameDto[];
 
     @ApiProperty({ type: [PostedAtCommunityDto] })
     @ValidateNested({ each: true })

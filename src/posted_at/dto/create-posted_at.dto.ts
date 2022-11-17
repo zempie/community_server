@@ -1,7 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { ValidateNested } from "class-validator";
-import { PostedAtCommunityDto } from "./posted_at.dto";
+import { Game } from "src/game/game.entity";
+import { PostedAtCommunityDto, PostedAtGameDto } from "./posted_at.dto";
 
 export class CreatePostedAtDto {
     @ApiProperty()
@@ -13,7 +14,8 @@ export class CreatePostedAtDto {
 
     // 게임페이지에 올린경우
     @ApiProperty()
-    game_id?: string;
+    @Type(() => PostedAtGameDto)
+    game?: PostedAtGameDto[];
 
     // 커뮤니티페이지에 올린경우
     //    채널 선택

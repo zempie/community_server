@@ -2,7 +2,7 @@ import { BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Model, Table 
 import { Posts } from "src/posts/posts.entity";
 import { Community } from "src/community/community.entity";
 import { BaseEntity } from "src/abstract/base-entity";
-import { PostedAtCommunityDto } from "./dto/posted_at.dto";
+import { PostedAtCommunityDto, PostedAtGameDto } from "./dto/posted_at.dto";
 
 @Table({ tableName: "posted_at", paranoid: true, timestamps: true })
 export class PostedAt extends BaseEntity {
@@ -21,8 +21,22 @@ export class PostedAt extends BaseEntity {
     channel_id: string;
 
     //게임페이지에 올린경우
-    @Column
-    game_id: string;
+    @Column({
+        type: DataType.JSON,
+        get(this: PostedAt) {
+            const item = this.getDataValue("game");
+            if (typeof item === "object") {
+                return item
+            } else {
+                try {
+                    return JSON.parse(item);
+                } catch (error) {
+                    return []
+                }
+            }
+        }
+    })
+    game: PostedAtGameDto[];
 
     //커뮤니티페이지에 올린경우
     //    채널 선택

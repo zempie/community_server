@@ -1,7 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsDefined, IsEnum, IsOptional, ValidateNested } from "class-validator";
-import { PostedAtCommunityDto } from "src/posted_at/dto/posted_at.dto";
+import { Game } from "src/game/game.entity";
+import { PostedAtCommunityDto, PostedAtGameDto } from "src/posted_at/dto/posted_at.dto";
 import { PostType } from "../enum/post-posttype.enum";
 import { Visibility } from "../enum/post-visibility.enum";
 import { CreatePostsDto, PostAttatchmentFileDto } from "./create-posts.dto";
@@ -64,8 +65,10 @@ export class UpdatePostsDto {
         description: "게임 페이지",
         required: false
     })
+
+    @Type(() => PostedAtGameDto)
     @IsOptional()
-    game_id?: string;
+    game?: PostedAtGameDto[];
 
     @ApiPropertyOptional({
         description: "내 채널에 올린 경우 (해당 로그인 유저 채널)",
