@@ -2,7 +2,8 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsEmpty, IsEnum, IsNotEmpty, ValidateNested, IsArray, IsString } from "class-validator";
 import { File } from "src/file/file.dto";
-import { PostedAtCommunityDto } from "src/posted_at/dto/posted_at.dto";
+import { Game } from "src/game/game.entity";
+import { PostedAtCommunityDto, PostedAtGameDto } from "src/posted_at/dto/posted_at.dto";
 import { PostType } from "../enum/post-posttype.enum";
 import { PostStatus } from "../enum/post-status.enum";
 import { Visibility } from "../enum/post-visibility.enum";
@@ -82,10 +83,12 @@ export class CreatePostsDto {
     // liked: boolean;
 
     @ApiProperty({
+        type: [PostedAtGameDto],
         description: "게임 페이지",
         required: false
     })
-    game_id?: string;
+    @Type(() => PostedAtGameDto)
+    game?: PostedAtGameDto[];
 
     @ApiProperty({
         description: "내 채널에 올린 경우 (해당 로그인 유저 채널)",
@@ -143,7 +146,7 @@ export class CreatePosts {
 
     // liked: boolean;
 
-    game_id?: string;
+    game?: PostedAtGameDto[];
 
     channel_id?: string;
 

@@ -78,11 +78,13 @@ export class PostsLogicService {
                 },
                 transaction
             );
+
             await this.postedAtService.create(
                 {
+                    
                     posts_id: post.id,
                     channel_id: userInfo.channel_id,
-                    game_id: data.game_id,
+                    game: data.game,
                     community: data.community,
                     portfolio_ids: data.portfolio_ids
                 },
@@ -124,12 +126,13 @@ export class PostsLogicService {
                 );
             }
 
-            if (data.game_id !== undefined) {
+            if (data.game !== undefined) {
                 await this.gamePostService.create(
-                    {
-                        game_id: data.game_id,
+                    data.game.map(item => ({
+                        game_id: item.id,
                         post_id: post.id
-                    },
+
+                    })),                    
                     transaction
                 );
             }
@@ -198,12 +201,20 @@ export class PostsLogicService {
                 );
                 await this.communityService.setPostCnt(data.community.map(item => item.id), true, transaction)
             }
-            if (data.game_id !== undefined) {
-                updatePostedData.game_id = data.game_id;
-                if (postedInfo.game_id !== undefined) {
-                    await this.gamePostService.delete(post.id, postedInfo.game_id, transaction);
+            if (data.game !== undefined) {
+                updatePostedData.game = data.game;
+                if (postedInfo.game !== undefined) {
+                    await this.gamePostService.deleteGamePost(
+                        post.id,
+                        postedInfo.game.map(item => item.id),
+                        transaction
+                    );             
                 }
-                await this.gamePostService.create({ game_id: data.game_id, post_id: post.id }, transaction);
+                await this.gamePostService.create(
+                    data.game.map(item => ({
+                        game_id:item.id,
+                        post_id:post.id
+                    })), transaction);
             }
             if (data.portfolio_ids !== undefined) {
                 updatePostedData.portfolio_ids = data.portfolio_ids;
@@ -280,8 +291,13 @@ export class PostsLogicService {
                 await this.portfoliPostService.delete(post.id, user.channel_id, postedInfo.portfolio_ids);
             }
 
-            if (postedInfo.game_id) {
-                await this.gamePostService.delete(post.id, postedInfo.game_id)
+            if (postedInfo.game && Array.isArray(postedInfo.game) === true && postedInfo.game.length > 0) {
+                await this.gamePostService.deleteGamePost(
+                    post.id,
+                    postedInfo.game.map(item => item.id),
+                    transaction
+                );
+                // await this.gamePostService.delete(post.id, postedInfo.game_id)
             }
 
             await transaction.commit();

@@ -31,6 +31,32 @@ export class GamePostService {
         })
     }
 
+    async deleteGamePost(
+        post_id:string,
+        params:string | string[],
+        transaction?: Transaction
+    ){
+        if (Array.isArray(params)) {
+            return await this.gamePostRepository.destroy({
+                where: {
+                    post_id: post_id,
+                    game_id: {
+                        [Op.in]: params
+                    },
+                },
+                transaction
+            });
+        } else {
+            return await this.gamePostRepository.destroy({
+                where: {
+                    post_id: post_id,
+                    game_id: params,
+                },
+                transaction
+            });
+        }
+    }
+
     async setPin(game_id: string, post_id: string, state: boolean) {
         await this.gamePostRepository.update(
             { is_pinned: state },

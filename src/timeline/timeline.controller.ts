@@ -37,7 +37,7 @@ import { LikeService } from "src/like/like.service";
 import { PortfolioTimelineService } from "src/portfolio/portfolio-post/portfolio-post-timeline.service";
 import { PortfolioPostService } from "src/portfolio/portfolio-post/portfolio-post.service";
 import { PortfolioService } from "src/portfolio/portfolio.service";
-import { PoestedAtReturnDto, PostedAtCommunityDto, PostedAtDto } from "src/posted_at/dto/posted_at.dto";
+import { PostedAtGameReturnDto, PoestedAtReturnDto, PostedAtCommunityDto, PostedAtDto } from "src/posted_at/dto/posted_at.dto";
 import { PostedAtService } from "src/posted_at/posted_at.service";
 import { PostsDto } from "src/posts/dto/posts.dto";
 import { PostType } from "src/posts/enum/post-posttype.enum";
@@ -288,16 +288,20 @@ export class TimelineController {
                     true
                 )
                 : [];
+
+                const temp = []
         return {
             ...list,
-            result: list.result.map(item => {
+            result: list.result.map( item => {
                 const findInfo = postInfo.find(po => po.id === item.post_id);
                 const userInfo = setUsers.find(us => us.id === findInfo.user_id);
                 const findPostedAtInfo = postedAtInfos.find(pa => pa.posts_id === findInfo.id);
                 const likeData = likeList.find(li => li.post_id === item.post_id);
 
                 const targetCommunities: PoestedAtReturnDto[] = [];
+
                 findPostedAtInfo.community?.forEach(cItem => {
+                    
                     const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
                     const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
                     if (tCommunty !== undefined && tCommunityChannel !== undefined) {
@@ -307,6 +311,9 @@ export class TimelineController {
                         }));
                     }
                 });
+
+               
+
 
                 return new PostsDto({
                     ...findInfo,
@@ -692,6 +699,7 @@ export class TimelineController {
 
         const postInfo = await this.postService.findIds(list.result.map(item => item.post_id));
 
+        //이벤트 포스팅 강제로 삽입
         let date = new Date()
         let end_date : Date | number=  new Date(2022, 10, 20, 23, 59, 59)
         end_date = end_date.setTime(end_date.getTime())
@@ -1179,15 +1187,21 @@ export class TimelineController {
                 const findPostedAtInfo = postedAtInfos.find(pa => pa.posts_id === findInfo.id);
                 const likeData = likeList.find(li => li.post_id === item.post_id);
                 const targetCommunities: PoestedAtReturnDto[] = [];
+                
+                const targetGame: PostedAtGameReturnDto[] = []
+
                 findPostedAtInfo?.community?.forEach(cItem => {
                     const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
                     const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
+
                     if (tCommunty !== undefined && tCommunityChannel !== undefined) {
                         targetCommunities.push(new PoestedAtReturnDto({
                             community: new CommunityShortDto({ ...tCommunty?.get({ plain: true }) }),
                             channel: tCommunityChannel
                         }));
                     }
+                    console.log(cItem)
+
                 });
                 // const targetCommunities = communityService.filter(cItem => cItem.id === findPostedAtInfo.)
                 return new PostsDto({
@@ -1196,7 +1210,8 @@ export class TimelineController {
                     user: new UserDto({ ...userInfo }),
                     posted_at: new PostedAtDto({
                         ...findPostedAtInfo?.get({ plain: true }),
-                        community: targetCommunities
+                        community: targetCommunities,
+                        
                     }),
                     is_pinned: item.is_pinned
                 });
