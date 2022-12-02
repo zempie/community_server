@@ -40,6 +40,10 @@ import { ShareLogModule } from "./share/share_log/share_log.module";
 import { AdminModule } from './admin/admin.module';
 import { Admins } from "./admin/admin.entity";
 import { User } from "./user/user.entity";
+import { Notification } from "./notification/notification.entity"
+import { NotificationModule } from "./notification/notification.module" 
+import { UserMetaModule } from "./user_meta/user_meta.module"
+import { UserMeta } from "./user_meta/user_meta.entity";
 
 dotenv.config();
 const DB_HOSTNAME = process.env.DB_HOSTNAME;
@@ -84,7 +88,10 @@ const DB_NAME = process.env.DB_NAME;
                 GamePost,
                 Fcm,
                 Admins,
-                User
+                User,
+                Notification,
+                UserMeta
+
             ]
         }),
         CommunityModule,
@@ -101,7 +108,9 @@ const DB_NAME = process.env.DB_NAME;
         SchedulingModule,
         FcmModule,
         ShareLogModule,
-        AdminModule
+        AdminModule,
+        NotificationModule,
+        UserMetaModule
     ],
     controllers: [AppController],
     providers: [AppService]

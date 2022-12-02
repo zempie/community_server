@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import { FcmEnumType } from "./fcm.enum";
 import * as path from "path";
 import { Firebase } from "./firebase";
+import { User } from "src/user/user.entity";
 
 dotenv.config();
 

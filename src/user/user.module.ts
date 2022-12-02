@@ -19,19 +19,23 @@ import { HashtagLogModule } from "src/hashtag-log/hashtag-log.module";
 import { FcmModule } from "src/fcm/fcm.module";
 import { SearchKeywordLogService } from "src/search/search_keyword_log/search_keyword_log.service";
 import { SearchKeywordLog } from "src/search/search_keyword_log/search_keyword_log.entity";
+import { NotificationService } from "src/notification/notification.service";
+import { Notification } from "src/notification/notification.entity";
+
+
 
 @Module({
     imports: [
-        SequelizeModule.forFeature([User, Community, Block, Posts, Like, SearchKeywordLog]),
+        SequelizeModule.forFeature([User, Community, Block, Posts, Like, SearchKeywordLog, Notification]),
         FollowModule,
         CommunityJoinModule,
         PortfolioModule,
         CommonInfoModule,
         HashtagLogModule,
-        FcmModule
+        FcmModule,
     ],
     controllers: [UserController, TagController],
-    providers: [UserService, CommunityService, BlockService, PostsService, LikeService, SearchKeywordLogService],
+    providers: [UserService, CommunityService, BlockService, PostsService, LikeService, SearchKeywordLogService, NotificationService],
     exports: [UserService]
 })
 export class UserModule {}

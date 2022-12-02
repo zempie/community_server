@@ -152,6 +152,8 @@ export class PostsLogicService {
                     ).catch(err => {
                         console.error(err);
                     })
+                 
+
                 }
             }
 

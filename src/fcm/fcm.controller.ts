@@ -24,7 +24,7 @@ export class FcmController {
 
         return {
             ...userInfo,
-            ...tokenInfo
+            token: tokenInfo
         };
     }
 
