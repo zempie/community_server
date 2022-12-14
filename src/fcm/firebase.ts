@@ -53,6 +53,7 @@ export interface TopicList {
   SendFCM = (FcmKeys: string[], Title: string, Body: string, Type: string, Value = "", Image = null) => {
       this.__checkAllowType(Type)
       const message: FirebaseAdmin.messaging.MulticastMessage = {
+        
           notification: {
               //title: Title,   //제목
               body: Body,  //보낼메시지
@@ -62,6 +63,14 @@ export interface TopicList {
               type: Type,
               body: Body,
               value: Value
+          },
+          apns: {
+            payload: {
+              aps: {
+                contentAvailable: true,
+                badge : 0
+              },
+            },
           },
           tokens: FcmKeys,
           android: {
