@@ -154,7 +154,7 @@ export class UserController {
                 follow.id
             );
 
-           const result =  await this.notificationService.create({
+           const result = await this.notificationService.create({
                 user_id:user.id,
                 target_user_id: user_id,
                 content:'',
