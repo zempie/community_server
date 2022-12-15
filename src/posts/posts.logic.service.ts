@@ -26,6 +26,9 @@ import { PostStatus } from "./enum/post-status.enum";
 import { Visibility } from "./enum/post-visibility.enum";
 import { Posts } from "./posts.entity";
 import { PostsService } from "./posts.service";
+import { NotificationService } from "src/notification/notification.service";
+import { eNotificationType } from "src/notification/enum/notification.enum";
+
 
 @Injectable()
 export class PostsLogicService {
@@ -42,7 +45,9 @@ export class PostsLogicService {
         private channelService: CommunityChannelService,
         private blockService: BlockService,
         private fcmService: FcmService,
-        private communityService: CommunityService
+        private communityService: CommunityService,
+        private notificationService: NotificationService,
+
     ) {
 
     }
@@ -381,6 +386,14 @@ export class PostsLogicService {
             FcmEnumType.USER,
             post_id
         );
+
+        await this.notificationService.create({
+            user_id:user.id,
+            target_user_id:postInfo.user_id,
+            content:comment.content,
+            target_id:postInfo.id,
+            type:eNotificationType.comment
+        })
 
         await this.postsService.commentCnt(post_id, true);
         const rData = new CommentDto({ ...comment.get({ plain: true }), is_read: true });
