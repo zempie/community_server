@@ -39,6 +39,8 @@ select
     `zempie`.`games`.`url_thumb` AS `url_thumb`,
     `zempie`.`games`.`url_thumb_webp` AS `url_thumb_webp`,
     `zempie`.`games`.`url_thumb_gif` AS `url_thumb_gif`,
+    `zempie`.`games`.`game_type` AS `game_type`,
+    `zempie`.`games`.`stage` AS `stage`,
     `zempie`.`games`.`created_at` AS `created_at`,
     `zempie`.`games`.`updated_at` AS `updated_at`,
     `zempie`.`games`.`deleted_at` AS `deleted_at`
