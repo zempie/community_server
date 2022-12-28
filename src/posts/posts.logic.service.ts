@@ -28,6 +28,8 @@ import { Posts } from "./posts.entity";
 import { PostsService } from "./posts.service";
 import { NotificationService } from "src/notification/notification.service";
 import { eNotificationType } from "src/notification/enum/notification.enum";
+import { detectLanguage } from "src/util/google";
+import { stringToHTML } from "src/util/util";
 
 
 @Injectable()
@@ -54,6 +56,9 @@ export class PostsLogicService {
 
     async createPost(data: CreatePostsDto) {
         const userInfo = await this.userService.findOneByUid(data.user_uid);
+
+        //  const detections = await detectLanguage(data.post_contents)
+
         if (userInfo === null) {
             throw new ForbiddenException();
         }
@@ -148,6 +153,8 @@ export class PostsLogicService {
             if (data.user_tagId) {
                 for (const item of data.user_tagId) {
                     const authorTokenInfo = await this.fcmService.getTokenByUserId(item["id"]);
+
+
                     await this.fcmService.sendFCM(
                         authorTokenInfo,
                         "Mentioned you in the post",
@@ -378,11 +385,13 @@ export class PostsLogicService {
         });
 
         const authorTokenInfo = await this.fcmService.getTokenByUserId(postInfo.user_id);
+        
+        const converted = stringToHTML( postInfo.content ).slice(0,10)
+
         await this.fcmService.sendFCM(
             authorTokenInfo,
             "Comments",
-            `${writerInfo.name} commented on ${postInfo.content}
-            ${comment.content}`,
+            `${writerInfo.name} commented on ${converted}`,
             FcmEnumType.USER,
             post_id
         );

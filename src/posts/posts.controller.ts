@@ -71,6 +71,7 @@ import { PostsLogicService } from "./posts.logic.service";
 import { AdminFcmService } from "src/admin/fcm/admin.fcm.service";
 import { NotificationService } from "src/notification/notification.service";
 import { eNotificationType } from "src/notification/enum/notification.enum";
+import { stringToHTML } from "src/util/util";
 
 @Controller("api/v1/post")
 @ApiTags("api/v1/post")
@@ -461,10 +462,12 @@ export class PostsController {
         const checkLike = await this.likeService.likeCommentByUserId(post_id, comment_id, user.id);
         const authorTokenInfo = await this.fcmService.getTokenByUserId(existComment.user_id);
 
+        const converted = stringToHTML( existComment.content ).slice(0,10)
+
         await this.fcmService.sendFCM(
             authorTokenInfo,
             "Comments Likes",
-            `${user.name} liked commented on ${existComment.content}`,
+            `${user.name} liked commented on ${converted}`,
             FcmEnumType.USER,
             comment_id
         );
