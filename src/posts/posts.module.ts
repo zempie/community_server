@@ -27,6 +27,7 @@ import { LikeLog } from "src/like/like_log/like_log.entity";
 import { LikeLogService } from "src/like/like_log/like_log.service";
 import { PostsLogicService } from "./posts.logic.service";
 import { AdminFcmModule } from "src/admin/fcm/admin.fcm.module";
+import { NotificationModule } from "src/notification/notification.module";
 
 @Module({
     imports: [
@@ -46,7 +47,8 @@ import { AdminFcmModule } from "src/admin/fcm/admin.fcm.module";
         GamePostModule,
         CommonInfoModule,
         FcmModule,
-        AdminFcmModule
+        AdminFcmModule,
+        NotificationModule
     ],
     providers: [PostsService, CommunityService, PostsViewLogService, LikeLogService, PostsLogicService],
     controllers: [PostsController],

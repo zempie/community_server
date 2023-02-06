@@ -26,6 +26,11 @@ import { PostStatus } from "./enum/post-status.enum";
 import { Visibility } from "./enum/post-visibility.enum";
 import { Posts } from "./posts.entity";
 import { PostsService } from "./posts.service";
+import { NotificationService } from "src/notification/notification.service";
+import { eNotificationType } from "src/notification/enum/notification.enum";
+import { detectLanguage } from "src/util/google";
+import { stringToHTML } from "src/util/util";
+
 
 @Injectable()
 export class PostsLogicService {
@@ -42,13 +47,18 @@ export class PostsLogicService {
         private channelService: CommunityChannelService,
         private blockService: BlockService,
         private fcmService: FcmService,
-        private communityService: CommunityService
+        private communityService: CommunityService,
+        private notificationService: NotificationService,
+
     ) {
 
     }
 
     async createPost(data: CreatePostsDto) {
         const userInfo = await this.userService.findOneByUid(data.user_uid);
+
+        //  const detections = await detectLanguage(data.post_contents)
+
         if (userInfo === null) {
             throw new ForbiddenException();
         }
@@ -143,6 +153,8 @@ export class PostsLogicService {
             if (data.user_tagId) {
                 for (const item of data.user_tagId) {
                     const authorTokenInfo = await this.fcmService.getTokenByUserId(item["id"]);
+
+
                     await this.fcmService.sendFCM(
                         authorTokenInfo,
                         "Mentioned you in the post",
@@ -152,6 +164,8 @@ export class PostsLogicService {
                     ).catch(err => {
                         console.error(err);
                     })
+                 
+
                 }
             }
 
@@ -371,15 +385,25 @@ export class PostsLogicService {
         });
 
         const authorTokenInfo = await this.fcmService.getTokenByUserId(postInfo.user_id);
-        await this.fcmService.sendFCM(
-            authorTokenInfo,
-            "Comments",
-            `${writerInfo.name} commented on ${postInfo.content}
-            ${comment.content}`,
-            FcmEnumType.USER,
-            post_id
-        );
+        
+        const converted = stringToHTML( postInfo.content ).slice(0,10)
 
+        if(writerInfo.id !== comment.user_id){
+            await this.fcmService.sendFCM(
+                authorTokenInfo,
+                "Comments",
+                `${writerInfo.name} commented on ${converted}`,
+                FcmEnumType.USER,
+                post_id
+            );
+            await this.notificationService.create({
+                user_id:user.id,
+                target_user_id:postInfo.user_id,
+                content:comment.content,
+                target_id:postInfo.id,
+                type:eNotificationType.comment
+            })
+        }
         await this.postsService.commentCnt(post_id, true);
         const rData = new CommentDto({ ...comment.get({ plain: true }), is_read: true });
         const result = await this.commonInfoService.setCommentInfo([rData], user);

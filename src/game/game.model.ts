@@ -64,6 +64,12 @@ export class GameDTO {
     url_thumb_gif: string;
 
     @ApiProperty()
+    game_type: number;
+
+    @ApiProperty()
+    stage: number;
+    
+    @ApiProperty()
     created_at: Date;
 
     @ApiProperty()

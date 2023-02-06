@@ -15,6 +15,7 @@ import {
     Query
 } from "@nestjs/common";
 import { ApiNotFoundResponse, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { parse } from 'node-html-parser';
 import { PostsService } from "./posts.service";
 import { CreatePosts, CreatePostsDto } from "./dto/create-posts.dto";
 import { Posts } from "./posts.entity";
@@ -68,6 +69,9 @@ import { PostsViewLogService } from "./posts_view_log/posts_view_log_service";
 import { LikeLogService } from "src/like/like_log/like_log.service";
 import { PostsLogicService } from "./posts.logic.service";
 import { AdminFcmService } from "src/admin/fcm/admin.fcm.service";
+import { NotificationService } from "src/notification/notification.service";
+import { eNotificationType } from "src/notification/enum/notification.enum";
+import { stringToHTML } from "src/util/util";
 
 @Controller("api/v1/post")
 @ApiTags("api/v1/post")
@@ -94,7 +98,7 @@ export class PostsController {
         private likeLogService: LikeLogService,
         private postsLogicService: PostsLogicService,
         private adminFcmService: AdminFcmService,
-
+        private notificationService: NotificationService,
     ) { }
 
     @Get(":post_id")
@@ -217,10 +221,33 @@ export class PostsController {
         const exist = await this.likeService.likePostByUserId(post_id, user.id);
         let post = await this.postsService.findOne(post_id);
         const log = await this.likeLogService.checkExist(user.id, post_id, LikeType.POST);
+        const authorTokenInfo = await this.fcmService.getTokenByUserId(post.user_id);
         if (log === null) {
             await this.likeLogService.create(user.id, post_id, LikeType.POST);
         }
+
+        const post_text = parse(post.content).text.slice(0,30)
+
+
         if (exist !== null) {
+            if( user.id !== post.user_id) {
+                await this.fcmService.sendFCM(
+                    authorTokenInfo,
+                    "Likes",
+                    `${user.name} liked your posting`,
+                    FcmEnumType.USER,
+                    post_id,
+                );
+
+                await this.notificationService.create({
+                    user_id:user.id,
+                    target_user_id:post.user_id,
+                    content:post_text,
+                    target_id:post.id,
+                    type:eNotificationType.post_like
+                })
+            }
+            
             return new ReturnLikeDto({
                 ...exist.get({ plain: true }),
                 is_read: user.id === post.user_id ? true : false
@@ -236,24 +263,44 @@ export class PostsController {
         const likeCnt = await this.likeService.postLikeCnt(post_id, LikeType.POST, true)
         post = await this.postsService.update(post.id, { like_cnt: likeCnt })
 
-        const authorTokenInfo = await this.fcmService.getTokenByUserId(post.user_id);
-        if (post.like_cnt === 1) {
+        //문제가있음...
+        // if (post.like_cnt === 1) {
+        if( user.id !== post.user_id) {
             await this.fcmService.sendFCM(
-                authorTokenInfo,
-                "Likes",
-                `${user.name} liked your posting`,
-                FcmEnumType.USER,
-                post_id
+            authorTokenInfo,
+            "Likes",
+            `${user.name} liked your posting`,
+            FcmEnumType.USER,
+            post_id
             );
-        } else {
-            await this.fcmService.sendFCM(
-                authorTokenInfo,
-                "Likes",
-                `recent liked ${user.name} and ${post.like_cnt - 1} others liked your posting`,
-                FcmEnumType.USER,
-                post_id
-            );
+        
+            await this.notificationService.create({
+                user_id:user.id,
+                target_user_id:post.user_id,
+                content:post_text,
+                target_id:post.id,
+                type:eNotificationType.post_like
+                
+            })
         }
+
+        // } else {
+        //     await this.fcmService.sendFCM(
+        //         authorTokenInfo,
+        //         "Likes",
+        //         `recent liked ${user.name} and ${post.like_cnt - 1} others liked your posting`,
+        //         FcmEnumType.USER,
+        //         post_id
+        //     );
+           
+        //     await this.notificationService.create({
+        //         user_id:user.id,
+        //         target_user_id:post.user_id,
+        //         content:`liked your posting`,
+        //         target_id:post.id,
+        //         type:eNotificationType.post_like         
+        //     })
+        // }
 
         return new ReturnLikeDto({
             ...like.get({ plain: true }),
@@ -416,13 +463,24 @@ export class PostsController {
         const checkLike = await this.likeService.likeCommentByUserId(post_id, comment_id, user.id);
         const authorTokenInfo = await this.fcmService.getTokenByUserId(existComment.user_id);
 
-        await this.fcmService.sendFCM(
-            authorTokenInfo,
-            "Comments Likes",
-            `${user.name} liked commented on ${existComment.content}`,
-            FcmEnumType.USER,
-            comment_id
-        );
+        const converted = stringToHTML( existComment.content ).slice(0,10)
+
+        if ( user.id !== existComment.user_id){
+            await this.fcmService.sendFCM(
+                authorTokenInfo,
+                "Comments Likes",
+                `${user.name} liked commented on ${converted}`,
+                FcmEnumType.USER,
+                comment_id
+            );
+            await this.notificationService.create({
+                user_id:user.id,
+                target_user_id: existComment.user_id,
+                content:`liked your comment`,
+                target_id:existComment.id,
+                type:eNotificationType.comment_like
+            })
+        }
 
         if (checkLike === null) {
             // await this.commentService.setLikeCnt(comment_id, post_id, true);

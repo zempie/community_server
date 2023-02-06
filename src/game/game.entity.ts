@@ -92,6 +92,12 @@ export class Game extends Model {
     @Column({})
     url_thumb_gif: string;
 
+    @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
+    game_type: number;
+
+    @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
+    stage: number;
+
     @CreatedAt
     created_at: Date;
 

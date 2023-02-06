@@ -46,6 +46,10 @@ import { UserSortDto } from "./dto/user-sort.dto";
 import { FcmEnumType } from "src/fcm/fcm.enum";
 import { FcmService } from "src/fcm/fcm.service";
 import { SearchKeywordLogService } from "src/search/search_keyword_log/search_keyword_log.service";
+import { NotificationService } from "src/notification/notification.service";
+import { eNotificationType } from "src/notification/enum/notification.enum";
+
+
 
 @Controller("api/v1/user")
 @ApiTags("api/v1/user")
@@ -60,7 +64,9 @@ export class UserController {
         private postsService: PostsService,
         private likeService: LikeService,
         private commonInfoService: CommonInfoService,
-        private fcmService: FcmService
+        private fcmService: FcmService,
+        private notificationService: NotificationService,
+
     ) {}
 
     @Get(":user_id/totalPost")
@@ -147,6 +153,15 @@ export class UserController {
                 FcmEnumType.USER,
                 follow.id
             );
+
+           const result = await this.notificationService.create({
+                user_id:user.id,
+                target_user_id: user_id,
+                content:'',
+                target_id:userInfo.uid,
+                type:eNotificationType.follow
+                
+            })
         }
 
         return new ReturnFollowDto({
