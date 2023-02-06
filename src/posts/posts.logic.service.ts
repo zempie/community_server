@@ -388,22 +388,22 @@ export class PostsLogicService {
         
         const converted = stringToHTML( postInfo.content ).slice(0,10)
 
-        await this.fcmService.sendFCM(
-            authorTokenInfo,
-            "Comments",
-            `${writerInfo.name} commented on ${converted}`,
-            FcmEnumType.USER,
-            post_id
-        );
-
-        await this.notificationService.create({
-            user_id:user.id,
-            target_user_id:postInfo.user_id,
-            content:comment.content,
-            target_id:postInfo.id,
-            type:eNotificationType.comment
-        })
-
+        if(writerInfo.id !== comment.user_id){
+            await this.fcmService.sendFCM(
+                authorTokenInfo,
+                "Comments",
+                `${writerInfo.name} commented on ${converted}`,
+                FcmEnumType.USER,
+                post_id
+            );
+            await this.notificationService.create({
+                user_id:user.id,
+                target_user_id:postInfo.user_id,
+                content:comment.content,
+                target_id:postInfo.id,
+                type:eNotificationType.comment
+            })
+        }
         await this.postsService.commentCnt(post_id, true);
         const rData = new CommentDto({ ...comment.get({ plain: true }), is_read: true });
         const result = await this.commonInfoService.setCommentInfo([rData], user);

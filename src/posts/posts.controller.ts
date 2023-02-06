@@ -228,31 +228,30 @@ export class PostsController {
 
         const post_text = parse(post.content).text.slice(0,30)
 
+
         if (exist !== null) {
+            if( user.id !== post.user_id) {
+                await this.fcmService.sendFCM(
+                    authorTokenInfo,
+                    "Likes",
+                    `${user.name} liked your posting`,
+                    FcmEnumType.USER,
+                    post_id,
+                );
 
-            await this.fcmService.sendFCM(
-                authorTokenInfo,
-                "Likes",
-                `${user.name} liked your posting`,
-                FcmEnumType.USER,
-                post_id,
-            );
-
-
-            await this.notificationService.create({
-                user_id:user.id,
-                target_user_id:post.user_id,
-                content:post_text,
-                target_id:post.id,
-                type:eNotificationType.post_like
-            })
-       
-           
+                await this.notificationService.create({
+                    user_id:user.id,
+                    target_user_id:post.user_id,
+                    content:post_text,
+                    target_id:post.id,
+                    type:eNotificationType.post_like
+                })
+            }
+            
             return new ReturnLikeDto({
                 ...exist.get({ plain: true }),
                 is_read: user.id === post.user_id ? true : false
             });
-            
         }
 
         // post = await this.postsService.likeCnt(post_id, true);
@@ -266,22 +265,24 @@ export class PostsController {
 
         //문제가있음...
         // if (post.like_cnt === 1) {
-         await this.fcmService.sendFCM(
+        if( user.id !== post.user_id) {
+            await this.fcmService.sendFCM(
             authorTokenInfo,
             "Likes",
             `${user.name} liked your posting`,
             FcmEnumType.USER,
             post_id
-        );
-       
-        await this.notificationService.create({
-            user_id:user.id,
-            target_user_id:post.user_id,
-            content:post_text,
-            target_id:post.id,
-            type:eNotificationType.post_like
-            
-        })
+            );
+        
+            await this.notificationService.create({
+                user_id:user.id,
+                target_user_id:post.user_id,
+                content:post_text,
+                target_id:post.id,
+                type:eNotificationType.post_like
+                
+            })
+        }
 
         // } else {
         //     await this.fcmService.sendFCM(
@@ -464,20 +465,22 @@ export class PostsController {
 
         const converted = stringToHTML( existComment.content ).slice(0,10)
 
-        await this.fcmService.sendFCM(
-            authorTokenInfo,
-            "Comments Likes",
-            `${user.name} liked commented on ${converted}`,
-            FcmEnumType.USER,
-            comment_id
-        );
-        await this.notificationService.create({
-            user_id:user.id,
-            target_user_id: existComment.user_id,
-            content:`liked your comment`,
-            target_id:existComment.id,
-            type:eNotificationType.comment_like
-        })
+        if ( user.id !== existComment.user_id){
+            await this.fcmService.sendFCM(
+                authorTokenInfo,
+                "Comments Likes",
+                `${user.name} liked commented on ${converted}`,
+                FcmEnumType.USER,
+                comment_id
+            );
+            await this.notificationService.create({
+                user_id:user.id,
+                target_user_id: existComment.user_id,
+                content:`liked your comment`,
+                target_id:existComment.id,
+                type:eNotificationType.comment_like
+            })
+        }
 
         if (checkLike === null) {
             // await this.commentService.setLikeCnt(comment_id, post_id, true);
