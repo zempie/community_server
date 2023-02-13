@@ -63,7 +63,7 @@ export class FcmService {
         return true;
     }
 
-    async sendFCM(tokens: string[], title: string, body: string, type: FcmEnumType, value = "", image = null) {
+    async sendFCM(tokens: string[], title: string, body: string, type: FcmEnumType, value = "", image = process.env.FCM_IMG) {
         if (tokens.length === 0) {
             return null;
         }
