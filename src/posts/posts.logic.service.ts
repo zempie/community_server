@@ -388,7 +388,7 @@ export class PostsLogicService {
         
         const converted = stringToHTML( postInfo.content ).slice(0,10)
 
-        if(writerInfo.id !== comment.user_id){
+        if(writerInfo.id !== postInfo.user_id){
             await this.fcmService.sendFCM(
                 authorTokenInfo,
                 "Comments",

@@ -61,13 +61,31 @@ export interface TopicList {
               //Title: Title,
               type: Type,
               body: Body,
-              value: Value
+              value: Value,
+              icon:process.env.FCM_IMG              
           },
           tokens: FcmKeys,
+          apns:{
+            payload:{
+                aps:{
+                    body: Body,
+                    channelId: Type,
+                    icon:process.env.FCM_IMG
+                }
+            }
+          },
+          webpush:{
+            notification:{
+                body: Body,
+                channelId: Type,
+                icon:process.env.FCM_IMG
+            }
+          },
           android: {
               notification: {
                   body: Body,
-                  channelId: Type
+                  channelId: Type,
+                  icon:process.env.FCM_IMG
               }
           }
       }
