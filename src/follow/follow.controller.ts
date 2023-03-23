@@ -58,13 +58,13 @@ export class FollowController {
             joinInfo = await this.communityJoinService.findbyUserId(item.id);
             const users = await this.userService.findByIds(joinInfo.map(item => item.user_id));
             const communityInfo: ReturnCommunityJoinDto[] = joinInfo.map(item => {
-                const userInfo = users.find(us => us.id === item.user_id) ?? { uid: null, email: null, name: null, channel_id: null, picture: null };
+                const userInfo = users.find(us => us.id === item.user_id) ?? { uid: null, email: null, name: null, nickname:null,  channel_id: null, picture: null };
                 return {
                     id: item.user_id,
                     uid: userInfo.uid,
                     email: userInfo.email,
                     name: userInfo.name,
-                    // nickName: userInfo.na
+                    nickname: userInfo.nickname,
                     channel_id: userInfo.channel_id,
                     profile_img: userInfo.picture,
                     created_at: item.created_at,
@@ -110,13 +110,13 @@ export class FollowController {
             joinInfo = await this.communityJoinService.findbyUserId(item.id);
             const users = await this.userService.findByIds(joinInfo.map(item => item.user_id));
             const communityInfo: ReturnCommunityJoinDto[] = joinInfo.map(item => {
-                const userInfo = users.find(us => us.id === item.user_id) ?? { uid: null, email: null, name: null, channel_id: null, picture: null };
+                const userInfo = users.find(us => us.id === item.user_id) ?? { uid: null, email: null, name: null, nickname:null, channel_id: null, picture: null };
                 return {
                     id: item.user_id,
                     uid: userInfo.uid,
                     email: userInfo.email,
                     name: userInfo.name,
-                    // nickName: userInfo.na
+                    nickname: userInfo.nickname,
                     channel_id: userInfo.channel_id,
                     profile_img: userInfo.picture,
                     created_at: item.created_at,

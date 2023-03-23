@@ -19,8 +19,10 @@ export class ReturnCommunityJoinDto extends CommunityUserModelAddCnt {
 
     @ApiProperty()
     name: string;
-    // @ApiProperty()
-    // nickName:string;
+
+    @ApiProperty()
+    nickname:string;
+
     @ApiProperty()
     channel_id: string;
 

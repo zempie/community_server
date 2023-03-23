@@ -146,6 +146,7 @@ export class UserController {
                 follow_id: user_id
             });
             const authorTokenInfo = await this.fcmService.getTokenByUserId(user_id);
+
             await this.fcmService.sendFCM(
                 authorTokenInfo,
                 "Follow",

@@ -54,6 +54,7 @@ export class FollowService extends BaseService<Follow> {
                 ${isFollow ? "follower" : "user"}.uid as uid,
                 ${isFollow ? "follower" : "user"}.email as email,
                 ${isFollow ? "follower" : "user"}.name as name,
+                ${isFollow ? "follower" : "user"}.nickname as nickname,
                 ${isFollow ? "follower" : "user"}.channel_id as channel_id,
                 ${isFollow ? "follower" : "user"}.created_at as created_at,
                 ${isFollow ? "follower" : "user"}.picture as profile_img,
