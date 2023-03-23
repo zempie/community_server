@@ -18,6 +18,9 @@ export class User extends Model {
     name: string;
 
     @Column({})
+    nickname: string;
+
+    @Column({})
     channel_id: string;
 
     @Column({})

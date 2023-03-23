@@ -20,6 +20,11 @@ export class UserDto extends CommunityUserModelAddCnt {
     name: string;
 
     @ApiProperty({
+        description: "사용자 이름"
+    })
+    nickname: string;
+
+    @ApiProperty({
         description: "유저 고유 채널 id"
     })
     channel_id: string;

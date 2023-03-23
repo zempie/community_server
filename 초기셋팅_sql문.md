@@ -55,6 +55,7 @@ select
     `zempie`.`users`.`activated` AS `activated`,
     `zempie`.`users`.`banned` AS `banned`,
     `zempie`.`users`.`name` AS `name`,
+    `zempie`.`users`.`nickname` AS `nickname`,
     `zempie`.`users`.`channel_id` AS `channel_id`,
     `zempie`.`users`.`picture` AS `picture`,
     `zempie`.`users`.`provider` AS `provider`,
