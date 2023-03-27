@@ -223,7 +223,7 @@ export class CommunityController {
                 uid: userInfo ? userInfo.uid : null,
                 email: userInfo ? userInfo.email : null,
                 name: userInfo ? userInfo.name : null,
-                // nickName: userInfo.na
+                nickname: userInfo ? userInfo.nickname : null,
                 url_banner: userInfo ? userInfo.url_banner : null,
                 channel_id: userInfo ? userInfo.channel_id : null,
                 profile_img: userInfo ? userInfo.picture : null,

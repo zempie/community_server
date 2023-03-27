@@ -51,9 +51,16 @@ export class UserService extends BaseService<User> {
     async search(query: UserSearchQuery) {
         return await super.find({
             where: {
+                [Op.or]: [
+                    {
                 name: {
                     [Op.like]: `%${query.username}%`
                 },
+            },{
+                nickname: {
+                    [Op.like]: `%${query.username}%`
+                
+                }}]
             },
             limit: query.limit,
             offset: query.offset

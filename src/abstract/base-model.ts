@@ -84,7 +84,7 @@ export abstract class CommunityUserModel extends CommunityUserModelAddCnt {
     name: string;
 
     @ApiProperty({ description: "닉네임" })
-    nickName: string;
+    nickname: string;
 
     @ApiProperty({ description: "회원 채널 ID" })
     channel_id: string;
