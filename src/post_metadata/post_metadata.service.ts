@@ -30,7 +30,7 @@ export class PostMetadataService {
           data.video_url = `${EMBED_LINK}/${videoId}`
         }
       }catch(e){
-        throw new HttpException("youtube api error", HttpStatus.YOUTUBE_ERROR)
+        throw e;
       }
     
   }
