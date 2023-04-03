@@ -169,6 +169,26 @@ KEY `posts_id` (`posts_id`),
 CONSTRAINT `posted_at_ibfk_1` FOREIGN KEY (`posts_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+
+CREATE TABLE `post_metadata` (
+`id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+`created_at` datetime DEFAULT NULL,
+`updated_at` datetime DEFAULT NULL,
+`deleted_at` datetime DEFAULT NULL,
+`posts_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+`type` int NOT NULL,
+`url` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+`site_name` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+`title` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+`description` varchar(5000) COLLATE utf8mb4_general_ci DEFAULT NULL,
+`img` varchar(500) COLLATE utf8mb4_general_ci DEFAULT NULL,
+`favicon` varchar(500) COLLATE utf8mb4_general_ci DEFAULT NULL,
+`video_info` varchar(500) COLLATE utf8mb4_general_ci DEFAULT NULL,
+PRIMARY KEY (`id`),
+KEY `posts_id` (`posts_id`),
+CONSTRAINT `post_metadata_ibfk_1` FOREIGN KEY (`posts_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 CREATE TABLE `file` (
 `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
 `created_at` datetime DEFAULT NULL,

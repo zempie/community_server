@@ -4,6 +4,7 @@ import { IsEmpty, IsEnum, IsNotEmpty, ValidateNested, IsArray, IsString } from "
 import { File } from "src/file/file.dto";
 import { Game } from "src/game/game.entity";
 import { PostedAtCommunityDto, PostedAtGameDto } from "src/posted_at/dto/posted_at.dto";
+import { PostMetadataDto } from "src/post_metadata/dto/post_metadata.dto";
 import { PostType } from "../enum/post-posttype.enum";
 import { PostStatus } from "../enum/post-status.enum";
 import { Visibility } from "../enum/post-visibility.enum";
@@ -107,7 +108,7 @@ export class CreatePostsDto {
     //     description: "커뮤니티에 올린경우 커뮤니티 id",
     //     required: false
     // })
-    // community_id: string[];
+    // community_id: string[];ㅈ
 
     // @ApiProperty({
     //     description: "커뮤니티 채널에 올린 경우",
@@ -127,6 +128,13 @@ export class CreatePostsDto {
         required: false
     })
     scheduled_for?: number;
+
+    @ApiProperty({
+        description: "메타 데이터 저장 할 url",
+        required: false
+    })
+    metadata?: PostMetadataDto;
+
 }
 
 export class CreatePosts {
@@ -161,6 +169,9 @@ export class CreatePosts {
     is_retweet?: boolean;
 
     retweet_id?: string;
+
+    metadata?: PostMetadataDto;
+
 }
 
 

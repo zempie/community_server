@@ -12,6 +12,8 @@ import { LikeService } from "src/like/like.service";
 import { PostsDto } from "src/posts/dto/posts.dto";
 import { Posts } from "src/posts/posts.entity";
 import { PostsService } from "src/posts/posts.service";
+import { PostMetadataDto } from "src/post_metadata/dto/post_metadata.dto";
+import { PostMetadataService } from "src/post_metadata/post_metadata.service";
 import { UserDto } from "src/user/dto/user.dto";
 import { User } from "src/user/user.entity";
 import { UserService } from "src/user/user.service";
@@ -33,6 +35,8 @@ export class SearchController {
         private searchKeywordLogService: SearchKeywordLogService,
         private likeService: LikeService,
         private commonInfoservice: CommonInfoService,
+        private postMetadataService: PostMetadataService,
+
     ) { }
 
     @Get()
@@ -164,13 +168,19 @@ export class SearchController {
             const postUsers = await this.userService.findByIds(posts.result.map(item => item.user_id));
             const setInfoPostUsers = await this.commonInfoservice.setCommonInfo(postUsers.map(item => item.get({ plain: true }) as User), user)
             const likeInfos = user !== null ? await this.likeService.likePostByUserId(posts.result.map(item => item.id), user.id) : [];
+            const postMetadata = await this.postMetadataService.findByPostsId(posts.result.map(item => item.id))
+            
             const list = posts.result.map((item: any) => {
                 const postUser = setInfoPostUsers.find(user => user.id === item.user_id);
                 const like = likeInfos.find(lItem => lItem.post_id === item.id);
+                const metadataInfo = postMetadata.find(meta => meta.posts_id === item.id)
+
                 return new PostsDto({
                     ...item, user: new UserDto({ ...postUser }),
                     liked: like != null ? true : false,
-                    is_pinned: null
+                    is_pinned: null,
+                    metadata: new PostMetadataDto({ ...metadataInfo })
+
                 })
             })
             const gameInfo = await this.gameService.findAllActivated({

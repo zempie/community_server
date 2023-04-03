@@ -14,11 +14,13 @@ import { PortfolioPostModule } from "src/portfolio/portfolio-post/portfolio-post
 import { PortfolioModule } from "src/portfolio/portfolio.module";
 import { PostedAtModule } from "src/posted_at/posted_at.module";
 import { PostsModule } from "src/posts/posts.module";
+import { PostMetadataModule } from "src/post_metadata/post_metadata.module";
 import { SearchKeywordLog } from "src/search/search_keyword_log/search_keyword_log.entity";
 import { SearchKeywordLogService } from "src/search/search_keyword_log/search_keyword_log.service";
 import { User } from "src/user/user.entity";
 import { UserModule } from "src/user/user.module";
 import { ChannelController, TimelineController } from "./timeline.controller";
+import { TimelineService } from "./timeline.service";
 
 @Module({
     imports: [
@@ -37,10 +39,11 @@ import { ChannelController, TimelineController } from "./timeline.controller";
         LikeModule,
         BlockModule,
         CommunityModule,
-        CommunityChannelModule
+        CommunityChannelModule,
+        PostMetadataModule
     ],
     controllers: [TimelineController, ChannelController],
-    providers: [SearchKeywordLogService],
-    exports: []
+    providers: [SearchKeywordLogService, TimelineService],
+    exports: [TimelineService]
 })
 export class TimelineModule {}

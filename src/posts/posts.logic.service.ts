@@ -29,7 +29,10 @@ import { PostsService } from "./posts.service";
 import { NotificationService } from "src/notification/notification.service";
 import { eNotificationType } from "src/notification/enum/notification.enum";
 import { detectLanguage } from "src/util/google";
-import { stringToHTML } from "src/util/util";
+import { isArrayEmpty, stringToHTML } from "src/util/util";
+import { PostMetadataService } from "src/post_metadata/post_metadata.service";
+import { metadataType } from "src/post_metadata/enum/post_metadata.enum";
+import { PostMetadata } from "src/post_metadata/post_metadata.entity";
 
 
 @Injectable()
@@ -49,6 +52,7 @@ export class PostsLogicService {
         private fcmService: FcmService,
         private communityService: CommunityService,
         private notificationService: NotificationService,
+        private postMetadataService: PostMetadataService
 
     ) {
 
@@ -79,6 +83,8 @@ export class PostsLogicService {
         }
         const transaction = await this.postsService.sequelize().transaction();
         try {
+            let metadata: PostMetadata
+
             const post = await this.postsService.create(
                 {
                     ...data,
@@ -112,7 +118,22 @@ export class PostsLogicService {
                 transaction
             );
 
-            if (data.community !== undefined && data.community.length > 0) {
+            if (data.metadata) {
+                metadata = await this.postMetadataService.create(
+                {  
+                    posts_id: post.id,
+                    type: metadataType.website,
+                    url:data.metadata.url,
+                    title:data.metadata.title,
+                    description:data.metadata.description,
+                    img:data.metadata.img,
+                    favicon:data.metadata.favicon,
+                    site_name:data.metadata.site_name
+                    }, transaction
+                )
+            }
+
+            if (!isArrayEmpty(data.community)) {
                 await this.channelPostService.create(
                     data.community.map(item => ({
                         channel_id: item.channel_id,
@@ -125,7 +146,8 @@ export class PostsLogicService {
                 );
                 await this.communityService.setPostCnt(data.community.map(item => item.id), true, transaction)
             }
-            if (data.portfolio_ids !== undefined && Array.isArray(data.portfolio_ids) === true && data.portfolio_ids.length > 0) {
+
+            if (!isArrayEmpty(data.portfolio_ids))  {
                 await this.portfoliPostService.create(
                     data.portfolio_ids.map(item => ({
                         channel_id: userInfo.channel_id,
@@ -136,7 +158,7 @@ export class PostsLogicService {
                 );
             }
 
-            if (data.game !== undefined) {
+            if (data.game) {
                 await this.gamePostService.create(
                     data.game.map(item => ({
                         game_id: item.id,
@@ -169,7 +191,10 @@ export class PostsLogicService {
                 }
             }
 
+           
+
             const newInfo = await this.postsService.findOne(post.id);
+            
             if (data.community !== undefined && data.community.length > 0) {
                 newInfo.posted_at.community = data.community.map(item => ({
                     id: item.id,
@@ -178,6 +203,10 @@ export class PostsLogicService {
             }
             if (data.portfolio_ids !== undefined && Array.isArray(data.portfolio_ids) === true && data.portfolio_ids.length > 0) {
                 newInfo.posted_at.portfolio_ids = data.portfolio_ids;
+            }
+
+            if(metadata){
+                newInfo.metadata = metadata
             }
             return newInfo;
         } catch (error) {

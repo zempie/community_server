@@ -54,7 +54,9 @@ import { TimelineHashTagQueryDto } from "./dto/timeline-hashtag-query.dto";
 import { TimelineListQueryDTO } from "./dto/timeline-sort.dto";
 import { TimeLineMediaFilter, TimeLineSort } from "./enum/timeline-sort.enum";
 import { BaseQuery } from "src/abstract/base-query";
-
+import { PostMetadataService } from "src/post_metadata/post_metadata.service";
+import { PostMetadataDto } from "src/post_metadata/dto/post_metadata.dto";
+import { TimelineService } from "./timeline.service";
 
 
 @Controller("api/v1/timeline")
@@ -77,10 +79,11 @@ export class TimelineController {
         private searchKeywordLogService: SearchKeywordLogService,
         private blockService: BlockService,
         private communityService: CommunityService,
-        private communityChannelService: CommunityChannelService
+        private communityChannelService: CommunityChannelService,
+        private postMetadataService: PostMetadataService,
+        private timelineService : TimelineService
 
-    ) {
-    }
+    ) {    }
 
     @Get("/randomPost")
     @ZempieUseGuards(UserTokenCheckGuard)
@@ -290,43 +293,45 @@ export class TimelineController {
                 : [];
 
                 const temp = []
-        return {
-            ...list,
-            result: list.result.map( item => {
-                const findInfo = postInfo.find(po => po.id === item.post_id);
-                const userInfo = setUsers.find(us => us.id === findInfo.user_id);
-                const findPostedAtInfo = postedAtInfos.find(pa => pa.posts_id === findInfo.id);
-                const likeData = likeList.find(li => li.post_id === item.post_id);
+                return this.timelineService.getBaseTimeline(user, list)
 
-                const targetCommunities: PoestedAtReturnDto[] = [];
+        // return {
+        //     ...list,
+        //     result: list.result.map( item => {
+        //         const findInfo = postInfo.find(po => po.id === item.post_id);
+        //         const userInfo = setUsers.find(us => us.id === findInfo.user_id);
+        //         const findPostedAtInfo = postedAtInfos.find(pa => pa.posts_id === findInfo.id);
+        //         const likeData = likeList.find(li => li.post_id === item.post_id);
 
-                findPostedAtInfo.community?.forEach(cItem => {
+        //         const targetCommunities: PoestedAtReturnDto[] = [];
+
+        //         findPostedAtInfo.community?.forEach(cItem => {
                     
-                    const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
-                    const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
-                    if (tCommunty !== undefined && tCommunityChannel !== undefined) {
-                        targetCommunities.push(new PoestedAtReturnDto({
-                            community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
-                            channel: tCommunityChannel
-                        }));
-                    }
-                });
+        //             const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
+        //             const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
+        //             if (tCommunty !== undefined && tCommunityChannel !== undefined) {
+        //                 targetCommunities.push(new PoestedAtReturnDto({
+        //                     community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
+        //                     channel: tCommunityChannel
+        //                 }));
+        //             }
+        //         });
 
                
 
 
-                return new PostsDto({
-                    ...findInfo,
-                    liked: likeData !== undefined ? true : false,
-                    user: new UserDto({ ...userInfo }),
-                    posted_at: new PostedAtDto({
-                        ...findPostedAtInfo.get({ plain: true }),
-                        community: targetCommunities
-                    }),
-                    is_pinned: item.is_pinned
-                });
-            })
-        };
+        //         return new PostsDto({
+        //             ...findInfo,
+        //             liked: likeData !== undefined ? true : false,
+        //             user: new UserDto({ ...userInfo }),
+        //             posted_at: new PostedAtDto({
+        //                 ...findPostedAtInfo.get({ plain: true }),
+        //                 community: targetCommunities
+        //             }),
+        //             is_pinned: item.is_pinned
+        //         });
+        //     })
+        // };
     }
 
     @Get(":community_id/channel/:channel_id")
@@ -386,36 +391,38 @@ export class TimelineController {
                 )
                 : [];
 
-        return {
-            ...list,
-            result: list.result.map(item => {
-                const findInfo = postInfo.find(po => po.id === item.post_id);
-                const userInfo = setUsers.find(us => us.id === findInfo.user_id);
-                const findPostedAtInfo = postedAtInfos.find(pa => pa.posts_id === findInfo.id);
-                const likeData = likeList.find(li => li.post_id === item.post_id);
-                const targetCommunities: PoestedAtReturnDto[] = [];
-                findPostedAtInfo.community?.forEach(cItem => {
-                    const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
-                    const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
-                    if (tCommunty !== undefined && tCommunityChannel !== undefined) {
-                        targetCommunities.push(new PoestedAtReturnDto({
-                            community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
-                            channel: tCommunityChannel
-                        }));
-                    }
-                });
-                return new PostsDto({
-                    ...findInfo,
-                    liked: likeData !== undefined ? true : false,
-                    user: new UserDto({ ...userInfo }),
-                    posted_at: new PostedAtDto({
-                        ...findPostedAtInfo.get({ plain: true }),
-                        community: targetCommunities
-                    }),
-                    is_pinned: item.is_pinned
-                });
-            })
-        };
+        return this.timelineService.getBaseTimeline(user, inputWhere)
+
+        // return {
+        //     ...list,
+        //     result: list.result.map(item => {
+        //         const findInfo = postInfo.find(po => po.id === item.post_id);
+        //         const userInfo = setUsers.find(us => us.id === findInfo.user_id);
+        //         const findPostedAtInfo = postedAtInfos.find(pa => pa.posts_id === findInfo.id);
+        //         const likeData = likeList.find(li => li.post_id === item.post_id);
+        //         const targetCommunities: PoestedAtReturnDto[] = [];
+        //         findPostedAtInfo.community?.forEach(cItem => {
+        //             const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
+        //             const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
+        //             if (tCommunty !== undefined && tCommunityChannel !== undefined) {
+        //                 targetCommunities.push(new PoestedAtReturnDto({
+        //                     community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
+        //                     channel: tCommunityChannel
+        //                 }));
+        //             }
+        //         });
+        //         return new PostsDto({
+        //             ...findInfo,
+        //             liked: likeData !== undefined ? true : false,
+        //             user: new UserDto({ ...userInfo }),
+        //             posted_at: new PostedAtDto({
+        //                 ...findPostedAtInfo.get({ plain: true }),
+        //                 community: targetCommunities
+        //             }),
+        //             is_pinned: item.is_pinned
+        //         });
+        //     })
+        // };
     }
 
     @Get("channel/:channel_id")
@@ -564,55 +571,55 @@ export class TimelineController {
 
 
 
+        return this.timelineService.getBaseTimeline(user, list)
 
-        return {
-            ...list,
-            result: list.result.map(item => {
+        // return {
+        //     ...list,
+        //     result: list.result.map(item => {
 
-                const findInfo = postInfo.find(po => po.id === item.post_id);
-                const userInfo = findInfo !== undefined && setUsers.find(us => us.id === findInfo.user_id);
-                const findPostedAtInfo =
-                    findInfo !== undefined && (postedAtInfos.find(pa => pa.posts_id === findInfo.id) ?? null);
-                const likeData = likeList.find(li => li.post_id === item.post_id);
+        //         const findInfo = postInfo.find(po => po.id === item.post_id);
+        //         const userInfo = findInfo !== undefined && setUsers.find(us => us.id === findInfo.user_id);
+        //         const findPostedAtInfo =
+        //             findInfo !== undefined && (postedAtInfos.find(pa => pa.posts_id === findInfo.id) ?? null);
+        //         const likeData = likeList.find(li => li.post_id === item.post_id);
 
-                if (findInfo === undefined || findInfo === null || findPostedAtInfo === undefined || findPostedAtInfo === null) {
-                    return new PostsDto({
-                        content: "삭제된 포스팅입니다",
-                        id: null
-                    });
-                }
+        //         if (findInfo === undefined || findInfo === null || findPostedAtInfo === undefined || findPostedAtInfo === null) {
+        //             return new PostsDto({
+        //                 content: "삭제된 포스팅입니다",
+        //                 id: null
+        //             });
+        //         }
 
-                const targetCommunities: PoestedAtReturnDto[] = [];
-                findPostedAtInfo.community?.forEach(cItem => {
-                    const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
-                    const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
-                    if (tCommunty !== undefined && tCommunityChannel !== undefined) {
-                        targetCommunities.push(new PoestedAtReturnDto({
-                            community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
-                            channel: tCommunityChannel
-                        }));
-                    }
-                });
-                return new PostsDto({
-                    ...findInfo,
-                    liked: likeData !== undefined ? true : false,
-                    user: new UserDto({ ...userInfo }),
-                    posted_at: new PostedAtDto({
-                        ...findPostedAtInfo.get({ plain: true }),
-                        community: targetCommunities
-                    })
-                });
-            })
-        };
+        //         const targetCommunities: PoestedAtReturnDto[] = [];
+        //         findPostedAtInfo.community?.forEach(cItem => {
+        //             const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
+        //             const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
+        //             if (tCommunty !== undefined && tCommunityChannel !== undefined) {
+        //                 targetCommunities.push(new PoestedAtReturnDto({
+        //                     community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
+        //                     channel: tCommunityChannel
+        //                 }));
+        //             }
+        //         });
+        //         return new PostsDto({
+        //             ...findInfo,
+        //             liked: likeData !== undefined ? true : false,
+        //             user: new UserDto({ ...userInfo }),
+        //             posted_at: new PostedAtDto({
+        //                 ...findPostedAtInfo.get({ plain: true }),
+        //                 community: targetCommunities
+        //             })
+        //         });
+        //     })
+        // };
     }
 
     @Get("/mine")
     @ApiResponse({ status: 200, schema: CustomQueryResultResponseType(PostsDto) })
-    @ApiOperation({ description: "내 채널 타임라인 - following포함, Query 대문자 입력" })
+    @ApiOperation({ description: "내 채널 타임라인 - following 포함, Query 대문자 입력" })
     @ZempieUseGuards(UserTokenCheckGuard)
     async timelineAllUserChannel(
         @CurrentUser() user: User,
-        // @Param("channel_id") channel_id: string,
         @Query() query: TimelineListQueryDTO
     ) {
         const userInfo = await this.userService.findOneByUid(user.uid);
@@ -689,11 +696,16 @@ export class TimelineController {
 
         };
 
+
+
         if (query.media) {
             const setInfo = _setMediaFilter(whereIn, whereInclude, query.media);
             whereIn = setInfo.whereIn;
             inputWhere.include = setInfo.whereInclude;
         }
+
+        
+
 
         const list = await this.channelTimelineService.find(inputWhere);
 
@@ -768,48 +780,51 @@ export class TimelineController {
         const postedCommunities: PostedAtCommunityDto[] = [].concat(postedAtInfos.filter(item => item.community !== null).reduce((preV, item) => [...preV, ...item.community.reduce((cPreV, item2) => [...cPreV, item2], [])], []));
         const communityInfos = await this.communityService.findByIds(postedCommunities.map(item => item.id));
         const communityChannelInfos = await this.communityChannelService.findIds(postedCommunities.map(item => item.channel_id));
+        const postMetadata = await this.postMetadataService.findByPostsId(postInfo.map(item => item.id))
 
+        return this.timelineService.getBaseTimeline(user, list)
+        // return {
+        //     ...list,
+        //     result: list.result.map(item => {
 
-        return {
-            ...list,
-            result: list.result.map(item => {
+        //         const findInfo = postInfo.find(po => po.id === item.post_id);
+        //         const userInfo = findInfo !== undefined && setUsers.find(us => us.id === findInfo.user_id);
+        //         const findPostedAtInfo =
+        //             findInfo !== undefined && (postedAtInfos.find(pa => pa.posts_id === findInfo.id) ?? null);
+        //         const likeData = likeList.find(li => li.post_id === item.post_id);
+        //         if (findInfo === undefined || findInfo === null || findPostedAtInfo === undefined || findPostedAtInfo === null) {
+        //             return new PostsDto({
+        //                 content: "삭제된 포스팅입니다",
+        //                 id: null
+        //             });
+        //         }
 
-                
-                const findInfo = postInfo.find(po => po.id === item.post_id);
-                const userInfo = findInfo !== undefined && setUsers.find(us => us.id === findInfo.user_id);
-                const findPostedAtInfo =
-                    findInfo !== undefined && (postedAtInfos.find(pa => pa.posts_id === findInfo.id) ?? null);
-                const likeData = likeList.find(li => li.post_id === item.post_id);
+        //         const targetCommunities: PoestedAtReturnDto[] = [];
+        //         findPostedAtInfo.community?.forEach(cItem => {
+        //             const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
+        //             const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
+        //             if (tCommunty !== undefined && tCommunityChannel !== undefined) {
+        //                 targetCommunities.push(new PoestedAtReturnDto({
+        //                     community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
+        //                     channel: tCommunityChannel
+        //                 }));
+        //             }
+        //         });
 
-                if (findInfo === undefined || findInfo === null || findPostedAtInfo === undefined || findPostedAtInfo === null) {
-                    return new PostsDto({
-                        content: "삭제된 포스팅입니다",
-                        id: null
-                    });
-                }
+        //         const metadataInfo = postMetadata.find(meta => meta.posts_id === item.post_id)
 
-                const targetCommunities: PoestedAtReturnDto[] = [];
-                findPostedAtInfo.community?.forEach(cItem => {
-                    const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
-                    const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
-                    if (tCommunty !== undefined && tCommunityChannel !== undefined) {
-                        targetCommunities.push(new PoestedAtReturnDto({
-                            community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
-                            channel: tCommunityChannel
-                        }));
-                    }
-                });
-                return new PostsDto({
-                    ...findInfo,
-                    liked: likeData !== undefined ? true : false,
-                    user: new UserDto({ ...userInfo }),
-                    posted_at: new PostedAtDto({
-                        ...findPostedAtInfo.get({ plain: true }),
-                        community: targetCommunities
-                    })
-                });
-            })
-        };
+        //         return new PostsDto({
+        //             ...findInfo,
+        //             liked: likeData !== undefined ? true : false,
+        //             user: new UserDto({ ...userInfo }),
+        //             posted_at: new PostedAtDto({
+        //                 ...findPostedAtInfo.get({ plain: true }),
+        //                 community: targetCommunities
+        //             }),
+        //             metadata: new PostMetadataDto({...metadataInfo})
+        //         });
+        //     })
+        // };
     }
 
     @Post(":community_id/pin/:post_id")
@@ -1179,6 +1194,7 @@ export class TimelineController {
                 )
                 : [];
 
+        return this.timelineService.getBaseTimeline(user, list)
         return {
             ...list,
             result: list.result.map(item => {
@@ -1343,6 +1359,7 @@ function _setMediaFilter(whereIn, whereInclude, media: TimeLineMediaFilter, isRe
     }
     return { whereIn, whereInclude };
 }
+
 
 @Controller("api/v1/channel")
 @ApiTags("api/v1/channel")

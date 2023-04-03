@@ -9,6 +9,7 @@ import { User } from "src/user/user.entity";
 import { UserDto } from "src/user/dto/user.dto";
 import { PostAttatchmentFileDto } from "./create-posts.dto";
 import { PostedAtDto, PostedAtSimpleDto } from "src/posted_at/dto/posted_at.dto";
+import { PostMetadataDto } from "src/post_metadata/dto/post_metadata.dto";
 
 export class PostsDto {
     @ApiProperty()
@@ -69,6 +70,11 @@ export class PostsDto {
     @ApiProperty({ type: PostedAtDto })
     @IsEmpty({ always: true })
     posted_at?: PostedAtDto;
+
+    @ApiProperty({ type: PostMetadataDto })
+    @IsEmpty({ always: true })
+    metadata?: PostMetadataDto;
+
 
     constructor(partial: Partial<PostsDto>) {
         this.liked = partial.liked ? partial.liked : false;
@@ -141,6 +147,10 @@ export class PostsSimpleDto {
     @ApiProperty({ type: PostedAtSimpleDto })
     @IsEmpty({ always: true })
     posted_at?: PostedAtSimpleDto;
+
+    @ApiProperty({ type: PostMetadataDto })
+    @IsEmpty({ always: true })
+    metadata?: PostMetadataDto;
 
     constructor(partial: Partial<PostsSimpleDto>) {
         this.liked = partial.liked ? partial.liked : false;

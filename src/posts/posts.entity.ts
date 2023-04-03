@@ -7,6 +7,7 @@ import { Visibility } from "./enum/post-visibility.enum";
 import { BaseEntity } from "src/abstract/base-entity";
 import { PostAttatchmentFileDto } from "./dto/create-posts.dto";
 import { UserDto } from "src/user/dto/user.dto";
+import { PostMetadata } from "src/post_metadata/post_metadata.entity";
 
 @Table({ tableName: "posts", timestamps: true, paranoid: true })
 export class Posts extends BaseEntity {
@@ -111,6 +112,9 @@ export class Posts extends BaseEntity {
 
     @HasMany(() => PostedAt)
     posted_at: PostedAt;
+
+    @HasMany(() => PostMetadata)
+    metadata: PostMetadata;
 
     @Column
     scheduled_for: string;
