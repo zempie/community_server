@@ -19,6 +19,7 @@ import { PortfolioPost } from "src/portfolio/portfolio-post/portfolio-post.entit
 import { Portfolio } from "src/portfolio/portfolio.entity";
 import { PostedAt } from "src/posted_at/posted_at.entity";
 import { Posts } from "src/posts/posts.entity";
+import { PostMetadata } from "src/post_metadata/post_metadata.entity";
 import { Report } from "src/report/report.entity";
 import { User } from "src/user/user.entity";
 import { Seeder } from "./seeder";
@@ -66,6 +67,7 @@ const DB_NAME = process.env.DB_NAME;
                 ChannelPost,
                 GamePost,
                 Game,
+                PostMetadata
             ]
         }),
         SequelizeModule.forFeature([
@@ -89,6 +91,7 @@ const DB_NAME = process.env.DB_NAME;
             ChannelPost,
             GamePost,
             Game,
+            PostMetadata
         ]),
     ],
     providers: [Logger, Seeder]

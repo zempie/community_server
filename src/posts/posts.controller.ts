@@ -72,6 +72,8 @@ import { AdminFcmService } from "src/admin/fcm/admin.fcm.service";
 import { NotificationService } from "src/notification/notification.service";
 import { eNotificationType } from "src/notification/enum/notification.enum";
 import { stringToHTML } from "src/util/util";
+import { PostMetadataDto } from "src/post_metadata/dto/post_metadata.dto";
+import { PostMetadataService } from "src/post_metadata/post_metadata.service";
 
 @Controller("api/v1/post")
 @ApiTags("api/v1/post")
@@ -99,6 +101,8 @@ export class PostsController {
         private postsLogicService: PostsLogicService,
         private adminFcmService: AdminFcmService,
         private notificationService: NotificationService,
+        private postMetadataService: PostMetadataService,
+
     ) { }
 
     @Get(":post_id")
@@ -125,12 +129,15 @@ export class PostsController {
         }
         const userInfo = await this.userService.findOne(postInfo.user_id);
         const like = user !== null ? await this.likeService.likePostByUserId(post_id, user.id) : null;
+        const metadataInfo = await this.postMetadataService.findByPostsId(post_id)
 
         return new PostsDto({
             ...postInfo.get({ plain: true }),
             user: new UserDto({ ...userInfo }),
             liked: like != null ? true : false,
-            is_pinned: null
+            is_pinned: null,
+           metadata: new PostMetadataDto({ ...metadataInfo })
+
         });
     }
 

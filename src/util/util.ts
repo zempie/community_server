@@ -9,3 +9,8 @@ export function stringToHTML(htmlString: string ) {
   return dom.window.document.body.firstChild.textContent || 'your post'
 
 }
+
+
+export function isArrayEmpty(arr: any[]) {
+  return !arr || arr.length === 0
+}

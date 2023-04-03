@@ -28,6 +28,7 @@ import { LikeLogService } from "src/like/like_log/like_log.service";
 import { PostsLogicService } from "./posts.logic.service";
 import { AdminFcmModule } from "src/admin/fcm/admin.fcm.module";
 import { NotificationModule } from "src/notification/notification.module";
+import { PostMetadataModule } from "src/post_metadata/post_metadata.module";
 
 @Module({
     imports: [
@@ -48,7 +49,8 @@ import { NotificationModule } from "src/notification/notification.module";
         CommonInfoModule,
         FcmModule,
         AdminFcmModule,
-        NotificationModule
+        NotificationModule,
+        PostMetadataModule
     ],
     providers: [PostsService, CommunityService, PostsViewLogService, LikeLogService, PostsLogicService],
     controllers: [PostsController],

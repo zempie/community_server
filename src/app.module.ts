@@ -44,6 +44,7 @@ import { Notification } from "./notification/notification.entity"
 import { NotificationModule } from "./notification/notification.module" 
 import { UserMetaModule } from "./user_meta/user_meta.module"
 import { UserMeta } from "./user_meta/user_meta.entity";
+import { PostMetadata } from "./post_metadata/post_metadata.entity";
 
 dotenv.config();
 const DB_HOSTNAME = process.env.DB_HOSTNAME;
@@ -90,8 +91,8 @@ const DB_NAME = process.env.DB_NAME;
                 Admins,
                 User,
                 Notification,
-                UserMeta
-
+                UserMeta,
+                PostMetadata
             ]
         }),
         CommunityModule,
@@ -110,7 +111,8 @@ const DB_NAME = process.env.DB_NAME;
         ShareLogModule,
         AdminModule,
         NotificationModule,
-        UserMetaModule
+        UserMetaModule,
+        
     ],
     controllers: [AppController],
     providers: [AppService]
