@@ -3,6 +3,8 @@ import axios from "axios";
 import { Op } from "sequelize";
 import { Transaction } from "sequelize/types";
 import { CreatePostMetadataDto } from "./dto/create-post_metadata.dto";
+import { PostMetadataDto } from "./dto/post_metadata.dto";
+import { UpdatePostMetadataDto } from "./dto/update-post_metadata.dto";
 import { metadataType } from "./enum/post_metadata.enum";
 import { PostMetadata } from "./post_metadata.entity";
 
@@ -36,6 +38,35 @@ export class PostMetadataService {
   }
 
     return await this.postMetadataRepository.create(data, {transaction});
+  }
+
+  async update(posts_id: string, data:UpdatePostMetadataDto, transaction:Transaction){
+    const metadata = await this.findByPostsId(posts_id)
+    if(!metadata){
+      this.create(data, transaction)
+    }
+     return await this.postMetadataRepository.update(
+        {
+        ...data
+        },
+        {
+          where:{
+            posts_id: posts_id
+          },
+          transaction
+        }
+      )
+    
+  }
+
+  async delete(post_id:string, transaction:Transaction){
+    return await this.postMetadataRepository.destroy({
+      where:{
+        posts_id:post_id
+      },
+      transaction
+    })
+    
   }
 
   async findByPostsId(posts_id: string): Promise<PostMetadata>
