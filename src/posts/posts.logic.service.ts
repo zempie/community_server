@@ -280,8 +280,16 @@ export class PostsLogicService {
                     );
                 }
             }
+            if(data.metadata){
+                data.metadata.posts_id = post.id
+                this.postMetadataService.update(post.id, data.metadata, transaction)
+            }else{
+                this.postMetadataService.delete(post.id, transaction)
+            }
+            
             await this.postedAtService.update(postedInfo.id, updatePostedData, transaction);
             await this.postsService.update(post.id, data, transaction);
+            
             await transaction.commit();
 
             await this.hashTagLogService.create(user.id, data.hashtags);

@@ -183,7 +183,7 @@ CREATE TABLE `post_metadata` (
 `description` varchar(5000) COLLATE utf8mb4_general_ci DEFAULT NULL,
 `img` varchar(500) COLLATE utf8mb4_general_ci DEFAULT NULL,
 `favicon` varchar(500) COLLATE utf8mb4_general_ci DEFAULT NULL,
-`video_info` varchar(500) COLLATE utf8mb4_general_ci DEFAULT NULL,
+`video_url` varchar(500) COLLATE utf8mb4_general_ci DEFAULT NULL,
 PRIMARY KEY (`id`),
 KEY `posts_id` (`posts_id`),
 CONSTRAINT `post_metadata_ibfk_1` FOREIGN KEY (`posts_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE

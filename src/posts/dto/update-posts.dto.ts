@@ -3,6 +3,7 @@ import { Type } from "class-transformer";
 import { IsDefined, IsEnum, IsOptional, ValidateNested } from "class-validator";
 import { Game } from "src/game/game.entity";
 import { PostedAtCommunityDto, PostedAtGameDto } from "src/posted_at/dto/posted_at.dto";
+import { PostMetadataDto } from "src/post_metadata/dto/post_metadata.dto";
 import { PostType } from "../enum/post-posttype.enum";
 import { Visibility } from "../enum/post-visibility.enum";
 import { CreatePostsDto, PostAttatchmentFileDto } from "./create-posts.dto";
@@ -105,4 +106,11 @@ export class UpdatePostsDto {
     })
     @IsOptional()
     portfolio_ids?: string[];
+
+    @ApiProperty({
+        description: "메타 데이터 저장 할 url",
+        required: false
+    })
+    @IsOptional()
+    metadata?: PostMetadataDto;
 }
