@@ -391,7 +391,7 @@ export class TimelineController {
                 )
                 : [];
 
-        return this.timelineService.getBaseTimeline(user, inputWhere)
+        return this.timelineService.getBaseTimeline(user, list)
 
         // return {
         //     ...list,
