@@ -29,7 +29,7 @@ import { PostsService } from "./posts.service";
 import { NotificationService } from "src/notification/notification.service";
 import { eNotificationType } from "src/notification/enum/notification.enum";
 import { detectLanguage } from "src/util/google";
-import { isArrayEmpty, stringToHTML } from "src/util/util";
+import { isArrayEmpty, isObjEmpty, stringToHTML } from "src/util/util";
 import { PostMetadataService } from "src/post_metadata/post_metadata.service";
 import { metadataType } from "src/post_metadata/enum/post_metadata.enum";
 import { PostMetadata } from "src/post_metadata/post_metadata.entity";
@@ -282,12 +282,13 @@ export class PostsLogicService {
                 }
             }
             let metadata:PostMetadata
-            if(data.metadata){
+
+            if(!isObjEmpty( data.metadata )){
                 data.metadata.posts_id = post.id
                 const md = await this.postMetadataService.findByPostsId(post.id)
                 if( md ){
                     metadata = await this.postMetadataService.update(post.id, data.metadata, transaction)
-                }else{
+                }else {
                     metadata = await this.postMetadataService.create(data.metadata, transaction)
                 }
 
