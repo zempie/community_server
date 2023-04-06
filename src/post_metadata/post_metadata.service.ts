@@ -42,9 +42,12 @@ export class PostMetadataService {
 
   async create(data:CreatePostMetadataDto, transaction?:Transaction){
       try{
-        const {type, video_url} = await this.getYoutubeTag( data.url )
-        data.type = type
-        data.video_url = video_url
+        const result =  await this.getYoutubeTag( data.url )
+        if( result ){
+          const {type, video_url} = result
+          data.type = type 
+          data.video_url = video_url
+        }
       }catch(e){
         throw e;
       }
