@@ -14,3 +14,12 @@ export function stringToHTML(htmlString: string ) {
 export function isArrayEmpty(arr: any[]) {
   return !arr || arr.length === 0
 }
+
+
+export const isObjEmpty = (obj: Record<string, any>): Boolean => {
+  for (var prop in obj) {
+    if (obj.hasOwnProperty(prop))
+      return false;
+  }
+  return true;
+}
