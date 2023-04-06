@@ -15,47 +15,60 @@ export class PostMetadataService {
     private readonly postMetadataRepository: typeof PostMetadata
 ) { }
 
-  async create(data:CreatePostMetadataDto, transaction?:Transaction){
-    const videoId = data.url.split('v=')[1];
+  async getYoutubeTag( link: string ){
     const ytApi = process.env.YOUTUBE_VIDEO_API
     const API_KEY = process.env.FIREBASE_API_KEY
+    const videoId = link.split('v=')[1];
+    const isYtUrl= new URL(link).hostname.includes('youtube.com')
     const EMBED_LINK = process.env.YOUTUBE_EMBED_LINK
-    const isYtUrl= new URL(data.url).hostname.includes('youtube.com')
 
     if (isYtUrl && videoId) {
-      try{
+      try {
         const result = await axios.get(`${ytApi}?id=${videoId}&key=${API_KEY}&part=snippet`)
         const { items } = result.data
-
         if (items.length > 0) {
-          data.type = metadataType.video
-          data.video_url = `${EMBED_LINK}/${videoId}`
+          return {
+            type:metadataType.video,
+            video_url:`${EMBED_LINK}/${videoId}`
+          }
         }
+       
       }catch(e){
         throw e;
       }
     
   }
+  }
+
+  async create(data:CreatePostMetadataDto, transaction?:Transaction){
+      try{
+        const {type, video_url} = await this.getYoutubeTag( data.url )
+        data.type = type
+        data.video_url = video_url
+      }catch(e){
+        throw e;
+      }
 
     return await this.postMetadataRepository.create(data, {transaction});
   }
 
   async update(posts_id: string, data:UpdatePostMetadataDto, transaction:Transaction){
-    const metadata = await this.findByPostsId(posts_id)
-    if(!metadata){
-      this.create(data, transaction)
+
+    try {
+      const { type, video_url } = await this.getYoutubeTag( data.url )
+      data.type = type
+      data.video_url = video_url
+    } catch(e) {
+      throw e;
     }
-     return await this.postMetadataRepository.update(
-        {
-        ...data
-        },
-        {
+    
+      await this.postMetadataRepository.update(data, {
           where:{
             posts_id: posts_id
           },
           transaction
-        }
-      )
+        })
+      return await this.findByPostsId(posts_id)
     
   }
 
@@ -92,4 +105,5 @@ export class PostMetadataService {
       });
    }
   }
+
 }
