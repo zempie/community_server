@@ -218,6 +218,7 @@ export class PostsLogicService {
 
     async updatePost(post: Posts, user: User, data: UpdatePostsDto) {
         const transaction = await this.postsService.sequelize().transaction();
+
         const postedInfo = await this.postedAtService.findByPostsId(post.id);
         const updatePostedData: UpdatePostedAtDto = { channel_id: user.channel_id, posts_id: post.id };
         try {
@@ -280,9 +281,16 @@ export class PostsLogicService {
                     );
                 }
             }
+            let metadata:PostMetadata
             if(data.metadata){
                 data.metadata.posts_id = post.id
-                this.postMetadataService.update(post.id, data.metadata, transaction)
+                const md = await this.postMetadataService.findByPostsId(post.id)
+                if( md ){
+                    metadata = await this.postMetadataService.update(post.id, data.metadata, transaction)
+                }else{
+                    metadata = await this.postMetadataService.create(data.metadata, transaction)
+                }
+
             }else{
                 this.postMetadataService.delete(post.id, transaction)
             }
@@ -290,6 +298,7 @@ export class PostsLogicService {
             await this.postedAtService.update(postedInfo.id, updatePostedData, transaction);
             await this.postsService.update(post.id, data, transaction);
             
+ 
             await transaction.commit();
 
             await this.hashTagLogService.create(user.id, data.hashtags);
@@ -303,6 +312,9 @@ export class PostsLogicService {
             }
             if (data.portfolio_ids !== undefined && Array.isArray(data.portfolio_ids) === true && data.portfolio_ids.length > 0) {
                 newInfo.posted_at.portfolio_ids = data.portfolio_ids;
+            }
+            if(metadata){
+                newInfo.metadata = metadata
             }
             return newInfo;
         } catch (error) {
