@@ -391,38 +391,38 @@ export class TimelineController {
                 )
                 : [];
 
-        return this.timelineService.getBaseTimeline(user, inputWhere)
+        // return this.timelineService.getBaseTimeline(user, list)
 
-        // return {
-        //     ...list,
-        //     result: list.result.map(item => {
-        //         const findInfo = postInfo.find(po => po.id === item.post_id);
-        //         const userInfo = setUsers.find(us => us.id === findInfo.user_id);
-        //         const findPostedAtInfo = postedAtInfos.find(pa => pa.posts_id === findInfo.id);
-        //         const likeData = likeList.find(li => li.post_id === item.post_id);
-        //         const targetCommunities: PoestedAtReturnDto[] = [];
-        //         findPostedAtInfo.community?.forEach(cItem => {
-        //             const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
-        //             const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
-        //             if (tCommunty !== undefined && tCommunityChannel !== undefined) {
-        //                 targetCommunities.push(new PoestedAtReturnDto({
-        //                     community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
-        //                     channel: tCommunityChannel
-        //                 }));
-        //             }
-        //         });
-        //         return new PostsDto({
-        //             ...findInfo,
-        //             liked: likeData !== undefined ? true : false,
-        //             user: new UserDto({ ...userInfo }),
-        //             posted_at: new PostedAtDto({
-        //                 ...findPostedAtInfo.get({ plain: true }),
-        //                 community: targetCommunities
-        //             }),
-        //             is_pinned: item.is_pinned
-        //         });
-        //     })
-        // };
+        return {
+            ...list,
+            result: list.result.map(item => {
+                const findInfo = postInfo.find(po => po.id === item.post_id);
+                const userInfo = setUsers.find(us => us.id === findInfo.user_id);
+                const findPostedAtInfo = postedAtInfos.find(pa => pa.posts_id === findInfo.id);
+                const likeData = likeList.find(li => li.post_id === item.post_id);
+                const targetCommunities: PoestedAtReturnDto[] = [];
+                findPostedAtInfo.community?.forEach(cItem => {
+                    const tCommunty = communityInfos.find(tCitem => tCitem.id === cItem.id);
+                    const tCommunityChannel = communityChannelInfos.find(tCitem => tCitem.id === cItem.channel_id);
+                    if (tCommunty !== undefined && tCommunityChannel !== undefined) {
+                        targetCommunities.push(new PoestedAtReturnDto({
+                            community: new CommunityShortDto({ ...tCommunty.get({ plain: true }) }),
+                            channel: tCommunityChannel
+                        }));
+                    }
+                });
+                return new PostsDto({
+                    ...findInfo,
+                    liked: likeData !== undefined ? true : false,
+                    user: new UserDto({ ...userInfo }),
+                    posted_at: new PostedAtDto({
+                        ...findPostedAtInfo.get({ plain: true }),
+                        community: targetCommunities
+                    }),
+                    is_pinned: item.is_pinned
+                });
+            })
+        };
     }
 
     @Get("channel/:channel_id")
