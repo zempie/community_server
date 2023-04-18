@@ -27,7 +27,7 @@ export class User extends Model {
     picture: string;
 
     @Column({})
-    url_banner: string;
+    banner_img: string;
 
     @Column({})
     email: string;
@@ -48,4 +48,6 @@ export class User extends Model {
 
     @DeletedAt
     deleted_at: Date;
+    
+    
 }

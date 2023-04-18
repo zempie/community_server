@@ -29,6 +29,9 @@ export class ReturnCommunityJoinDto extends CommunityUserModelAddCnt {
     @ApiProperty()
     profile_img: string;
 
+    @ApiProperty({ description: "배너 이미지" })
+    banner_img: string;
+
     @ApiProperty()
     community_id: string;
 

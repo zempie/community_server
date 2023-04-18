@@ -58,6 +58,7 @@ export class FollowService extends BaseService<Follow> {
                 ${isFollow ? "follower" : "user"}.channel_id as channel_id,
                 ${isFollow ? "follower" : "user"}.created_at as created_at,
                 ${isFollow ? "follower" : "user"}.picture as profile_img,
+                ${isFollow ? "follower" : "user"}.banner_img as banner_img,
                 ${isFollow ? "follower" : "user"}.is_developer as is_developer
             from ${this.followRepository.tableName} as follows left join ${User.tableName
             } as user on follows.user_id = user.id and user.deleted_at is null left join ${User.tableName
