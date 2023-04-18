@@ -60,7 +60,7 @@ select
     `zempie`.`users`.`picture` AS `picture`,
     `zempie`.`users`.`provider` AS `provider`,
     `zempie`.`users`.`email` AS `email`,
-    `zempie`.`users`.`url_banner` AS `url_banner`,
+    `zempie`.`users`.`url_banner` AS `banner_img`,
     `zempie`.`users`.`email_verified` AS `email_verified`,
     `zempie`.`users`.`fcm_token` AS `fcm_token`,
     `zempie`.`users`.`is_developer` AS `is_developer`,

@@ -92,6 +92,9 @@ export abstract class CommunityUserModel extends CommunityUserModelAddCnt {
     @ApiProperty({ description: "본인 프로필 이미지" })
     profile_img: string;
 
+    @ApiProperty({ description: "본인 배너 이미지" })
+    banner_img: string;
+
     @Exclude()
     is_developer: number;
 

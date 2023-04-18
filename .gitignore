@@ -38,3 +38,4 @@ lerna-debug.log*
 /pdfs
 .gitignore
 .env
+.env

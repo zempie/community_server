@@ -34,6 +34,9 @@ export class UserDto extends CommunityUserModelAddCnt {
     })
     picture: string;
 
+    @ApiProperty({ description: "본인 배너 이미지" })
+    banner_img: string;
+
     @ApiProperty({
         description: "이메일"
     })

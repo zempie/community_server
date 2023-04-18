@@ -58,7 +58,7 @@ export class FollowController {
             joinInfo = await this.communityJoinService.findbyUserId(item.id);
             const users = await this.userService.findByIds(joinInfo.map(item => item.user_id));
             const communityInfo: ReturnCommunityJoinDto[] = joinInfo.map(item => {
-                const userInfo = users.find(us => us.id === item.user_id) ?? { uid: null, email: null, name: null, nickname:null,  channel_id: null, picture: null };
+                const userInfo = users.find(us => us.id === item.user_id) ?? { uid: null, email: null, name: null, nickname:null,  channel_id: null, picture: null, banner_img: null };
                 return {
                     id: item.user_id,
                     uid: userInfo.uid,
@@ -67,10 +67,12 @@ export class FollowController {
                     nickname: userInfo.nickname,
                     channel_id: userInfo.channel_id,
                     profile_img: userInfo.picture,
+                    banner_img: userInfo.banner_img,
                     created_at: item.created_at,
                     community_id: item.community_id,
                     status: item.status,
-                    state: item.state
+                    state: item.state,
+
                 };
             });
             item.community = communityInfo;
@@ -110,7 +112,7 @@ export class FollowController {
             joinInfo = await this.communityJoinService.findbyUserId(item.id);
             const users = await this.userService.findByIds(joinInfo.map(item => item.user_id));
             const communityInfo: ReturnCommunityJoinDto[] = joinInfo.map(item => {
-                const userInfo = users.find(us => us.id === item.user_id) ?? { uid: null, email: null, name: null, nickname:null, channel_id: null, picture: null };
+                const userInfo = users.find(us => us.id === item.user_id) ?? { uid: null, email: null, name: null, nickname:null, channel_id: null, picture: null, banner_img: null};
                 return {
                     id: item.user_id,
                     uid: userInfo.uid,
@@ -119,6 +121,7 @@ export class FollowController {
                     nickname: userInfo.nickname,
                     channel_id: userInfo.channel_id,
                     profile_img: userInfo.picture,
+                    banner_img:userInfo.banner_img,
                     created_at: item.created_at,
                     community_id: item.community_id,
                     status: item.status,
