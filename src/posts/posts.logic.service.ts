@@ -245,7 +245,7 @@ export class PostsLogicService {
                 );
                 await this.communityService.setPostCnt(data.community.map(item => item.id), true, transaction)
             }
-            if (data.game !== undefined) {
+            if (data.game !== undefined && data.game.length) {
                 updatePostedData.game = data.game;
                 if (postedInfo.game !== undefined) {
                     await this.gamePostService.deleteGamePost(
