@@ -30,6 +30,10 @@ GOOGLE_APPLICATION_CREDENTIALS=jest로 테스트시 로그인 처리할 구글 �
 젬파이 프로젝트는 npm이 아닌 yarn을 사용했습니다.
 npm으로 install시 패키지 문제가 발생 할 수 있으므로, 되도록 yarn을 사용해주세요.
 
+
+### DB table init 
+초기셋팅_sql문.md
+
 ---
 ### 공통 테이블은 *View*로 사용
 커뮤니티 개발을 위해 사용해야하는 공통 테이블인 users, admins, game은 커뮤니티 서버에서는 컬럼 수정이 일어나면 안되는 테이블입니다.   
