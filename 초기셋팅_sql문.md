@@ -1,75 +1,82 @@
 START TRANSACTION;
 
-CREATE OR REPLACE
-ALGORITHM = UNDEFINED VIEW `zempie`.`adminsview` AS
-select
-    `zempie`.`admins`.`id` AS `id`,
-    `zempie`.`admins`.`uid` AS `uid`,
-    `zempie`.`admins`.`activated` AS `activated`,
-    `zempie`.`admins`.`account` AS `account`,
-    `zempie`.`admins`.`name` AS `name`,
-    `zempie`.`admins`.`level` AS `level`,
-    `zempie`.`admins`.`sub_level` AS `sub_level`,
-    `zempie`.`admins`.`password` AS `password`,
-    `zempie`.`admins`.`created_at` AS `created_at`,
-    `zempie`.`admins`.`updated_at` AS `updated_at`,
-    `zempie`.`admins`.`deleted_at` AS `deleted_at`
-from
-    `zempie`.`admins`;
+USE `zempie_local`; /** live는 zempie */
+
+DROP TABLE IF EXISTS `fcm`;
+DROP TABLE IF EXISTS `posts`;
+DROP TABLE IF EXISTS `follow`;
+DROP TABLE IF EXISTS `alarms`;
 
 CREATE OR REPLACE
-ALGORITHM = UNDEFINED VIEW `zempie`.`gameview` AS
+ALGORITHM = UNDEFINED VIEW `adminsview` AS
 select
-    `zempie`.`games`.`id` AS `id`,
-    `zempie`.`games`.`activated` AS `activated`,
-    `zempie`.`games`.`enabled` AS `enabled`,
-    `zempie`.`games`.`official` AS `official`,
-    `zempie`.`games`.`category` AS `category`,
-    `zempie`.`games`.`user_id` AS `user_id`,
-    `zempie`.`games`.`pathname` AS `pathname`,
-    `zempie`.`games`.`title` AS `title`,
-    `zempie`.`games`.`description` AS `description`,
-    `zempie`.`games`.`version` AS `version`,
-    `zempie`.`games`.`control_type` AS `control_type`,
-    `zempie`.`games`.`hashtags` AS `hashtags`,
-    `zempie`.`games`.`count_start` AS `count_start`,
-    `zempie`.`games`.`count_over` AS `count_over`,
-    `zempie`.`games`.`count_heart` AS `count_heart`,
-    `zempie`.`games`.`url_game` AS `url_game`,
-    `zempie`.`games`.`url_thumb` AS `url_thumb`,
-    `zempie`.`games`.`url_thumb_webp` AS `url_thumb_webp`,
-    `zempie`.`games`.`url_thumb_gif` AS `url_thumb_gif`,
-    `zempie`.`games`.`game_type` AS `game_type`,
-    `zempie`.`games`.`stage` AS `stage`,
-    `zempie`.`games`.`created_at` AS `created_at`,
-    `zempie`.`games`.`updated_at` AS `updated_at`,
-    `zempie`.`games`.`deleted_at` AS `deleted_at`
+    `admins`.`id` AS `id`,
+    `admins`.`uid` AS `uid`,
+    `admins`.`activated` AS `activated`,
+    `admins`.`account` AS `account`,
+    `admins`.`name` AS `name`,
+    `admins`.`level` AS `level`,
+    `admins`.`sub_level` AS `sub_level`,
+    `admins`.`password` AS `password`,
+    `admins`.`created_at` AS `created_at`,
+    `admins`.`updated_at` AS `updated_at`,
+    `admins`.`deleted_at` AS `deleted_at`
 from
-    `zempie`.`games`;
+    `admins`;
 
 CREATE OR REPLACE
-ALGORITHM = UNDEFINED VIEW `zempie`.`usersview` AS
+ALGORITHM = UNDEFINED VIEW `gameview` AS
 select
-    `zempie`.`users`.`id` AS `id`,
-    `zempie`.`users`.`uid` AS `uid`,
-    `zempie`.`users`.`activated` AS `activated`,
-    `zempie`.`users`.`banned` AS `banned`,
-    `zempie`.`users`.`name` AS `name`,
-    `zempie`.`users`.`nickname` AS `nickname`,
-    `zempie`.`users`.`channel_id` AS `channel_id`,
-    `zempie`.`users`.`picture` AS `picture`,
-    `zempie`.`users`.`provider` AS `provider`,
-    `zempie`.`users`.`email` AS `email`,
-    `zempie`.`users`.`url_banner` AS `banner_img`,
-    `zempie`.`users`.`email_verified` AS `email_verified`,
-    `zempie`.`users`.`fcm_token` AS `fcm_token`,
-    `zempie`.`users`.`is_developer` AS `is_developer`,
-    `zempie`.`users`.`last_log_in` AS `last_log_in`,
-    `zempie`.`users`.`created_at` AS `created_at`,
-    `zempie`.`users`.`updated_at` AS `updated_at`,
-    `zempie`.`users`.`deleted_at` AS `deleted_at`
+    `games`.`id` AS `id`,
+    `games`.`activated` AS `activated`,
+    `games`.`enabled` AS `enabled`,
+    `games`.`official` AS `official`,
+    `games`.`category` AS `category`,
+    `games`.`user_id` AS `user_id`,
+    `games`.`pathname` AS `pathname`,
+    `games`.`title` AS `title`,
+    `games`.`description` AS `description`,
+    `games`.`version` AS `version`,
+    `games`.`control_type` AS `control_type`,
+    `games`.`hashtags` AS `hashtags`,
+    `games`.`count_start` AS `count_start`,
+    `games`.`count_over` AS `count_over`,
+    `games`.`count_heart` AS `count_heart`,
+    `games`.`url_game` AS `url_game`,
+    `games`.`url_thumb` AS `url_thumb`,
+    `games`.`url_thumb_webp` AS `url_thumb_webp`,
+    `games`.`url_thumb_gif` AS `url_thumb_gif`,
+    `games`.`game_type` AS `game_type`,
+    `games`.`stage` AS `stage`,
+    `games`.`created_at` AS `created_at`,
+    `games`.`updated_at` AS `updated_at`,
+    `games`.`deleted_at` AS `deleted_at`
 from
-    `zempie`.`users`;
+    `games`;
+
+CREATE OR REPLACE
+ALGORITHM = UNDEFINED VIEW `usersview` AS
+select
+    `users`.`id` AS `id`,
+    `users`.`uid` AS `uid`,
+    `users`.`activated` AS `activated`,
+    `users`.`banned` AS `banned`,
+    `users`.`name` AS `name`,
+    `users`.`nickname` AS `nickname`,
+    `users`.`channel_id` AS `channel_id`,
+    `users`.`picture` AS `picture`,
+    `users`.`provider` AS `provider`,
+    `users`.`email` AS `email`,
+    `users`.`url_banner` AS `banner_img`,
+    `users`.`email_verified` AS `email_verified`,
+    `users`.`fcm_token` AS `fcm_token`,
+    `users`.`is_developer` AS `is_developer`,
+    `users`.`last_log_in` AS `last_log_in`,
+    `users`.`created_at` AS `created_at`,
+    `users`.`updated_at` AS `updated_at`,
+    `users`.`deleted_at` AS `deleted_at`
+from
+    `users`;
 
 CREATE TABLE `fcm` (
 `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -491,7 +498,7 @@ PRIMARY KEY (`id`)
 
 
 CREATE OR REPLACE
-ALGORITHM = UNDEFINED VIEW `zempie`.`community_timeline` AS
+ALGORITHM = UNDEFINED VIEW `community_timeline` AS
 select
     `cp`.`id` AS `id`,
     `cp`.`created_at` AS `created_at`,
@@ -512,13 +519,13 @@ select
     `cp`.`is_pinned` as `is_pinned`,
     `p`.`is_retweet` as `is_retweet`
 from
-    (`zempie`.`channel_post` `cp`
-left join `zempie`.`posts` `p` on
+    (`channel_post` `cp`
+left join `posts` `p` on
     ((`cp`.`post_id` = `p`.`id`)))
 where  `p`.`scheduled_for` is null or `p`.`scheduled_for` <= UNIX_TIMESTAMP();
 
 CREATE OR REPLACE
-ALGORITHM = UNDEFINED VIEW `zempie`.`portfolio_timeline` AS
+ALGORITHM = UNDEFINED VIEW `portfolio_timeline` AS
 select
     `cp`.`id` AS `id`,
     `cp`.`created_at` AS `created_at`,
@@ -536,8 +543,8 @@ select
     `p`.`status` AS `status`,
     `cp`.`is_pinned` AS `is_pinned`
 from
-    (`zempie`.`portfolio_post` `cp`
-left join `zempie`.`posts` `p` on
+    (`portfolio_post` `cp`
+left join `posts` `p` on
     ((`cp`.`post_id` = `p`.`id`)))
 where
     ((`p`.`scheduled_for` is null)
