@@ -435,40 +435,43 @@ export class PostsLogicService {
             parent_id:data.parent_id
         });
 
-        const authorTokenInfo = await this.fcmService.getTokenByUserId(postInfo.user_id);
+        const userTokens = await this.fcmService.getTokenByUserId(postInfo.user_id);
         
         const converted = stringToHTML( postInfo.content ).slice(0,10)
 
         if(data.parent_id){
-        const parentComment = await this.commentService.findOne(data.parent_id)
-      
-
-        if(parentComment){
-            const commentUser = await this.fcmService.getTokenByUserId(parentComment.user_id)
-            await this.fcmService.sendFCM(
-                commentUser,
-                "Comments",
-                `${user.nickname} commented on your comment`,
-                FcmEnumType.USER,
-                post_id
-            );
-            await this.notificationService.create({
-                user_id:user.id,
-                target_user_id:parentComment.user_id,
-                content:comment.content,
-                target_id:postInfo.id,
-                type:eNotificationType.recomment
-            })
-        }
+            const parentComment = await this.commentService.findOne(data.parent_id)
+            if(parentComment){
+                const commentUser = await this.fcmService.getTokenByUserId(parentComment.user_id)
+                await this.fcmService.sendFCM(
+                    commentUser,
+                    "Comments",
+                    `${user.nickname} commented on your comment`,
+                    FcmEnumType.USER,
+                    post_id
+                );
+                await this.notificationService.create({
+                    user_id:user.id,
+                    target_user_id:parentComment.user_id,
+                    content:comment.content,
+                    target_id:postInfo.id,
+                    type:eNotificationType.recomment
+                })
+            }
         }
         if(writerInfo.id !== postInfo.user_id){
-            await this.fcmService.sendFCM(
-                authorTokenInfo,
-                "Comments",
-                `${writerInfo.name} commented on ${converted}`,
-                FcmEnumType.USER,
-                post_id
-            );
+            if(userTokens.length){
+                userTokens.forEach(async (fcm) => {
+                    await this.fcmService.sendFCM(
+                        userTokens,
+                        "Comments",
+                        `${writerInfo.name} commented on ${converted}`,
+                        FcmEnumType.USER,
+                        post_id
+                    );
+                })
+               
+            }
             await this.notificationService.create({
                 user_id:user.id,
                 target_user_id:postInfo.user_id,

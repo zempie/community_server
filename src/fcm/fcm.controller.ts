@@ -39,19 +39,24 @@ export class FcmController {
     ): Promise<FcmDto> {
         const newtoken = await this.fcmService.create(user_id, query.token);
         const userInfo = await this.userService.findOne(user_id);
-        newtoken.token
-        return new FcmDto({
-            user: userInfo,
-            ...newtoken.get({ plain: true })
-        });
+
+        if(newtoken){
+            return new FcmDto({
+                user: userInfo,
+                ...newtoken.get({ plain: true })
+            });
+        }
+        
     }
 
-    @Post("/:user_id/remove")
+    @Delete()
     @ApiResponse({ status: 200, description: "성공 반환" })
     @ApiOperation({ description: "유저 토큰 삭제" })
     @ZempieUseGuards(UserTokenCheckGuard)
-    async DeleteUserToken(@CurrentUser() user: User, @Param("user_id") user_id: number): Promise<SuccessReturnModel> {
-        await this.fcmService.deletebyUserId(user_id);
+    async DeleteUserToken(@CurrentUser() user: User,
+     @Query("token") token: string
+     ): Promise<SuccessReturnModel> {
+        await this.fcmService.deleteByToken(token, user.id);
         return { success: true };
     }
 }

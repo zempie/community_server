@@ -30,23 +30,35 @@ export class FcmService {
     }
 
     async findOneByUserId(user_id: number | string) {
-        return await this.fcmRepository.findOne({ where: { user_id: user_id } });
+        return await this.fcmRepository.findOne({ where: { user_id } });
     }
 
     async getTokenByUserId(user_id: number | string): Promise<string[]> {
-        const data = await this.fcmRepository.findOne({ where: { user_id: user_id } });
-        return data !== null ? [data.token] : [];
+        const userFcms =  await this.fcmRepository.findAll({ where: { user_id } });
+        
+        return userFcms.map((fcm) => {
+            return fcm.token
+        })
     }
 
     async findOneByUserIds(user_id: number[]) {
-        return await this.fcmRepository.findAll({ where: { user_id: user_id } });
+        return await this.fcmRepository.findAll({ where: { user_id } });
     }
 
     async create(user_id: number, token: string) {
-        return await this.fcmRepository.create({
-            user_id: user_id,
-            token: token
-        });
+        const hasSameToken = await this.fcmRepository.findAll({
+            where:{
+                token
+            }
+        })
+
+        if(!hasSameToken.length){
+            const result =  await this.fcmRepository.create({
+                user_id: user_id,
+                token: token
+            });
+            return result
+        }
     }
 
     async delete(id: string) {
@@ -61,6 +73,28 @@ export class FcmService {
             where: { user_id: user_id }
         });
         return true;
+    }
+
+    async deleteByToken(token: string, user_id: number) {
+        const tokenOwner = await this.fcmRepository.findOne({
+            where:{
+                token
+            }
+        })
+        
+        if(tokenOwner?.user_id === user_id){
+            await this.fcmRepository.destroy({
+                where: { 
+                    user_id,
+                    token
+                 }
+            });
+
+            return true;
+        }else{
+            return false
+        }
+    
     }
 
     async sendFCM(tokens: string[], title: string, body: string, type: FcmEnumType, value = "", image = process.env.FCM_IMG) {
