@@ -7,5 +7,6 @@ export enum eNotificationType{
   comment_like,
   report,
   retweet,
-  follow
+  follow,
+  recomment
 }

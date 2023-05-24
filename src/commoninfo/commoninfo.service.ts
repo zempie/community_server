@@ -107,7 +107,10 @@ export class CommonInfoService {
         const userInfos = await this.userService.findByIds(edges.map(item => item.user_id));
 
         const userInfoDtos = await this.setCommonInfo(userInfos.map(item => new UserDto({ ...item.get({ plain: true }) })), user)
-        return edges.map(item => {
+        return edges.map((item : any) => {
+            if(item.deleted_at){
+                return item
+            }
             const check = likeData.find(li => li.comment_id === item.id);
 
             const userI = userInfoDtos.find(uItem => uItem.id === item.user_id)

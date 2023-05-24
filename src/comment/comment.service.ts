@@ -24,11 +24,16 @@ export class CommentService extends BaseService<Comment> {
     }
 
     async list(query: CommentListDto, post_id: string, user_id: number) {
+
         const options: FindOptions = {
-            where: { post_id: post_id, parent_id: null },
+            where: { 
+                post_id,
+                parent_id: null
+            },
             limit: query.limit ? query.limit : 5,
             offset: query.offset ? query.offset : 0,
             order: [["created_at", "DESC"]],
+            paranoid:false,
         };
 
         if (query.sort === CommentSort.POPULAR) {
@@ -192,5 +197,15 @@ export class CommentService extends BaseService<Comment> {
                 type: QueryTypes.SELECT,
                 raw: true
             })
+    }
+
+    async getChildrenComments(id: string) {
+        const result = await this.commentRepository.findAll({
+            where:{
+                parent_id : id
+            }
+        })
+
+        return result
     }
 }

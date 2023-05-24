@@ -4,6 +4,8 @@ import { ValidateNested } from "class-validator";
 import { File } from "../../file/dto/file.dto";
 
 export class UpdateCommentDto {
+    id?:string;
+
     @ValidateNested({ each: true })
     @Type(() => File)
     attatchment_files?: File[];
