@@ -48,14 +48,15 @@ export class FcmService {
     async create(user_id: number, token: string) {
         const hasSameToken = await this.fcmRepository.findAll({
             where:{
-                token
+                token,
+                user_id
             }
         })
 
         if(!hasSameToken.length){
             const result =  await this.fcmRepository.create({
-                user_id: user_id,
-                token: token
+                user_id,
+                token
             });
             return result
         }
