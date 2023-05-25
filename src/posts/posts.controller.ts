@@ -484,7 +484,7 @@ export class PostsController {
                 user_id:user.id,
                 target_user_id: existComment.user_id,
                 content:`liked your comment`,
-                target_id:existComment.id,
+                target_id:existComment.post_id,
                 type:eNotificationType.comment_like
             })
         }
@@ -498,6 +498,7 @@ export class PostsController {
                 type: LikeType.COMMENT,
                 state: true // true - 좋아요
             });
+            
             const likeCnt = await this.likeService.commentLikeCnt(comment_id, LikeType.COMMENT, true);
 
             await this.commentService.update(comment_id, post_id, { like_cnt: likeCnt })
