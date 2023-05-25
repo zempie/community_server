@@ -225,7 +225,7 @@ export class PostsController {
     })
     @ZempieUseGuards(UserAuthGuard)
     async like(@CurrentUser() user: User, @Param("post_id") post_id: string): Promise<ReturnLikeDto> {
-        const exist = await this.likeService.likePostByUserId(post_id, user.id);
+        // const exist = await this.likeService.likePostByUserId(post_id, user.id);
         let post = await this.postsService.findOne(post_id);
         const log = await this.likeLogService.checkExist(user.id, post_id, LikeType.POST);
         const authorTokenInfo = await this.fcmService.getTokenByUserId(post.user_id);
@@ -236,30 +236,30 @@ export class PostsController {
         const post_text = parse(post.content).text.slice(0,30)
 
 
-        if (exist !== null) {
-            if( user.id !== post.user_id) {
-                await this.fcmService.sendFCM(
-                    authorTokenInfo,
-                    "Likes",
-                    `${user.name} liked your posting`,
-                    FcmEnumType.USER,
-                    post_id,
-                );
+        // if (exist !== null) {
+        //     if( user.id !== post.user_id) {
+        //         await this.fcmService.sendFCM(
+        //             authorTokenInfo,
+        //             "Likes",
+        //             `${user.name} liked your posting`,
+        //             FcmEnumType.USER,
+        //             post_id,
+        //         );
 
-                await this.notificationService.create({
-                    user_id:user.id,
-                    target_user_id:post.user_id,
-                    content:post_text,
-                    target_id:post.id,
-                    type:eNotificationType.post_like
-                })
-            }
+        //         await this.notificationService.create({
+        //             user_id:user.id,
+        //             target_user_id:post.user_id,
+        //             content:post_text,
+        //             target_id:post.id,
+        //             type:eNotificationType.post_like
+        //         })
+        //     }
             
-            return new ReturnLikeDto({
-                ...exist.get({ plain: true }),
-                is_read: user.id === post.user_id ? true : false
-            });
-        }
+        //     return new ReturnLikeDto({
+        //         ...exist.get({ plain: true }),
+        //         is_read: user.id === post.user_id ? true : false
+        //     });
+        // }
 
         // post = await this.postsService.likeCnt(post_id, true);
         const like = await this.likeService.createPostLike(post_id, {
@@ -681,7 +681,13 @@ export class PostsController {
             throw new ForbiddenException();
         }
         await this.postsService.commentCnt(post_id, false);
-        return { success: await this.commentService.deleteWidhPostId(comment_id, post_id) };
+        const children_comments = await this.commentService.getChildrenComments(comment_id)
+
+        if(children_comments.length){
+            return { success: await this.commentService.deleteWidhPostId(comment_id, post_id) };
+        }else{
+         return { success: await this.commentService.deleteWidhPostId(comment_id, post_id) };
+        }
     }
 
     @Post(":post_id/report")
@@ -837,6 +843,9 @@ export class PostsController {
         }
         const result = await this.commentService.list(query, post_id, user?.id ?? undefined);
         result.result = result.result.map(item => {
+            if(item.deleted_at){
+                item.content = '삭제된 댓글입니다.'
+            }
             if (item.is_private === true) {
                 if (user !== null && postInfo.user_id === user.id) {
                     return item;
@@ -848,19 +857,34 @@ export class PostsController {
             }
             return item;
         });
-        const list = await this.commonInfoService.setCommentInfo(result.result, user);
 
+        const list = await this.commonInfoService.setCommentInfo(result.result, user);
         const reList = list.map(item => new CommentReCommentDto({ ...item }));
         const recommentsInfos = list.length > 0 ? await this.commentService.recommentListByParentIds(list.map(item => item.id)) : [];
         const setInfoRecommentsInfos = list.length > 0 ? await this.commonInfoService.setCommentInfo(recommentsInfos, user) : [];
-        // const recommentUsers = await this.userService.findByIds(recommentsInfos.map(item => item.user_id));
         reList.forEach(item => {
-            const recomments = setInfoRecommentsInfos.filter(reC => reC.parent_id === item.id);
+            const recomments = setInfoRecommentsInfos
+            .filter(reC => reC.parent_id === item.id)
+            .sort((a, b)=> {
+                if(a.created_at > b.created_at) return -1;
+                if(a.created_at < b.created_at) return 1;
+            })
             item.children_comments = recomments
         })
+
+        const filteredComments =reList.filter(comment => {
+            if (comment.deleted_at && comment.children_comments.length > 0) {
+              return true;
+            }
+            if (!comment.deleted_at) {
+              return true;
+            }
+            return false; 
+          });
+        
         return {
             ...result,
-            result: reList
+            result: filteredComments
         };
     }
 

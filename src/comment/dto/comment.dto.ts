@@ -54,6 +54,9 @@ export class CommentDto {
     @ApiProperty()
     is_liked?: boolean;
 
+    @ApiProperty()
+    created_at?: string;
+
     constructor(partial: Partial<CommentDto>) {
         this.is_read = partial.is_read ? partial.is_read : false;
         this.is_liked = partial.is_liked ? partial.is_liked : false;
@@ -64,7 +67,9 @@ export class CommentReCommentDto extends CommentDto {
     @ValidateNested({ each: true })
     @Type(() => CommentDto)
     children_comments?: CommentDto[];
+    deleted_at?: string;
     constructor(partial: Partial<CommentReCommentDto>) {
+
         super(partial);
         this.children_comments = partial.children_comments ? partial.children_comments : [];
         Object.assign(this, partial);

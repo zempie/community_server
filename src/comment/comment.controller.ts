@@ -27,8 +27,6 @@ export class CommentController {
     @ApiResponse({ status: 200, description: "성공 반환" })
     @ZempieUseGuards(UserAuthGuard)
     async findComments(@CurrentUser() user: User) {
-        console.log(user.id, user.uid);
-
         return await this.commentService.findAll();
     }
 
